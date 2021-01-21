@@ -1,4 +1,4 @@
-// Generated from D:/College/2-2/Computer-Architecture/Mx_compiler/src/recognizer\Mx.g4 by ANTLR 4.9
+// Generated from D:/College/2-2/Computer-Architecture/Mx_compiler - ¸±±¾ (3)/src/recognizer\Mx.g4 by ANTLR 4.9
 package recognizer;
 
 import org.antlr.v4.runtime.ParserRuleContext;
