@@ -2,11 +2,11 @@ package ir;
 
 import asm.AsmBlock;
 import ir.inst.Terminator;
+import util.error.InternalError;
 import util.list.List;
 import util.list.ListIterator;
 import util.list.ListNode;
 import util.list.ListNodeWithParent;
-import util.error.InternalError;
 
 import java.util.Iterator;
 

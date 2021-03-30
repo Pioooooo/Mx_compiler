@@ -4,8 +4,6 @@ import ir.Module;
 import ir.Type;
 import ir.type.PointerType;
 
-import java.util.Objects;
-
 public class GlobalString extends Constant {
     final public String val;
 
@@ -24,7 +22,11 @@ public class GlobalString extends Constant {
 
     public static GlobalString get(Module m, String val) {
         GlobalString ptr = new GlobalString(m, val.replace("\"", "") + '\0'), entry = m.constantStrings.putIfAbsent(val, ptr);
-        return Objects.requireNonNullElse(entry, ptr);
+        if (entry == null) {
+            ptr.num = m.structCnt++;
+            return ptr;
+        }
+        return entry;
     }
 
     @Override

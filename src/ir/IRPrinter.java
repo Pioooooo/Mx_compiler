@@ -1,18 +1,17 @@
 package ir;
 
+import ir.type.StructType;
 import ir.values.GlobalPointer;
 import ir.values.GlobalString;
-import ir.type.StructType;
 
 import java.io.PrintStream;
 import java.util.stream.Collectors;
 
 public class IRPrinter {
-    int structCnt, globalCnt, stringCnt, valueCnt;
+    int valueCnt;
     PrintStream o;
 
     public void print(Module m, PrintStream o) {
-        structCnt = globalCnt = stringCnt = 0;
         this.o = o;
         m.builtinFunctions.values().forEach(f -> printFunction(f, true));
         o.println();
@@ -24,17 +23,14 @@ public class IRPrinter {
     }
 
     void printType(StructType t) {
-        t.num = structCnt++;
         o.println("%struct." + t.num + " = type " + t.getFullString());
     }
 
     void printGlobal(GlobalPointer g) {
-        g.num = globalCnt++;
         o.println("@g." + g.num + " = global " + g.type.getBaseType() + " zeroinitializer, align " + g.type.size() / 8);
     }
 
     void printConstantString(GlobalString s) {
-        s.num = stringCnt++;
         o.println("@.str." + s.num + " = private unnamed_addr constant " + s.type.getBaseType() + " c\"" + s.getIRString() + "\", align 1");
     }
 

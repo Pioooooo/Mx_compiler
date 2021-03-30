@@ -1,15 +1,16 @@
 package ir;
 
+import ir.type.*;
 import ir.values.GlobalPointer;
 import ir.values.GlobalString;
-import ir.type.*;
 import org.antlr.v4.runtime.misc.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class Module {
+    public int structCnt = 0, globalCnt = 0, stringCnt = 0;
+
     public Type voidTy = new Type(this, Type.TypeID.VoidTyID),
             labelTy = new Type(this, Type.TypeID.LabelTyID);
     public IntegerType int1Ty = new IntegerType(this, 1),

@@ -1,6 +1,8 @@
 package ir.inst;
 
-import ir.*;
+import ir.BasicBlock;
+import ir.Inst;
+import ir.Value;
 
 public class Binary extends Inst {
     public enum OpType {

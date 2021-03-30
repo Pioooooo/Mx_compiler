@@ -1,4 +1,5 @@
 package util.error;
+
 import util.Position;
 
 public class SyntaxError extends Error {

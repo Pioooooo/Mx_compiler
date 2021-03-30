@@ -15,6 +15,7 @@ public class GlobalPointer extends Constant {
     public static GlobalPointer create(Type type) {
         GlobalPointer ptr = new GlobalPointer(type);
         type.m.globals.add(ptr);
+        ptr.num = type.m.globalCnt++;
         return ptr;
     }
 

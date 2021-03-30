@@ -1,10 +1,10 @@
 package ir;
 
 import ir.inst.*;
+import ir.type.IntegerType;
 import ir.values.ConstantInt;
 import ir.values.GlobalPointer;
 import ir.values.GlobalString;
-import ir.type.IntegerType;
 import org.antlr.v4.runtime.misc.Pair;
 import util.list.ListIterator;
 

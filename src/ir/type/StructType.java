@@ -4,7 +4,6 @@ import ir.Module;
 import ir.Type;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class StructType extends Type {
@@ -47,12 +46,21 @@ public class StructType extends Type {
 
     public static StructType get(Module m, ArrayList<Type> elements) {
         StructType structTy = new StructType(m, elements), entry = m.structTypes.putIfAbsent(elements, structTy);
-        return Objects.requireNonNullElse(entry, structTy);
+        if (entry == null) {
+            structTy.num = m.structCnt++;
+            return structTy;
+        }
+        return entry;
     }
 
     public static Type get(Module m, String typename) {
-        Type structTy = new StructType(m, new ArrayList<>()), entry = m.namedStructTypes.putIfAbsent(typename, structTy);
-        return Objects.requireNonNullElse(entry, structTy);
+        StructType structTy = new StructType(m, new ArrayList<>());
+        Type entry = m.namedStructTypes.putIfAbsent(typename, structTy);
+        if (entry == null) {
+            structTy.num = m.structCnt++;
+            return structTy;
+        }
+        return entry;
     }
 
     @Override

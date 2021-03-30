@@ -2,8 +2,8 @@ package ir;
 
 import asm.AsmFunction;
 import ir.inst.AllocaInst;
-import ir.values.Argument;
 import ir.type.FunctionType;
+import ir.values.Argument;
 import util.list.List;
 import util.list.ListIterator;
 import util.list.ListNode;

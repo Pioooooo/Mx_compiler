@@ -1,6 +1,9 @@
 package ir.inst;
 
-import ir.*;
+import ir.BasicBlock;
+import ir.Function;
+import ir.Inst;
+import ir.Value;
 import ir.type.FunctionType;
 
 import java.util.ArrayList;

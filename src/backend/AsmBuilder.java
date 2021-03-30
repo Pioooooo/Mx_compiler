@@ -1,15 +1,17 @@
 package backend;
 
-import asm.*;
+import asm.AsmBlock;
+import asm.AsmFunction;
+import asm.AsmRoot;
+import asm.Operand;
 import asm.inst.*;
 import asm.operand.Address;
 import asm.operand.Immediate;
 import asm.operand.Register;
 import asm.operand.VReg;
-import ir.*;
 import ir.Module;
+import ir.*;
 import ir.inst.*;
-import ir.type.PointerType;
 import ir.type.StructType;
 import ir.values.Argument;
 import ir.values.ConstantInt;
@@ -234,7 +236,7 @@ public class AsmBuilder {
             if (((LoadInst) inst).ptr instanceof GlobalPointer) {
                 VReg tmp = VReg.create();
                 Lui.create(tmp, Address.create(1, ((LoadInst) inst).ptr.getName()), currentBlock);
-                Load.createW(getReg(inst), tmp, Address.create(1, ((LoadInst) inst).ptr.getName()), currentBlock);
+                Load.createW(getReg(inst), tmp, Address.create(0, ((LoadInst) inst).ptr.getName()), currentBlock);
             } else {
                 Load.createW(getReg(inst), getReg(((LoadInst) inst).ptr), Immediate.create(0), currentBlock);
             }

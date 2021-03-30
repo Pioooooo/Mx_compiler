@@ -1,7 +1,6 @@
 package frontend.symbol.type;
 
 import frontend.symbol.Entity;
-import util.Position;
 import util.error.InternalError;
 
 import java.util.ArrayList;

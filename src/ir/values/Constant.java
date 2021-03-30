@@ -1,7 +1,7 @@
 package ir.values;
 
-import ir.Value;
 import ir.Type;
+import ir.Value;
 
 abstract public class Constant extends Value {
     public int num;

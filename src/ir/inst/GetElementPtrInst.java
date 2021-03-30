@@ -6,7 +6,6 @@ import ir.Type;
 import ir.Value;
 
 import java.util.ArrayList;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class GetElementPtrInst extends Inst {

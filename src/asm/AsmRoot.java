@@ -5,7 +5,6 @@ import ir.values.GlobalPointer;
 import ir.values.GlobalString;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 public class AsmRoot {

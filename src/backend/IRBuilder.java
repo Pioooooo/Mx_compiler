@@ -3,9 +3,9 @@ package backend;
 import ast.AstVisitor;
 import ast.Nodes.*;
 import frontend.scope.Scope;
+import frontend.symbol.type.ArrayType;
 import ir.Module;
 import ir.*;
-import frontend.symbol.type.ArrayType;
 import ir.type.FunctionType;
 import ir.type.StructType;
 import ir.values.ConstantPointerNull;
@@ -188,7 +188,12 @@ public class IRBuilder implements AstVisitor<Value> {
         if (n.funcName.equals("main")) {
             builder.createCall(initFunction, new ArrayList<>());
         }
-        n.funcBody.forEach(x -> x.accept(this));
+        for (StmtNode s : n.funcBody) {
+            s.accept(this);
+            if (s instanceof ReturnStmtNode) {
+                break;
+            }
+        }
         if (!function.getTail().previous().isTerminated()) {
             builder.createRet();
         }
