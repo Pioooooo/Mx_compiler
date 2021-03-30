@@ -2,56 +2,56 @@ package ast;
 
 import ast.Nodes.*;
 
-public interface AstVisitor {
-    void visit(RootNode n);
+public interface AstVisitor<Ty> {
+    Ty visit(RootNode n);
 
-    void visit(BlockStmtNode n);
+    Ty visit(BlockStmtNode n);
 
-    void visit(VarDefStmtNode n);
+    Ty visit(VarDefStmtNode n);
 
-    void visit(VarDefSubNode n);
+    Ty visit(VarDefSubNode n);
 
-    void visit(ExprStmtNode n);
+    Ty visit(ExprStmtNode n);
 
-    void visit(FuncDefStmtNode n);
+    Ty visit(FuncDefStmtNode n);
 
-    void visit(ParamDefSubNode n);
+    Ty visit(ParamDefSubNode n);
 
-    void visit(IfStmtNode n);
+    Ty visit(IfStmtNode n);
 
-    void visit(ForStmtNode n);
+    Ty visit(ForStmtNode n);
 
-    void visit(WhileStmtNode n);
+    Ty visit(WhileStmtNode n);
 
-    void visit(BreakStmtNode n);
+    Ty visit(BreakStmtNode n);
 
-    void visit(ContinueStmtNode n);
+    Ty visit(ContinueStmtNode n);
 
-    void visit(ReturnStmtNode n);
+    Ty visit(ReturnStmtNode n);
 
-    void visit(TypeNode n);
+    Ty visit(TypeNode n);
 
-    void visit(ClassTypeNode n);
+    Ty visit(ClassTypeNode n);
 
-    void visit(BinaryExprNode n);
+    Ty visit(BinaryExprNode n);
 
-    void visit(MemberExprNode memberExprNode);
+    Ty visit(MemberExprNode n);
 
-    void visit(UnaryExprNode n);
+    Ty visit(UnaryExprNode n);
 
-    void visit(NewExprNode n);
+    Ty visit(NewExprNode n);
 
-    void visit(FuncExprNode n);
+    Ty visit(FuncExprNode n);
 
-    void visit(VarExprNode n);
+    Ty visit(VarExprNode n);
 
-    void visit(ThisExprNode n);
+    Ty visit(ThisExprNode n);
 
-    void visit(IntLiteralExprNode n);
+    Ty visit(IntLiteralExprNode n);
 
-    void visit(BoolLiteralExprNode n);
+    Ty visit(BoolLiteralExprNode n);
 
-    void visit(StringLiteralExprNode n);
+    Ty visit(StringLiteralExprNode n);
 
-    void visit(NullLiteralExprNode n);
+    Ty visit(NullLiteralExprNode n);
 }

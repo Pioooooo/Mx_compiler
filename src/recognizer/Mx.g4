@@ -193,7 +193,7 @@ GREATER_EQUAL: '>=';
 AND_AND: '&&';
 OR_OR: '||';
 PLUS_PLUS: '++';
-MINUS_MINUS: '--';
+MINUS_MINUS: '--'
 COMMA: ',';
 DOT: '.';
 SEMI: ';';

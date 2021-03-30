@@ -1,10 +1,9 @@
 package util;
 
-import util.error.SyntaxError;
-import util.Position;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import util.error.SyntaxError;
 
 public class MxErrorListener extends BaseErrorListener {
     @Override

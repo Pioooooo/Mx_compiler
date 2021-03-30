@@ -9,5 +9,5 @@ abstract public class AstNode {
         this.pos = pos;
     }
 
-    public abstract void accept(AstVisitor visitor);
+    public abstract <Ty> Ty accept(AstVisitor<Ty> visitor);
 }

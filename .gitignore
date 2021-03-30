@@ -1,0 +1,6 @@
+/.idea/
+/out/
+/src/recognizer/.antlr/
+/src/recognizer/*.interp
+/src/recognizer/*.tokens
+/testcases/

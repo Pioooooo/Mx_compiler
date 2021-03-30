@@ -2,7 +2,6 @@ package frontend;
 
 import ast.AstNode;
 import ast.Nodes.*;
-import org.antlr.v4.runtime.ParserRuleContext;
 import recognizer.MxBaseVisitor;
 import recognizer.MxParser.*;
 import util.Position;
@@ -43,7 +42,7 @@ public class AstBuilder extends MxBaseVisitor<AstNode> {
         ExprNode ret = (ExprNode) visit(ctx.logicalAndExpression(0));
         for (int i = 1; i < ctx.logicalAndExpression().size(); i++) {
             Position pos = new Position(ctx.logicalAndExpression(i));
-            ret = new BinaryExprNode(pos, BinaryExprNode.BinaryOpType.LAND, ret,
+            ret = new BinaryExprNode(pos, BinaryExprNode.BinaryOpType.LOR, ret,
                     (ExprNode) visit(ctx.logicalAndExpression(i)));
         }
         return ret;
@@ -54,7 +53,7 @@ public class AstBuilder extends MxBaseVisitor<AstNode> {
         ExprNode ret = (ExprNode) visit(ctx.inclusiveOrExpression(0));
         for (int i = 1; i < ctx.inclusiveOrExpression().size(); i++) {
             Position pos = new Position(ctx.inclusiveOrExpression(i));
-            ret = new BinaryExprNode(pos, BinaryExprNode.BinaryOpType.LOR, ret,
+            ret = new BinaryExprNode(pos, BinaryExprNode.BinaryOpType.LAND, ret,
                     (ExprNode) visit(ctx.inclusiveOrExpression(i)));
         }
         return ret;

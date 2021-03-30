@@ -2,17 +2,20 @@ package frontend;
 
 import ast.AstVisitor;
 import ast.Nodes.*;
+import frontend.scope.ClassScope;
+import frontend.scope.Scope;
+import frontend.symbol.Entity;
+import frontend.symbol.type.ArrayType;
+import frontend.symbol.type.ClassType;
+import frontend.symbol.type.FuncType;
+import frontend.symbol.type.FundamentalType;
 import util.Position;
-import util.scope.ClassScope;
-import util.scope.Scope;
-import util.symbol.Entity;
-import util.symbol.type.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class SymbolCollector implements AstVisitor {
+public class SymbolCollector implements AstVisitor<Void> {
     private final Scope globalScope;
     private Scope currentScope;
 
@@ -45,69 +48,83 @@ public class SymbolCollector implements AstVisitor {
     }
 
     @Override
-    public void visit(RootNode n) {
+    public Void visit(RootNode n) {
         currentScope = globalScope;
         n.stmts.forEach(x -> x.accept(this));
+        return null;
     }
 
     @Override
-    public void visit(BlockStmtNode n) {
+    public Void visit(BlockStmtNode n) {
+        return null;
     }
 
     @Override
-    public void visit(VarDefStmtNode n) {
+    public Void visit(VarDefStmtNode n) {
         n.type.accept(this);
+        return null;
     }
 
     @Override
-    public void visit(VarDefSubNode n) {
-
+    public Void visit(VarDefSubNode n) {
+        return null;
     }
 
     @Override
-    public void visit(ExprStmtNode n) {
+    public Void visit(ExprStmtNode n) {
+        return null;
     }
 
     @Override
-    public void visit(FuncDefStmtNode n) {
+    public Void visit(FuncDefStmtNode n) {
         currentScope.defFunc(n.funcName, new FuncType(n.funcName), n.pos);
+
+        return null;
     }
 
     @Override
-    public void visit(ParamDefSubNode n) {
-        currentScope.defVar(n.name, new Entity(n.name), n.pos);
+    public Void visit(ParamDefSubNode n) {
+        n.entity = currentScope.defVar(n.name, new Entity(n.name), n.pos);
+        return null;
     }
 
     @Override
-    public void visit(IfStmtNode n) {
+    public Void visit(IfStmtNode n) {
+        return null;
     }
 
     @Override
-    public void visit(ForStmtNode n) {
+    public Void visit(ForStmtNode n) {
+        return null;
     }
 
     @Override
-    public void visit(WhileStmtNode n) {
+    public Void visit(WhileStmtNode n) {
+        return null;
     }
 
     @Override
-    public void visit(BreakStmtNode n) {
+    public Void visit(BreakStmtNode n) {
+        return null;
     }
 
     @Override
-    public void visit(ContinueStmtNode n) {
+    public Void visit(ContinueStmtNode n) {
+        return null;
     }
 
     @Override
-    public void visit(ReturnStmtNode n) {
+    public Void visit(ReturnStmtNode n) {
+        return null;
     }
 
     @Override
-    public void visit(TypeNode n) {
+    public Void visit(TypeNode n) {
+        return null;
     }
 
     @Override
-    public void visit(ClassTypeNode n) {
+    public Void visit(ClassTypeNode n) {
         currentScope = new ClassScope(currentScope);
         ClassType classType = new ClassType(n.typeName);
         n.varList.forEach(x -> x.accept(this));
@@ -117,49 +134,62 @@ public class SymbolCollector implements AstVisitor {
         currentScope = currentScope.parent();
         currentScope.defType(n.typeName, classType, n.pos);
         currentScope.funcMap().put(n.typeName, classType.constructor());
+        classType.classDef = n;
+        return null;
     }
 
     @Override
-    public void visit(BinaryExprNode n) {
+    public Void visit(BinaryExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(MemberExprNode n) {
+    public Void visit(MemberExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(UnaryExprNode n) {
+    public Void visit(UnaryExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(NewExprNode n) {
+    public Void visit(NewExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(FuncExprNode n) {
+    public Void visit(FuncExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(VarExprNode n) {
+    public Void visit(VarExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(ThisExprNode n) {
+    public Void visit(ThisExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(IntLiteralExprNode n) {
+    public Void visit(IntLiteralExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(BoolLiteralExprNode n) {
+    public Void visit(BoolLiteralExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(StringLiteralExprNode n) {
+    public Void visit(StringLiteralExprNode n) {
+        return null;
     }
 
     @Override
-    public void visit(NullLiteralExprNode n) {
+    public Void visit(NullLiteralExprNode n) {
+        return null;
     }
 }

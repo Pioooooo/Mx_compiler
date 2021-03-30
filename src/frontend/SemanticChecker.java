@@ -2,25 +2,32 @@ package frontend;
 
 import ast.AstVisitor;
 import ast.Nodes.*;
+import frontend.scope.ClassScope;
+import frontend.scope.Scope;
+import frontend.symbol.Entity;
+import frontend.symbol.type.*;
+import ir.Module;
+import ir.Function;
+import ir.type.FunctionType;
 import util.Position;
 import util.error.SemanticError;
-import util.scope.ClassScope;
-import util.scope.Scope;
-import util.symbol.Entity;
-import util.symbol.type.*;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
-public class SemanticChecker implements AstVisitor {
-    private final Scope globalScope;
-    private Scope currentScope;
-    private ClassType currentClass;
-    private Type currentRetType;
-    private boolean returned;
-    private int loopDepth;
+public class SemanticChecker implements AstVisitor<Void> {
+    final Scope globalScope;
+    final Module module;
+    Scope currentScope;
+    FuncDefStmtNode currentFunction;
+    ClassType currentClass;
+    Type currentRetType;
+    boolean returned;
+    Stack<LoopStmtNode> loopStack = new Stack<>();
 
-    public SemanticChecker(Scope globalScope) {
+    public SemanticChecker(Scope globalScope, Module module) {
         this.globalScope = globalScope;
+        this.module = module;
         currentClass = null;
         currentRetType = null;
     }
@@ -42,7 +49,7 @@ public class SemanticChecker implements AstVisitor {
     }
 
     @Override
-    public void visit(RootNode n) {
+    public Void visit(RootNode n) {
         FuncType main = globalScope.getFunc("main", false, n.pos);
         if (!main.retType().isInt()) {
             throw new SemanticError("main with return type " + main.retType().name(), n.pos);
@@ -50,19 +57,20 @@ public class SemanticChecker implements AstVisitor {
             throw new SemanticError("main with parameter(s)", n.pos);
         }
         currentScope = globalScope;
-        loopDepth = 0;
         n.stmts.forEach(x -> x.accept(this));
+        return null;
     }
 
     @Override
-    public void visit(BlockStmtNode n) {
+    public Void visit(BlockStmtNode n) {
         currentScope = new Scope(currentScope);
         n.stmts.forEach(x -> x.accept(this));
         currentScope = currentScope.parent();
+        return null;
     }
 
     @Override
-    public void visit(VarDefStmtNode n) {
+    public Void visit(VarDefStmtNode n) {
         n.type.accept(this);
         if (getType(n.type, 0, n.pos).isVoid()) {
             throw new SemanticError("variable(s) with void type", n.pos);
@@ -75,70 +83,90 @@ public class SemanticChecker implements AstVisitor {
                     throw mismatchedType(varType, x.initVal.type(), x.initVal.pos);
                 }
             }
-            currentScope.defVar(x.name, new Entity(x.name, varType), x.pos);
+            x.entity = currentScope.defVar(x.name, new Entity(x.name, varType), x.pos);
         });
+        return null;
     }
 
     @Override
-    public void visit(VarDefSubNode n) {
-
+    public Void visit(VarDefSubNode n) {
+        return null;
     }
 
     @Override
-    public void visit(ExprStmtNode n) {
+    public Void visit(ExprStmtNode n) {
         if (n.expr != null) {
             n.expr.accept(this);
         }
+        return null;
     }
 
     @Override
-    public void visit(FuncDefStmtNode n) {
+    public Void visit(FuncDefStmtNode n) {
         if (n.retType != null) {
             currentRetType = getType(n.retType, n.dim, n.pos);
         } else {
             currentRetType = globalScope.getType("void", false, n.pos);
         }
+        currentFunction = n;
         returned = false;
         currentScope = new Scope(currentScope);
-        n.params.forEach(x -> currentScope.defVar(x.name, new Entity(x.name, getType(x.type, x.dim, x.pos)), x.pos));
+        n.params.forEach(x -> x.entity = currentScope.defVar(x.name, new Entity(x.name, getType(x.type, x.dim, x.pos)), x.pos));
         n.funcBody.forEach(x -> x.accept(this));
         currentScope = currentScope.parent();
         if (!n.funcName.equals("main") && !currentRetType.isVoid() && !returned) {
             throw new SemanticError("function " + n.funcName + " not returned", n.pos);
         }
+        FuncType funcType = currentScope.getFunc(n.funcName, true, n.pos);
+        if (!n.funcName.equals("main")) {
+            n.funcName = (currentClass == null ? "g_" : "c_" + currentClass.name() + "_") + n.funcName;
+        }
+        ArrayList<ir.Type> params = new ArrayList<>();
+        if (currentClass != null) {
+            params.add(currentClass.irType(module));
+        }
+        funcType.param().forEach(x -> params.add(x.type().irType(module)));
+        n.function = Function.create(FunctionType.get(funcType.retType().irType(module), params), module, n.funcName);
+        if (currentClass != null) {
+            n.function.addArg(params.get(0));
+        }
+        n.params.forEach(x -> x.entity.setValue(n.function.addArg(x.entity.type().irType(module))));
         currentRetType = null;
+        return null;
     }
 
     @Override
-    public void visit(ParamDefSubNode n) {
+    public Void visit(ParamDefSubNode n) {
+        return null;
     }
 
     @Override
-    public void visit(IfStmtNode n) {
+    public Void visit(IfStmtNode n) {
         n.condition.accept(this);
         if (!n.condition.type().isBool()) {
             throw mismatchedType(globalScope.getType("bool", false, n.pos), n.condition.type(), n.pos);
         }
         currentScope = new Scope(currentScope);
-        if (n.ifBody instanceof BlockStmtNode) {
-            ((BlockStmtNode) n.ifBody).stmts.forEach(x -> x.accept(this));
-        } else if (n.ifBody != null) {
-            n.ifBody.accept(this);
+        if (n.trueBody instanceof BlockStmtNode) {
+            ((BlockStmtNode) n.trueBody).stmts.forEach(x -> x.accept(this));
+        } else if (n.trueBody != null) {
+            n.trueBody.accept(this);
         }
         currentScope = currentScope.parent();
-        if (n.elseBody != null) {
+        if (n.falseBody != null) {
             currentScope = new Scope(currentScope);
-            if (n.elseBody instanceof BlockStmtNode) {
-                ((BlockStmtNode) n.elseBody).stmts.forEach(x -> x.accept(this));
+            if (n.falseBody instanceof BlockStmtNode) {
+                ((BlockStmtNode) n.falseBody).stmts.forEach(x -> x.accept(this));
             } else {
-                n.elseBody.accept(this);
+                n.falseBody.accept(this);
             }
             currentScope = currentScope.parent();
         }
+        return null;
     }
 
     @Override
-    public void visit(ForStmtNode n) {
+    public Void visit(ForStmtNode n) {
         currentScope = new Scope(currentScope);
         if (n.initStmt != null) {
             n.initStmt.accept(this);
@@ -152,24 +180,25 @@ public class SemanticChecker implements AstVisitor {
         if (n.iteration != null) {
             n.iteration.accept(this);
         }
-        loopDepth++;
+        loopStack.push(n);
         if (n.forBody instanceof BlockStmtNode) {
             ((BlockStmtNode) n.forBody).stmts.forEach(x -> x.accept(this));
         } else if (n.forBody != null) {
             n.forBody.accept(this);
         }
-        loopDepth--;
+        loopStack.pop();
         currentScope = currentScope.parent();
+        return null;
     }
 
     @Override
-    public void visit(WhileStmtNode n) {
+    public Void visit(WhileStmtNode n) {
         currentScope = new Scope(currentScope);
         n.condition.accept(this);
         if (!n.condition.type().isBool()) {
             throw mismatchedType(globalScope.getType("bool", false, n.pos), n.condition.type(), n.pos);
         }
-        loopDepth++;
+        loopStack.push(n);
         if (n.whileBody != null) {
             if (n.whileBody instanceof BlockStmtNode) {
                 ((BlockStmtNode) n.whileBody).stmts.forEach(x -> x.accept(this));
@@ -177,29 +206,35 @@ public class SemanticChecker implements AstVisitor {
                 n.whileBody.accept(this);
             }
         }
-        loopDepth--;
+        loopStack.pop();
         currentScope = currentScope.parent();
+        return null;
     }
 
     @Override
-    public void visit(BreakStmtNode n) {
-        if (loopDepth == 0) {
+    public Void visit(BreakStmtNode n) {
+        if (loopStack.empty()) {
             throw new SemanticError("nothing to break", n.pos);
         }
+        n.dest = loopStack.peek();
+        return null;
     }
 
     @Override
-    public void visit(ContinueStmtNode n) {
-        if (loopDepth == 0) {
+    public Void visit(ContinueStmtNode n) {
+        if (loopStack.empty()) {
             throw new SemanticError("nothing to continue", n.pos);
         }
+        n.dest = loopStack.peek();
+        return null;
     }
 
     @Override
-    public void visit(ReturnStmtNode n) {
+    public Void visit(ReturnStmtNode n) {
         if (currentRetType == null) {
             throw new SemanticError("nothing to return", n.pos);
         }
+        n.dest = currentFunction;
         returned = true;
         if (n.returnVal == null) {
             if (!currentRetType.isVoid()) {
@@ -211,14 +246,16 @@ public class SemanticChecker implements AstVisitor {
                 throw mismatchedType(currentRetType, n.returnVal.type(), n.pos);
             }
         }
+        return null;
     }
 
     @Override
-    public void visit(TypeNode n) {
+    public Void visit(TypeNode n) {
+        return null;
     }
 
     @Override
-    public void visit(ClassTypeNode n) {
+    public Void visit(ClassTypeNode n) {
         currentClass = (ClassType) globalScope.getType(n.typeName, false, n.pos);
         currentScope = new ClassScope(currentScope);
         currentClass.varMap().forEach((k, v) -> currentScope.defVar(k, v, n.pos));
@@ -233,10 +270,11 @@ public class SemanticChecker implements AstVisitor {
         }
         currentClass = null;
         currentScope = currentScope.parent();
+        return null;
     }
 
     @Override
-    public void visit(BinaryExprNode n) {
+    public Void visit(BinaryExprNode n) {
         n.lhs.accept(this);
         n.rhs.accept(this);
         switch (n.binaryOpType) {
@@ -301,14 +339,15 @@ public class SemanticChecker implements AstVisitor {
                 }
             }
         }
+        return null;
     }
 
     @Override
-    public void visit(MemberExprNode n) {
+    public Void visit(MemberExprNode n) {
         n.base.accept(this);
         if (n.base.type() instanceof ArrayType && n.isFunc && n.name.equals("size")) {
             n.type(new FuncType("size", globalScope.getType("int", false, n.pos), new ArrayList<>()));
-            return;
+            return null;
         }
         if (!(n.base.type() instanceof ClassType)) {
             throw new SemanticError(n.base.type().name() + " is not a class type", n.pos);
@@ -320,12 +359,14 @@ public class SemanticChecker implements AstVisitor {
                 throw new SemanticError("member function " + n.name + " not found", n.pos);
             }
         } else {
-            n.type(classType.varMap().get(n.name).type());
+            n.entity = classType.varMap().get(n.name);
+            n.type(n.entity.type());
         }
+        return null;
     }
 
     @Override
-    public void visit(UnaryExprNode n) {
+    public Void visit(UnaryExprNode n) {
         n.expr.accept(this);
         switch (n.unaryOpType) {
             case POS, NEG, NOT -> {
@@ -348,27 +389,38 @@ public class SemanticChecker implements AstVisitor {
             }
         }
         n.type(n.expr.type());
+        return null;
     }
 
     @Override
-    public void visit(NewExprNode n) {
+    public Void visit(NewExprNode n) {
         n.sizes.forEach(x -> {
             x.accept(this);
             if (!x.type().isInt()) {
                 throw mismatchedType(globalScope.getType("int", false, x.pos), x.type(), x.pos);
             }
         });
-        n.type(getType(n.typeNode, n.dim, n.pos));
+        n.type(getType(n.type, n.dim, n.pos));
         if (n.type().equals(globalScope.getType("void", false, n.pos))) {
             throw new SemanticError("new variable(s) with void type", n.pos);
         }
+        return null;
     }
 
     @Override
-    public void visit(FuncExprNode n) {
+    public Void visit(FuncExprNode n) {
         if (n.func instanceof VarExprNode) {
             n.func.type(currentScope.getFunc(((VarExprNode) n.func).name, true, n.pos));
-        } else n.func.accept(this);
+            if (!globalScope.containsFunc(((VarExprNode) n.func).name, false)) {
+                n.functionName = "c_" + currentClass.name() + "_" + ((VarExprNode) n.func).name;
+                n.isMember = true;
+            } else {
+                n.functionName = "g_" + ((VarExprNode) n.func).name;
+            }
+        } else {
+            n.func.accept(this);
+            n.functionName = "c_" + ((MemberExprNode) n.func).base.type().name() + "_" + ((MemberExprNode) n.func).name;
+        }
         if (!(n.func.type().base() instanceof FuncType)) {
             throw new SemanticError(n.func.type().name() + " not a function", n.pos);
         }
@@ -383,38 +435,46 @@ public class SemanticChecker implements AstVisitor {
             }
         }
         n.type(funcType.retType());
+        return null;
     }
 
     @Override
-    public void visit(VarExprNode n) {
-        n.type(currentScope.getVar(n.name, true, n.pos).type());
+    public Void visit(VarExprNode n) {
+        n.entity = currentScope.getVar(n.name, true, n.pos);
+        n.type(n.entity.type());
+        return null;
     }
 
     @Override
-    public void visit(ThisExprNode n) {
+    public Void visit(ThisExprNode n) {
         if (currentClass == null) {
             throw new SemanticError("this not in a class", n.pos);
         }
         n.type(currentClass);
+        return null;
     }
 
     @Override
-    public void visit(IntLiteralExprNode n) {
+    public Void visit(IntLiteralExprNode n) {
         n.type(globalScope.getType("int", false, n.pos));
+        return null;
     }
 
     @Override
-    public void visit(BoolLiteralExprNode n) {
+    public Void visit(BoolLiteralExprNode n) {
         n.type(globalScope.getType("bool", false, n.pos));
+        return null;
     }
 
     @Override
-    public void visit(StringLiteralExprNode n) {
+    public Void visit(StringLiteralExprNode n) {
         n.type(globalScope.getType("string", false, n.pos));
+        return null;
     }
 
     @Override
-    public void visit(NullLiteralExprNode n) {
+    public Void visit(NullLiteralExprNode n) {
         n.type(globalScope.getType("null", false, n.pos));
+        return null;
     }
 }

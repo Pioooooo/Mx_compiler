@@ -1,7 +1,11 @@
 package ast;
 
+import frontend.symbol.Entity;
+import frontend.symbol.type.Type;
+import ir.BasicBlock;
+import ir.Function;
+import ir.Value;
 import util.Position;
-import util.symbol.type.Type;
 
 import java.util.ArrayList;
 
@@ -15,8 +19,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -35,8 +39,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -51,8 +55,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -60,6 +64,7 @@ public class Nodes {
         public String name;
         public int dim;
         public ExprNode initVal;
+        public Entity entity;
 
         public VarDefSubNode(Position pos, String name, int dim, ExprNode initVal) {
             super(pos);
@@ -69,8 +74,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -83,8 +88,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -95,6 +100,7 @@ public class Nodes {
         public ArrayList<ParamDefSubNode> params;
         public ArrayList<StmtNode> funcBody;
         public boolean isConstructor;
+        public Function function;
 
         public FuncDefStmtNode(Position pos, String funcName, TypeNode retType, int dim, ArrayList<ParamDefSubNode> params, ArrayList<StmtNode> funcBody, boolean isConstructor) {
             super(pos);
@@ -107,8 +113,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -117,6 +123,7 @@ public class Nodes {
         public String name;
         public int dim;
         public ExprNode initVal;
+        public Entity entity;
 
         public ParamDefSubNode(Position pos, TypeNode type, String name, int dim, ExprNode initVal) {
             super(pos);
@@ -127,30 +134,37 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
     public static class IfStmtNode extends StmtNode {
         public ExprNode condition;
-        public StmtNode ifBody;
-        public StmtNode elseBody;
+        public StmtNode trueBody, falseBody;
 
-        public IfStmtNode(Position pos, ExprNode condition, StmtNode ifBody, StmtNode elseBody) {
+        public IfStmtNode(Position pos, ExprNode condition, StmtNode trueBody, StmtNode falseBody) {
             super(pos);
             this.condition = condition;
-            this.ifBody = ifBody;
-            this.elseBody = elseBody;
+            this.trueBody = trueBody;
+            this.falseBody = falseBody;
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
-    public static class ForStmtNode extends StmtNode {
+    public abstract static class LoopStmtNode extends StmtNode {
+        public BasicBlock nextBlock, destBlock;
+
+        public LoopStmtNode(Position pos) {
+            super(pos);
+        }
+    }
+
+    public static class ForStmtNode extends LoopStmtNode {
         public StmtNode initStmt;
         public ExprNode condition;
         public ExprNode iteration;
@@ -165,12 +179,12 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
-    public static class WhileStmtNode extends StmtNode {
+    public static class WhileStmtNode extends LoopStmtNode {
         public ExprNode condition;
         public StmtNode whileBody;
 
@@ -181,34 +195,43 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
-    public static class BreakStmtNode extends StmtNode {
+    public abstract static class JumpStmtNode extends StmtNode {
+        public LoopStmtNode dest;
+
+        public JumpStmtNode(Position pos) {
+            super(pos);
+        }
+    }
+
+    public static class BreakStmtNode extends JumpStmtNode {
         public BreakStmtNode(Position pos) {
             super(pos);
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
-    public static class ContinueStmtNode extends StmtNode {
+    public static class ContinueStmtNode extends JumpStmtNode {
         public ContinueStmtNode(Position pos) {
             super(pos);
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
     public static class ReturnStmtNode extends StmtNode {
+        public FuncDefStmtNode dest;
         public ExprNode returnVal;
 
         public ReturnStmtNode(Position pos, ExprNode returnVal) {
@@ -217,13 +240,15 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
     public abstract static class ExprNode extends AstNode {
-        private Type type;
+        Type type;
+        public BasicBlock thenBlock, elseBlock;
+        public Value ptr;
 
         protected ExprNode(Position pos) {
             super(pos);
@@ -252,8 +277,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -270,8 +295,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
     }
 
@@ -294,8 +319,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -311,6 +336,7 @@ public class Nodes {
         public ExprNode base;
         public String name;
         public boolean isFunc;
+        public Entity entity;
 
         public MemberExprNode(Position pos, ExprNode base, String name) {
             super(pos);
@@ -319,8 +345,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -352,8 +378,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -366,20 +392,20 @@ public class Nodes {
     }
 
     public static class NewExprNode extends ExprNode {
-        public TypeNode typeNode;
+        public TypeNode type;
         public int dim;
         public ArrayList<ExprNode> sizes;
 
-        public NewExprNode(Position pos, TypeNode typeNode, int dim, ArrayList<ExprNode> sizes) {
+        public NewExprNode(Position pos, TypeNode type, int dim, ArrayList<ExprNode> sizes) {
             super(pos);
-            this.typeNode = typeNode;
+            this.type = type;
             this.dim = dim;
             this.sizes = sizes;
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -391,6 +417,8 @@ public class Nodes {
     public static class FuncExprNode extends ExprNode {
         public ExprNode func;
         public ArrayList<ExprNode> params;
+        public String functionName;
+        public boolean isMember = false;
 
         public FuncExprNode(Position pos, ExprNode func, ArrayList<ExprNode> params) {
             super(pos);
@@ -399,8 +427,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -411,6 +439,7 @@ public class Nodes {
 
     public static class VarExprNode extends ExprNode {
         public String name;
+        public Entity entity;
 
         public VarExprNode(Position pos, String name) {
             super(pos);
@@ -418,8 +447,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -434,8 +463,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -453,8 +482,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -472,8 +501,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -491,8 +520,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
@@ -507,8 +536,8 @@ public class Nodes {
         }
 
         @Override
-        public void accept(AstVisitor visitor) {
-            visitor.visit(this);
+        public <Ty> Ty accept(AstVisitor<Ty> visitor) {
+            return visitor.visit(this);
         }
 
         @Override
