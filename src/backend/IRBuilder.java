@@ -88,12 +88,12 @@ public class IRBuilder implements AstVisitor<Value> {
         Type elementType = returnType.getBaseType();
         Value size = builder.createPointerResolve(n.sizes.get(dim).accept(this)),
                 dataSize = builder.createSMul(size, builder.getInt32(elementType.size() / 8)),
-                arraySize = builder.createSAdd(dataSize, builder.getInt32(32 / 8)),
+                arraySize = builder.createSAdd(dataSize, builder.getInt32(m.int32Ty.size() / 8)),
                 arrayPtr = builder.createMalloc(arraySize);
         arrayPtr = builder.createBitCast(arrayPtr, Type.getPointerTy(m.int32Ty, true));
         builder.createStore(size, arrayPtr);
-        arrayPtr = builder.createBitCast(arrayPtr, returnType);
         arrayPtr = builder.createGEP(arrayPtr, builder.getInt32(1));
+        arrayPtr = builder.createBitCast(arrayPtr, Type.getPointerTy(returnType,false));
         if (dim < n.sizes.size() - 1) {
             loopDepth++;
             Function function = builder.getFunction();
@@ -575,7 +575,7 @@ public class IRBuilder implements AstVisitor<Value> {
                 return builder.createSSub(builder.getInt32(0), val);
             }
             case L_NOT -> {
-                val = builder.createXor(builder.getInt32(1), val);
+                val = builder.createXor(builder.getInt1(1), val);
                 return branchAdd(n, val);
             }
             case NOT -> {

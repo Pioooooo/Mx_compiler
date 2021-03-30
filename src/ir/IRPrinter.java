@@ -51,8 +51,10 @@ public class IRPrinter {
     }
 
     void printBasicBlock(BasicBlock basicBlock) {
-        o.println("block." + basicBlock.num + ":");
-        basicBlock.instList.forEach(this::printInst);
+        if(basicBlock.instList.iterator().hasNext()) {
+            o.println("block." + basicBlock.num + ":");
+            basicBlock.instList.forEach(this::printInst);
+        }
     }
 
     void printInst(Inst inst) {
