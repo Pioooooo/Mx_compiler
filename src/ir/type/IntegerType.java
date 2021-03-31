@@ -15,7 +15,7 @@ public class IntegerType extends Type {
 
     @Override
     public int size() {
-        return Math.max(size, 8);
+        return 32;
     }
 
     public static IntegerType get(Module m, int size) {
