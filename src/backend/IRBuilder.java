@@ -661,7 +661,7 @@ public class IRBuilder implements AstVisitor<Value> {
         }
         if (o instanceof Argument) {
             n.entity.setValue(builder.createEntryBlockAlloca(o.getType()));
-            builder.createStore(o, n.entity.value(), (Inst) ((Inst) n.entity.value()).getNext());
+            builder.createStore(o, n.entity.value(), builder.getFunction().getHead().get(), (Inst) ((Inst) n.entity.value()).getNext());
             o = n.entity.value();
         }
         return branchAdd(n, o);

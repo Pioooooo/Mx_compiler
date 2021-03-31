@@ -20,7 +20,7 @@ public class AsmFunction implements ListNodeWithParent<AsmFunction, AsmRoot> {
 
     AsmFunction prev, next;
     AsmRoot root;
-    AsmBlock tail;
+    ArrayList<AsmBlock> tails = new ArrayList<>();
 
     AsmFunction(String name) {
         this.name = name;
@@ -34,12 +34,12 @@ public class AsmFunction implements ListNodeWithParent<AsmFunction, AsmRoot> {
         return blocks.getHead();
     }
 
-    public ListIterator<AsmBlock> getTail() {
-        return new ListIterator<>(blocks, tail);
+    public ArrayList<AsmBlock> getTail() {
+        return tails;
     }
 
-    public void setTail(AsmBlock tail) {
-        this.tail = tail.get();
+    public void addTail(AsmBlock tail) {
+        tails.add(tail);
     }
 
     @Override

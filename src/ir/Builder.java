@@ -200,8 +200,8 @@ public class Builder {
         return StoreInst.create(val, ptr, bb, insertPoint.get());
     }
 
-    public StoreInst createStore(Value val, Value ptr, Inst inst) {
-        return StoreInst.create(val, ptr, inst);
+    public StoreInst createStore(Value val, Value ptr, BasicBlock basicBlock, Inst inst) {
+        return StoreInst.create(val, ptr, basicBlock, inst);
     }
 
     public GetElementPtrInst createGEP(Type type, Value ptr, ArrayList<Value> idxList) {

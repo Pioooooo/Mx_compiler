@@ -253,7 +253,7 @@ public class AsmBuilder {
             }
             Mv.create(root.getPReg("ra"), currentFunction.raSaveVReg, currentBlock);
             Ret.create(currentBlock);
-            currentFunction.setTail(currentBlock);
+            currentFunction.addTail(currentBlock);
             return;
         }
         if (inst instanceof StoreInst) {
@@ -270,8 +270,10 @@ public class AsmBuilder {
     }
 
     public void assign(Register reg, Value val) {
-        if (val instanceof Inst || val instanceof GlobalPointer || val instanceof Argument) {
+        if (val instanceof Inst || val instanceof GlobalPointer) {
             Mv.create(reg, getReg(val), currentBlock);
+        } else if (val instanceof Argument) {
+            throw new InternalError("assignment of argument");
         } else if (val instanceof GlobalString) {
             VReg tmp = VReg.create();
             Lui.create(tmp, Address.create(1, val.getName()), currentBlock);

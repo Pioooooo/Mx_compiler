@@ -503,7 +503,7 @@ public class RegAllocator {
         int realOffset = currentFunction.spOffset + Math.max(0, currentFunction.args.size() - 8) * 4;
         if (realOffset != 0) {
             Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-realOffset), currentFunction.getHead().get().getHead().get());
-            Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(realOffset), currentFunction.getTail().get().getTail().previous());
+            currentFunction.getTail().forEach(t -> Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(realOffset),t.getTail().previous()));
         }
         currentFunction.getHead().get().instList.forEach(i -> {
             if (i instanceof Load && ((Load) i).offset.inParam) {
