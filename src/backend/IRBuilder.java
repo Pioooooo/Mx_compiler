@@ -385,7 +385,7 @@ public class IRBuilder implements AstVisitor<Value> {
         args.add(r);
         switch (n.binaryOpType) {
             case ADD -> {
-                if (l.getType().isInt()) {
+                if (!n.lhs.type().isClass()) {
                     return builder.createSAdd(l, r);
                 } else {
                     return builder.createCall(m.getBuiltinFunction("__g_str_add"), args);
@@ -405,7 +405,7 @@ public class IRBuilder implements AstVisitor<Value> {
             }
             case GREATER -> {
                 Value val;
-                if (l.getType().isInt()) {
+                if (!n.lhs.type().isClass()) {
                     val = builder.createSGt(l, r);
                 } else {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_gt"), args);
@@ -414,7 +414,7 @@ public class IRBuilder implements AstVisitor<Value> {
             }
             case LESS -> {
                 Value val;
-                if (l.getType().isInt()) {
+                if (!n.lhs.type().isClass()) {
                     val = builder.createSLt(l, r);
                 } else {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_lt"), args);
@@ -423,7 +423,7 @@ public class IRBuilder implements AstVisitor<Value> {
             }
             case GEQ -> {
                 Value val;
-                if (l.getType().isInt()) {
+                if (!n.lhs.type().isClass()) {
                     val = builder.createSGe(l, r);
                 } else {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_ge"), args);
@@ -432,7 +432,7 @@ public class IRBuilder implements AstVisitor<Value> {
             }
             case LEQ -> {
                 Value val;
-                if (l.getType().isInt()) {
+                if (!n.lhs.type().isClass()) {
                     val = builder.createSLe(l, r);
                 } else {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_le"), args);
@@ -441,7 +441,7 @@ public class IRBuilder implements AstVisitor<Value> {
             }
             case NEQ -> {
                 Value val;
-                if (l.getType().isInt()) {
+                if (!n.lhs.type().isClass()) {
                     val = builder.createINe(l, r);
                 } else {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_ne"), args);
@@ -450,7 +450,7 @@ public class IRBuilder implements AstVisitor<Value> {
             }
             case EQUAL -> {
                 Value val;
-                if (l.getType().isInt()) {
+                if (!n.lhs.type().isClass()) {
                     val = builder.createIEq(l, r);
                 } else {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_eq"), args);
@@ -568,8 +568,7 @@ public class IRBuilder implements AstVisitor<Value> {
         ArrayList<Value> idx = new ArrayList<>();
         idx.add(builder.getInt32(0));
         idx.add(builder.getInt32(n.entity.numElement));
-        Value val = n.entity.numElement != 0 ? builder.createGEP(n.entity.type().irType(m), classPtr, idx) : classPtr;
-        return branchAdd(n, val);
+        return branchAdd(n, builder.createGEP(Type.getPointerTy(n.entity.type().irType(m), true), classPtr, idx));
     }
 
     @Override
@@ -621,9 +620,14 @@ public class IRBuilder implements AstVisitor<Value> {
         } else if (n.type().isClass()) {
             Value ptr = builder.createMalloc(builder.getInt32(n.type().irType(m).allocSize() / 8));
             ptr = builder.createBitCast(ptr, n.type().irType(m));
-            ArrayList<Value> params = new ArrayList<>();
-            params.add(ptr);
-            return builder.createCall(m.getFunction("c_" + n.type().name() + "_" + n.type().name()), params);
+            Function constructor = m.getFunction("c_" + n.type().name() + "_" + n.type().name());
+            if (constructor != null) {
+                ArrayList<Value> params = new ArrayList<>();
+                params.add(ptr);
+                return builder.createCall(constructor, params);
+            } else {
+                return ptr;
+            }
         }
         throw new InternalError("unexpected type of new", n.pos);
     }
@@ -653,7 +657,7 @@ public class IRBuilder implements AstVisitor<Value> {
             ArrayList<Value> idx = new ArrayList<>();
             idx.add(builder.getInt32(0));
             idx.add(builder.getInt32(n.entity.numElement));
-            return branchAdd(n, builder.createGEP(n.entity.value().getType(), classPtr, idx));
+            return branchAdd(n, builder.createGEP(Type.getPointerTy(n.type().irType(m), true), classPtr, idx));
         }
         Value o = n.entity.value();
         if (o == null) {
