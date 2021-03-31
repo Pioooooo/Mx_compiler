@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-char* g_malloc(int size){
+char* __g_malloc(int size){
     return malloc(size);
 }
 void g_print(char* str){
@@ -49,27 +49,27 @@ int c_string_parseInt(char* str){
 int c_string_ord(char* str,int pos){
     return str[pos];
 }
-char* c_string_add(char* l,char* r){
+char* __g_str_add(char* l,char* r){
     char* a=malloc(sizeof(char)*2333);
     strcpy(a,l);
     strcat(a,r);
     return a;
 }
-bool c_string_lt(char* l,char* r){
+bool __g_str_lt(char* l,char* r){
     return strcmp(l,r)<0;
 }
-bool c_string_gt(char* l,char* r){
+bool __g_str_gt(char* l,char* r){
     return strcmp(l,r)<0;
 }
-bool c_string_le(char* l,char* r){
+bool __g_str_le(char* l,char* r){
     return strcmp(l,r)<=0;
 }
-bool c_string_ge(char* l,char* r){
+bool __g_str_ge(char* l,char* r){
     return strcmp(l,r)>=0;
 }
-bool c_string_eq(char* l,char* r){
+bool __g_str_eq(char* l,char* r){
     return strcmp(l,r)==0;
 }
-bool c_string_ne(char* l,char* r){
+bool __g_str_ne(char* l,char* r){
     return strcmp(l,r)!=0;
 }

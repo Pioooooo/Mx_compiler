@@ -182,7 +182,7 @@ define dso_local i32 @c_string_ord(i8* %0, i32 %1) #0 {
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local i8* @c_string_add(i8* %0, i8* %1) #0 {
+define dso_local i8* @__g_str_add(i8* %0, i8* %1) #0 {
   %3 = alloca i8*, align 8
   %4 = alloca i8*, align 8
   %5 = alloca i8*, align 8
@@ -207,7 +207,7 @@ declare dso_local i8* @strcpy(i8*, i8*) #1
 declare dso_local i8* @strcat(i8*, i8*) #1
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local zeroext i1 @c_string_lt(i8* %0, i8* %1) #0 {
+define dso_local zeroext i1 @__g_str_lt(i8* %0, i8* %1) #0 {
   %3 = alloca i8*, align 8
   %4 = alloca i8*, align 8
   store i8* %0, i8** %3, align 8
@@ -223,7 +223,7 @@ define dso_local zeroext i1 @c_string_lt(i8* %0, i8* %1) #0 {
 declare dso_local i32 @strcmp(i8*, i8*) #3
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local zeroext i1 @c_string_gt(i8* %0, i8* %1) #0 {
+define dso_local zeroext i1 @__g_str_gt(i8* %0, i8* %1) #0 {
   %3 = alloca i8*, align 8
   %4 = alloca i8*, align 8
   store i8* %0, i8** %3, align 8
@@ -236,7 +236,7 @@ define dso_local zeroext i1 @c_string_gt(i8* %0, i8* %1) #0 {
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local zeroext i1 @c_string_le(i8* %0, i8* %1) #0 {
+define dso_local zeroext i1 @__g_str_le(i8* %0, i8* %1) #0 {
   %3 = alloca i8*, align 8
   %4 = alloca i8*, align 8
   store i8* %0, i8** %3, align 8
@@ -249,7 +249,7 @@ define dso_local zeroext i1 @c_string_le(i8* %0, i8* %1) #0 {
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local zeroext i1 @c_string_ge(i8* %0, i8* %1) #0 {
+define dso_local zeroext i1 @__g_str_ge(i8* %0, i8* %1) #0 {
   %3 = alloca i8*, align 8
   %4 = alloca i8*, align 8
   store i8* %0, i8** %3, align 8
@@ -262,7 +262,7 @@ define dso_local zeroext i1 @c_string_ge(i8* %0, i8* %1) #0 {
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local zeroext i1 @c_string_eq(i8* %0, i8* %1) #0 {
+define dso_local zeroext i1 @__g_str_eq(i8* %0, i8* %1) #0 {
   %3 = alloca i8*, align 8
   %4 = alloca i8*, align 8
   store i8* %0, i8** %3, align 8
@@ -275,7 +275,7 @@ define dso_local zeroext i1 @c_string_eq(i8* %0, i8* %1) #0 {
 }
 
 ; Function Attrs: noinline nounwind optnone uwtable
-define dso_local zeroext i1 @c_string_ne(i8* %0, i8* %1) #0 {
+define dso_local zeroext i1 @__g_str_ne(i8* %0, i8* %1) #0 {
   %3 = alloca i8*, align 8
   %4 = alloca i8*, align 8
   store i8* %0, i8** %3, align 8

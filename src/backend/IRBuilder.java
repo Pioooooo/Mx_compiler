@@ -54,19 +54,19 @@ public class IRBuilder implements AstVisitor<Value> {
         arg2Str.add(m.stringTy);
         arg2Str.add(m.stringTy);
         function = Function.create(FunctionType.get(m.stringTy, arg2Str));
-        m.addBuiltinFunction("g_str_add", function);
+        m.addBuiltinFunction("__g_str_add", function);
         function = Function.create(FunctionType.get(m.int1Ty, arg2Str));
-        m.addBuiltinFunction("g_str_gt", function);
+        m.addBuiltinFunction("__g_str_gt", function);
         function = Function.create(FunctionType.get(m.int1Ty, arg2Str));
-        m.addBuiltinFunction("g_str_lt", function);
+        m.addBuiltinFunction("__g_str_lt", function);
         function = Function.create(FunctionType.get(m.int1Ty, arg2Str));
-        m.addBuiltinFunction("g_str_ge", function);
+        m.addBuiltinFunction("__g_str_ge", function);
         function = Function.create(FunctionType.get(m.int1Ty, arg2Str));
-        m.addBuiltinFunction("g_str_le", function);
+        m.addBuiltinFunction("__g_str_le", function);
         function = Function.create(FunctionType.get(m.int1Ty, arg2Str));
-        m.addBuiltinFunction("g_str_ne", function);
+        m.addBuiltinFunction("__g_str_ne", function);
         function = Function.create(FunctionType.get(m.int1Ty, arg2Str));
-        m.addBuiltinFunction("g_str_eq", function);
+        m.addBuiltinFunction("__g_str_eq", function);
         function = Function.create(FunctionType.get(m.int32Ty));
         function.addArg(m.stringTy);
         m.addBuiltinFunction("c_string_length", function);
@@ -382,7 +382,7 @@ public class IRBuilder implements AstVisitor<Value> {
                 if (l.getType().isInt()) {
                     return builder.createSAdd(l, r);
                 } else {
-                    return builder.createCall(m.getBuiltinFunction("g_str_add"), args);
+                    return builder.createCall(m.getBuiltinFunction("__g_str_add"), args);
                 }
             }
             case SUB -> {
@@ -402,7 +402,7 @@ public class IRBuilder implements AstVisitor<Value> {
                 if (l.getType().isInt()) {
                     val = builder.createSGt(l, r);
                 } else {
-                    val = builder.createCall(m.getBuiltinFunction("g_str_gt"), args);
+                    val = builder.createCall(m.getBuiltinFunction("__g_str_gt"), args);
                 }
                 return branchAdd(n, val);
             }
@@ -411,7 +411,7 @@ public class IRBuilder implements AstVisitor<Value> {
                 if (l.getType().isInt()) {
                     val = builder.createSLt(l, r);
                 } else {
-                    val = builder.createCall(m.getBuiltinFunction("g_str_lt"), args);
+                    val = builder.createCall(m.getBuiltinFunction("__g_str_lt"), args);
                 }
                 return branchAdd(n, val);
             }
@@ -420,7 +420,7 @@ public class IRBuilder implements AstVisitor<Value> {
                 if (l.getType().isInt()) {
                     val = builder.createSGe(l, r);
                 } else {
-                    val = builder.createCall(m.getBuiltinFunction("g_str_ge"), args);
+                    val = builder.createCall(m.getBuiltinFunction("__g_str_ge"), args);
                 }
                 return branchAdd(n, val);
             }
@@ -429,7 +429,7 @@ public class IRBuilder implements AstVisitor<Value> {
                 if (l.getType().isInt()) {
                     val = builder.createSLe(l, r);
                 } else {
-                    val = builder.createCall(m.getBuiltinFunction("g_str_le"), args);
+                    val = builder.createCall(m.getBuiltinFunction("__g_str_le"), args);
                 }
                 return branchAdd(n, val);
             }
@@ -438,7 +438,7 @@ public class IRBuilder implements AstVisitor<Value> {
                 if (l.getType().isInt()) {
                     val = builder.createINe(l, r);
                 } else {
-                    val = builder.createCall(m.getBuiltinFunction("g_str_ne"), args);
+                    val = builder.createCall(m.getBuiltinFunction("__g_str_ne"), args);
                 }
                 return branchAdd(n, val);
             }
@@ -447,7 +447,7 @@ public class IRBuilder implements AstVisitor<Value> {
                 if (l.getType().isInt()) {
                     val = builder.createIEq(l, r);
                 } else {
-                    val = builder.createCall(m.getBuiltinFunction("g_str_eq"), args);
+                    val = builder.createCall(m.getBuiltinFunction("__g_str_eq"), args);
                 }
                 return branchAdd(n, val);
             }

@@ -140,13 +140,13 @@ g_printlnInt:                           # @g_printlnInt
 g_getString:                            # @g_getString
 	.cfi_startproc
 # %bb.0:
-	addi	sp, sp, -32
-	.cfi_def_cfa_offset 32
-	sw	ra, 28(sp)
-	sw	s0, 24(sp)
+	addi	sp, sp, -16
+	.cfi_def_cfa_offset 16
+	sw	ra, 12(sp)
+	sw	s0, 8(sp)
 	.cfi_offset ra, -4
 	.cfi_offset s0, -8
-	addi	s0, sp, 32
+	addi	s0, sp, 16
 	.cfi_def_cfa s0, 0
 	lui	a0, 1
 	addi	a0, a0, -1763
@@ -157,12 +157,10 @@ g_getString:                            # @g_getString
 	lui	a0, %hi(.L.str)
 	addi	a0, a0, %lo(.L.str)
 	call	__isoc99_scanf
-	lw	a1, -16(s0)
-	sw	a0, -20(s0)
-	mv	a0, a1
-	lw	s0, 24(sp)
-	lw	ra, 28(sp)
-	addi	sp, sp, 32
+	lw	a0, -16(s0)
+	lw	s0, 8(sp)
+	lw	ra, 12(sp)
+	addi	sp, sp, 16
 	ret
 .Lfunc_end5:
 	.size	g_getString, .Lfunc_end5-g_getString
@@ -186,9 +184,7 @@ g_getInt:                               # @g_getInt
 	addi	a0, a0, %lo(.L.str.2)
 	addi	a1, s0, -12
 	call	__isoc99_scanf
-	lw	a1, -12(s0)
-	sw	a0, -16(s0)
-	mv	a0, a1
+	lw	a0, -12(s0)
 	lw	s0, 8(sp)
 	lw	ra, 12(sp)
 	addi	sp, sp, 16
@@ -203,13 +199,13 @@ g_getInt:                               # @g_getInt
 g_toString:                             # @g_toString
 	.cfi_startproc
 # %bb.0:
-	addi	sp, sp, -32
-	.cfi_def_cfa_offset 32
-	sw	ra, 28(sp)
-	sw	s0, 24(sp)
+	addi	sp, sp, -16
+	.cfi_def_cfa_offset 16
+	sw	ra, 12(sp)
+	sw	s0, 8(sp)
 	.cfi_offset ra, -4
 	.cfi_offset s0, -8
-	addi	s0, sp, 32
+	addi	s0, sp, 16
 	.cfi_def_cfa s0, 0
 	sw	a0, -12(s0)
 	addi	a0, zero, 23
@@ -221,12 +217,10 @@ g_toString:                             # @g_toString
 	lui	a1, %hi(.L.str.2)
 	addi	a1, a1, %lo(.L.str.2)
 	call	sprintf
-	lw	a1, -16(s0)
-	sw	a0, -20(s0)
-	mv	a0, a1
-	lw	s0, 24(sp)
-	lw	ra, 28(sp)
-	addi	sp, sp, 32
+	lw	a0, -16(s0)
+	lw	s0, 8(sp)
+	lw	ra, 12(sp)
+	addi	sp, sp, 16
 	ret
 .Lfunc_end7:
 	.size	g_toString, .Lfunc_end7-g_toString
@@ -263,13 +257,13 @@ c_string_length:                        # @c_string_length
 c_string_substring:                     # @c_string_substring
 	.cfi_startproc
 # %bb.0:
-	addi	sp, sp, -48
-	.cfi_def_cfa_offset 48
-	sw	ra, 44(sp)
-	sw	s0, 40(sp)
+	addi	sp, sp, -32
+	.cfi_def_cfa_offset 32
+	sw	ra, 28(sp)
+	sw	s0, 24(sp)
 	.cfi_offset ra, -4
 	.cfi_offset s0, -8
-	addi	s0, sp, 48
+	addi	s0, sp, 32
 	.cfi_def_cfa s0, 0
 	sw	a0, -16(s0)
 	sw	a1, -20(s0)
@@ -288,19 +282,16 @@ c_string_substring:                     # @c_string_substring
 	lw	a3, -24(s0)
 	sub	a2, a3, a2
 	call	memcpy
-	lw	a1, -32(s0)
-	lw	a2, -24(s0)
-	lw	a3, -20(s0)
-	sub	a2, a2, a3
-	add	a1, a1, a2
-	mv	a2, zero
-	sb	a2, 0(a1)
-	lw	a1, -32(s0)
-	sw	a0, -36(s0)
-	mv	a0, a1
-	lw	s0, 40(sp)
-	lw	ra, 44(sp)
-	addi	sp, sp, 48
+	lw	a0, -32(s0)
+	lw	a1, -24(s0)
+	lw	a2, -20(s0)
+	sub	a1, a1, a2
+	add	a0, a0, a1
+	sb	zero, 0(a0)
+	lw	a0, -32(s0)
+	lw	s0, 24(sp)
+	lw	ra, 28(sp)
+	addi	sp, sp, 32
 	ret
 .Lfunc_end9:
 	.size	c_string_substring, .Lfunc_end9-c_string_substring
@@ -326,9 +317,7 @@ c_string_parseInt:                      # @c_string_parseInt
 	addi	a1, a1, %lo(.L.str.2)
 	addi	a2, s0, -20
 	call	__isoc99_sscanf
-	lw	a1, -20(s0)
-	sw	a0, -24(s0)
-	mv	a0, a1
+	lw	a0, -20(s0)
 	lw	s0, 24(sp)
 	lw	ra, 28(sp)
 	addi	sp, sp, 32
@@ -365,19 +354,19 @@ c_string_ord:                           # @c_string_ord
 	.size	c_string_ord, .Lfunc_end11-c_string_ord
 	.cfi_endproc
                                         # -- End function
-	.globl	c_string_add            # -- Begin function c_string_add
+	.globl	__g_str_add             # -- Begin function __g_str_add
 	.p2align	2
-	.type	c_string_add,@function
-c_string_add:                           # @c_string_add
+	.type	__g_str_add,@function
+__g_str_add:                            # @__g_str_add
 	.cfi_startproc
 # %bb.0:
-	addi	sp, sp, -48
-	.cfi_def_cfa_offset 48
-	sw	ra, 44(sp)
-	sw	s0, 40(sp)
+	addi	sp, sp, -32
+	.cfi_def_cfa_offset 32
+	sw	ra, 28(sp)
+	sw	s0, 24(sp)
 	.cfi_offset ra, -4
 	.cfi_offset s0, -8
-	addi	s0, sp, 48
+	addi	s0, sp, 32
 	.cfi_def_cfa s0, 0
 	sw	a0, -16(s0)
 	sw	a1, -24(s0)
@@ -389,27 +378,22 @@ c_string_add:                           # @c_string_add
 	lw	a0, -32(s0)
 	lw	a1, -16(s0)
 	call	strcpy
-	lw	a1, -32(s0)
-	lw	a2, -24(s0)
-	sw	a0, -36(s0)
-	mv	a0, a1
-	mv	a1, a2
+	lw	a0, -32(s0)
+	lw	a1, -24(s0)
 	call	strcat
-	lw	a1, -32(s0)
-	sw	a0, -40(s0)
-	mv	a0, a1
-	lw	s0, 40(sp)
-	lw	ra, 44(sp)
-	addi	sp, sp, 48
+	lw	a0, -32(s0)
+	lw	s0, 24(sp)
+	lw	ra, 28(sp)
+	addi	sp, sp, 32
 	ret
 .Lfunc_end12:
-	.size	c_string_add, .Lfunc_end12-c_string_add
+	.size	__g_str_add, .Lfunc_end12-__g_str_add
 	.cfi_endproc
                                         # -- End function
-	.globl	c_string_lt             # -- Begin function c_string_lt
+	.globl	__g_str_lt              # -- Begin function __g_str_lt
 	.p2align	2
-	.type	c_string_lt,@function
-c_string_lt:                            # @c_string_lt
+	.type	__g_str_lt,@function
+__g_str_lt:                             # @__g_str_lt
 	.cfi_startproc
 # %bb.0:
 	addi	sp, sp, -32
@@ -431,13 +415,13 @@ c_string_lt:                            # @c_string_lt
 	addi	sp, sp, 32
 	ret
 .Lfunc_end13:
-	.size	c_string_lt, .Lfunc_end13-c_string_lt
+	.size	__g_str_lt, .Lfunc_end13-__g_str_lt
 	.cfi_endproc
                                         # -- End function
-	.globl	c_string_gt             # -- Begin function c_string_gt
+	.globl	__g_str_gt              # -- Begin function __g_str_gt
 	.p2align	2
-	.type	c_string_gt,@function
-c_string_gt:                            # @c_string_gt
+	.type	__g_str_gt,@function
+__g_str_gt:                             # @__g_str_gt
 	.cfi_startproc
 # %bb.0:
 	addi	sp, sp, -32
@@ -459,13 +443,13 @@ c_string_gt:                            # @c_string_gt
 	addi	sp, sp, 32
 	ret
 .Lfunc_end14:
-	.size	c_string_gt, .Lfunc_end14-c_string_gt
+	.size	__g_str_gt, .Lfunc_end14-__g_str_gt
 	.cfi_endproc
                                         # -- End function
-	.globl	c_string_le             # -- Begin function c_string_le
+	.globl	__g_str_le              # -- Begin function __g_str_le
 	.p2align	2
-	.type	c_string_le,@function
-c_string_le:                            # @c_string_le
+	.type	__g_str_le,@function
+__g_str_le:                             # @__g_str_le
 	.cfi_startproc
 # %bb.0:
 	addi	sp, sp, -32
@@ -487,13 +471,13 @@ c_string_le:                            # @c_string_le
 	addi	sp, sp, 32
 	ret
 .Lfunc_end15:
-	.size	c_string_le, .Lfunc_end15-c_string_le
+	.size	__g_str_le, .Lfunc_end15-__g_str_le
 	.cfi_endproc
                                         # -- End function
-	.globl	c_string_ge             # -- Begin function c_string_ge
+	.globl	__g_str_ge              # -- Begin function __g_str_ge
 	.p2align	2
-	.type	c_string_ge,@function
-c_string_ge:                            # @c_string_ge
+	.type	__g_str_ge,@function
+__g_str_ge:                             # @__g_str_ge
 	.cfi_startproc
 # %bb.0:
 	addi	sp, sp, -32
@@ -516,13 +500,13 @@ c_string_ge:                            # @c_string_ge
 	addi	sp, sp, 32
 	ret
 .Lfunc_end16:
-	.size	c_string_ge, .Lfunc_end16-c_string_ge
+	.size	__g_str_ge, .Lfunc_end16-__g_str_ge
 	.cfi_endproc
                                         # -- End function
-	.globl	c_string_eq             # -- Begin function c_string_eq
+	.globl	__g_str_eq              # -- Begin function __g_str_eq
 	.p2align	2
-	.type	c_string_eq,@function
-c_string_eq:                            # @c_string_eq
+	.type	__g_str_eq,@function
+__g_str_eq:                             # @__g_str_eq
 	.cfi_startproc
 # %bb.0:
 	addi	sp, sp, -32
@@ -544,13 +528,13 @@ c_string_eq:                            # @c_string_eq
 	addi	sp, sp, 32
 	ret
 .Lfunc_end17:
-	.size	c_string_eq, .Lfunc_end17-c_string_eq
+	.size	__g_str_eq, .Lfunc_end17-__g_str_eq
 	.cfi_endproc
                                         # -- End function
-	.globl	c_string_ne             # -- Begin function c_string_ne
+	.globl	__g_str_ne              # -- Begin function __g_str_ne
 	.p2align	2
-	.type	c_string_ne,@function
-c_string_ne:                            # @c_string_ne
+	.type	__g_str_ne,@function
+__g_str_ne:                             # @__g_str_ne
 	.cfi_startproc
 # %bb.0:
 	addi	sp, sp, -32
@@ -572,7 +556,7 @@ c_string_ne:                            # @c_string_ne
 	addi	sp, sp, 32
 	ret
 .Lfunc_end18:
-	.size	c_string_ne, .Lfunc_end18-c_string_ne
+	.size	__g_str_ne, .Lfunc_end18-__g_str_ne
 	.cfi_endproc
                                         # -- End function
 	.type	.L.str,@object          # @.str
