@@ -197,13 +197,15 @@ public class IRBuilder implements AstVisitor<Value> {
                 break;
             }
         }
-        if (!function.getTail().previous().isTerminated()) {
-            if (n.funcName.equals("main")) {
-                builder.createRet(builder.getInt32(0));
-            } else {
-                builder.createRet();
+        function.basicBlockList.forEach(b -> {
+            if (!b.isTerminated()) {
+                if (n.funcName.equals("main")) {
+                    builder.createRet(builder.getInt32(0), b,b.getTail().get());
+                } else {
+                    builder.createRet(null, b,b.getTail().get());
+                }
             }
-        }
+        });
         currentFunction = null;
         return null;
     }
@@ -385,10 +387,10 @@ public class IRBuilder implements AstVisitor<Value> {
         args.add(r);
         switch (n.binaryOpType) {
             case ADD -> {
-                if (!n.lhs.type().isClass()) {
-                    return builder.createSAdd(l, r);
-                } else {
+                if (n.lhs.type().isClass() && n.lhs.type().name().equals("string")) {
                     return builder.createCall(m.getBuiltinFunction("__g_str_add"), args);
+                } else {
+                    return builder.createSAdd(l, r);
                 }
             }
             case SUB -> {
@@ -405,55 +407,55 @@ public class IRBuilder implements AstVisitor<Value> {
             }
             case GREATER -> {
                 Value val;
-                if (!n.lhs.type().isClass()) {
-                    val = builder.createSGt(l, r);
-                } else {
+                if (n.lhs.type().isClass() && n.lhs.type().name().equals("string")) {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_gt"), args);
+                } else {
+                    val = builder.createSGt(l, r);
                 }
                 return branchAdd(n, val);
             }
             case LESS -> {
                 Value val;
-                if (!n.lhs.type().isClass()) {
-                    val = builder.createSLt(l, r);
-                } else {
+                if (n.lhs.type().isClass() && n.lhs.type().name().equals("string")) {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_lt"), args);
+                } else {
+                    val = builder.createSLt(l, r);
                 }
                 return branchAdd(n, val);
             }
             case GEQ -> {
                 Value val;
-                if (!n.lhs.type().isClass()) {
-                    val = builder.createSGe(l, r);
-                } else {
+                if (n.lhs.type().isClass() && n.lhs.type().name().equals("string")) {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_ge"), args);
+                } else {
+                    val = builder.createSGe(l, r);
                 }
                 return branchAdd(n, val);
             }
             case LEQ -> {
                 Value val;
-                if (!n.lhs.type().isClass()) {
-                    val = builder.createSLe(l, r);
-                } else {
+                if (n.lhs.type().isClass() && n.lhs.type().name().equals("string")) {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_le"), args);
+                } else {
+                    val = builder.createSLe(l, r);
                 }
                 return branchAdd(n, val);
             }
             case NEQ -> {
                 Value val;
-                if (!n.lhs.type().isClass()) {
-                    val = builder.createINe(l, r);
-                } else {
+                if (n.lhs.type().isClass() && n.lhs.type().name().equals("string")) {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_ne"), args);
+                } else {
+                    val = builder.createINe(l, r);
                 }
                 return branchAdd(n, val);
             }
             case EQUAL -> {
                 Value val;
-                if (!n.lhs.type().isClass()) {
-                    val = builder.createIEq(l, r);
-                } else {
+                if (n.lhs.type().isClass() && n.lhs.type().name().equals("string")) {
                     val = builder.createCall(m.getBuiltinFunction("__g_str_eq"), args);
+                } else {
+                    val = builder.createIEq(l, r);
                 }
                 return branchAdd(n, val);
             }

@@ -14,12 +14,12 @@ public class RetInst extends Terminator {
     }
 
     RetInst(Value val, BasicBlock basicBlock) {
-        super(val.getType(), basicBlock);
+        super(val == null ? Type.getVoidTy(basicBlock.getContext()) : val.getType(), basicBlock);
         this.val = val;
     }
 
     RetInst(Value val, Inst inst) {
-        super(val.getType(), inst);
+        super(val == null ? Type.getVoidTy(inst.getContext()) : val.getType(), inst);
         this.val = val;
     }
 

@@ -113,6 +113,10 @@ public class Builder {
         return RetInst.create(val, bb, insertPoint.get());
     }
 
+    public RetInst createRet(Value val, BasicBlock basicBlock, Inst inst) {
+        return RetInst.create(val, basicBlock, inst);
+    }
+
     public RetInst createRet() {
         return RetInst.create(null, bb, insertPoint.get());
     }

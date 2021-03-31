@@ -4,6 +4,7 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Type;
 import ir.Value;
+import ir.values.ConstantPointerNull;
 
 public class StoreInst extends Inst {
     public Value val, ptr;
@@ -40,6 +41,6 @@ public class StoreInst extends Inst {
 
     @Override
     public String getFullInst() {
-        return "store " + val.getType() + " " + val + ", " + ptr.getType() + " " + ptr + ", align " + val.getType().size() / 8;
+        return "store " + (val instanceof ConstantPointerNull ? ptr.getType().getBaseType() : val.getType()) + " " + val + ", " + ptr.getType() + " " + ptr + ", align " + val.getType().size() / 8;
     }
 }

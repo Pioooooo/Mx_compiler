@@ -13,10 +13,7 @@ import ir.Module;
 import ir.*;
 import ir.inst.*;
 import ir.type.StructType;
-import ir.values.Argument;
-import ir.values.ConstantInt;
-import ir.values.GlobalPointer;
-import ir.values.GlobalString;
+import ir.values.*;
 import util.error.InternalError;
 
 import java.util.HashMap;
@@ -305,6 +302,9 @@ public class AsmBuilder {
 
     Register getReg(Value val) {
         if (val instanceof GlobalPointer) {
+            if (val instanceof ConstantPointerNull) {
+                return root.getPReg("zero");
+            }
             throw new InternalError("calling getReg on GlobalPointer");
         }
         if (val instanceof Inst || val instanceof Argument) {

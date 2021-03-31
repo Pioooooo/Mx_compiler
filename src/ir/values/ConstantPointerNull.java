@@ -11,4 +11,9 @@ public class ConstantPointerNull extends GlobalPointer {
     public static ConstantPointerNull get(Module m) {
         return new ConstantPointerNull(m);
     }
+
+    @Override
+    public String toString() {
+        return "null";
+    }
 }
