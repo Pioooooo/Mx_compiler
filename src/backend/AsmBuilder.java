@@ -267,10 +267,8 @@ public class AsmBuilder {
     }
 
     public void assign(Register reg, Value val) {
-        if (val instanceof Inst || val instanceof GlobalPointer) {
+        if (val instanceof Inst || val instanceof GlobalPointer || val instanceof Argument) {
             Mv.create(reg, getReg(val), currentBlock);
-        } else if (val instanceof Argument) {
-            throw new InternalError("assignment of argument");
         } else if (val instanceof GlobalString) {
             VReg tmp = VReg.create();
             Lui.create(tmp, Address.create(1, val.getName()), currentBlock);

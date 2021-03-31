@@ -10,7 +10,8 @@ import java.util.HashSet;
 
 public class Calc extends AsmInst {
     public enum OpType {
-        add, addi, sub, slt, sltu, sltiu, xor, xori, or, ori, and, andi, sll, srl, sra, mul, div, rem
+        add, addi, sub, slt, sltu, sltiu, xor, xori, or, ori,
+        and, andi, sll, slli, srl, srli, sra, srai, mul, div, rem
     }
 
     public Register rd;
