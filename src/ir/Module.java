@@ -24,7 +24,7 @@ public class Module {
     public HashMap<ArrayList<Type>, StructType> structTypes = new HashMap<>();
     public HashMap<String, Type> namedStructTypes = new HashMap<>();
     public HashMap<Pair<Type, Integer>, ArrayType> arrayTypes = new HashMap<>();
-    public HashMap<Type, PointerType> pointerTypes = new HashMap<>();
+    public HashMap<Pair<Type, Boolean>, PointerType> pointerTypes = new HashMap<>();
 
     public ArrayList<GlobalPointer> globals = new ArrayList<>();
     public HashMap<String, GlobalString> constantStrings = new HashMap<>();

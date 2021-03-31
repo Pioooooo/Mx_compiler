@@ -81,7 +81,7 @@ public class AsmBuilder {
     public void buildInst(Inst inst) {
         if (inst instanceof AllocaInst) { // TODO: mem2reg
             ((AllocaInst) inst).offset = currentFunction.spOffset;
-            Load.createW(getReg(inst), root.getPReg("sp"), Immediate.create(currentFunction.spOffset), currentBlock);
+            Calc.createI(getReg(inst), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(currentFunction.spOffset), currentBlock);
             currentFunction.spOffset += 4;
             return;
         }

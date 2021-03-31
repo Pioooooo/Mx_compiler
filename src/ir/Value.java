@@ -14,6 +14,10 @@ abstract public class Value {
         return type;
     }
 
+    public void setType(Type type) {
+        this.type = type;
+    }
+
     public Module getContext() {
         return type.m;
     }

@@ -19,7 +19,7 @@ public class IRBuilder implements AstVisitor<Value> {
     final Builder builder;
     StructType classType;
     int loopDepth = 0;
-    Function initFunction;
+    Function initFunction, currentFunction;
 
     public IRBuilder(Scope globalScope, Module m) {
         this.globalScope = globalScope;
@@ -93,7 +93,7 @@ public class IRBuilder implements AstVisitor<Value> {
         arrayPtr = builder.createBitCast(arrayPtr, Type.getPointerTy(m.int32Ty, true));
         builder.createStore(size, arrayPtr);
         arrayPtr = builder.createGEP(arrayPtr, builder.getInt32(1));
-        arrayPtr = builder.createBitCast(arrayPtr, Type.getPointerTy(returnType,false));
+        arrayPtr = builder.createBitCast(arrayPtr, returnType);
         if (dim < n.sizes.size() - 1) {
             loopDepth++;
             Function function = builder.getFunction();
@@ -151,7 +151,7 @@ public class IRBuilder implements AstVisitor<Value> {
             n.type.accept(this);
         }
         n.defList.forEach(x -> {
-            if (builder.getInsertBlock() == null || builder.getFunction() == null) {
+            if (currentFunction == null) {
                 x.entity.setValue(builder.createGlobalVariable(x.entity.type().irType(m)));
                 if (x.initVal != null) {
                     builder.setInsertPoint(BasicBlock.create(loopDepth, m, initFunction));
@@ -183,7 +183,7 @@ public class IRBuilder implements AstVisitor<Value> {
 
     @Override
     public Value visit(FuncDefStmtNode n) {
-        Function function = m.getFunction(n.funcName);
+        Function function = currentFunction = m.getFunction(n.funcName);
         builder.setInsertPoint(BasicBlock.create(loopDepth, m, function));
         if (n.funcName.equals("main")) {
             builder.createCall(initFunction, new ArrayList<>());
@@ -197,6 +197,7 @@ public class IRBuilder implements AstVisitor<Value> {
         if (!function.getTail().previous().isTerminated()) {
             builder.createRet();
         }
+        currentFunction = null;
         return null;
     }
 
@@ -547,7 +548,9 @@ public class IRBuilder implements AstVisitor<Value> {
                 return branchAdd(n, builder.createAssign(l, r));
             }
             case SUBSCRIPT -> {
-                return branchAdd(n, builder.createGEP(l, r));
+                Value ptr = builder.createGEP(l, r);
+                ptr.setType(Type.getPointerTy(ptr.getType().getBaseType(), true));
+                return branchAdd(n, ptr);
             }
         }
         return null;

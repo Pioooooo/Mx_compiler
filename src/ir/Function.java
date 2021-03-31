@@ -68,7 +68,10 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
     public Argument addArg(Type type) {
         Argument arg = new Argument(type, this, args.size());
         args.add(arg);
-        ((FunctionType) this.type).add(type);
+
+        ArrayList<Type> params = new ArrayList<>(((FunctionType) this.type).params);
+        params.add(arg.type);
+        this.type = FunctionType.get(getRetType(), params);
         return arg;
     }
 

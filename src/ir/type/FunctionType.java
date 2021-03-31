@@ -16,10 +16,6 @@ public class FunctionType extends Type {
         this.params = params;
     }
 
-    public void add(Type type) {
-        params.add(type);
-    }
-
     public static FunctionType get(Type result, ArrayList<Type> params) {
         FunctionType functionType = new FunctionType(result, params), entry = result.m.functionTypes.putIfAbsent(new Pair<>(result, params), functionType);
         return Objects.requireNonNullElse(entry, functionType);

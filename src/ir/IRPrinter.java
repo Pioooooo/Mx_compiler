@@ -1,5 +1,6 @@
 package ir;
 
+import ir.type.FunctionType;
 import ir.type.StructType;
 import ir.values.GlobalPointer;
 import ir.values.GlobalString;
@@ -40,7 +41,7 @@ public class IRPrinter {
         }
         o.println((isBuiltin ? "declare " : "define ")
                 + function.getRetType() + " " + function + "("
-                + function.getArgs().stream().map(a -> a.type + (isBuiltin ? "" : " " + a)).collect(Collectors.joining(", "))
+                + (isBuiltin ? ((FunctionType) function.type).params.stream().map(Type::toString) : function.getArgs().stream().map(a -> a.type + " " + a)).collect(Collectors.joining(", "))
                 + ")" + (isBuiltin ? "" : " {"));
         if (isBuiltin) {
             return;
@@ -51,7 +52,7 @@ public class IRPrinter {
     }
 
     void printBasicBlock(BasicBlock basicBlock) {
-        if(basicBlock.instList.iterator().hasNext()) {
+        if (basicBlock.instList.iterator().hasNext()) {
             o.println("block." + basicBlock.num + ":");
             basicBlock.instList.forEach(this::printInst);
         }

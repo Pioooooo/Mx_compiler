@@ -1,6 +1,7 @@
 package ir.type;
 
 import ir.Type;
+import org.antlr.v4.runtime.misc.Pair;
 
 import java.util.Objects;
 
@@ -15,7 +16,7 @@ public class PointerType extends Type {
     }
 
     public static PointerType get(Type pointeeTy, boolean isResolvable) {
-        PointerType pointerTy = new PointerType(pointeeTy, isResolvable), entry = pointeeTy.m.pointerTypes.putIfAbsent(pointeeTy, pointerTy);
+        PointerType pointerTy = new PointerType(pointeeTy, isResolvable), entry = pointeeTy.m.pointerTypes.putIfAbsent(new Pair<>(pointeeTy, isResolvable), pointerTy);
         return Objects.requireNonNullElse(entry, pointerTy);
     }
 
