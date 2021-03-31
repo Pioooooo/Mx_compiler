@@ -117,13 +117,13 @@ public class IRBuilder implements AstVisitor<Value> {
 
     Value branchAdd(ExprNode n, Value v) {
         if (n.thenBlock == null) {
-            if (n.ptr != null) {
-                return builder.createAssign(n.ptr, v);
-            } else {
-                return v;
-            }
+            return v;
         } else {
-            builder.createCondBr(builder.createPointerResolve(v), n.thenBlock, n.elseBlock);
+            if (n.ptr != null) {
+                builder.createCondBr(builder.createAssign(n.ptr, v), n.thenBlock, n.elseBlock);
+            } else {
+                builder.createCondBr(builder.createPointerResolve(v), n.thenBlock, n.elseBlock);
+            }
             return null;
         }
     }
