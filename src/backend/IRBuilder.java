@@ -618,7 +618,7 @@ public class IRBuilder implements AstVisitor<Value> {
         if (n.dim != 0) {
             return createArrayMalloc(n.type().irType(m), n, 0);
         } else if (n.type().isClass()) {
-            Value ptr = builder.createMalloc(builder.getInt32(n.type().irType(m).allocSize() / 8));
+            Value ptr = builder.createMalloc(builder.getInt32(n.type().irType(m).getBaseType().allocSize() / 8));
             ptr = builder.createBitCast(ptr, n.type().irType(m));
             Function constructor = m.getFunction("c_" + n.type().name() + "_" + n.type().name());
             if (constructor != null) {
