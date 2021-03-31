@@ -45,6 +45,8 @@ public class AsmPrinter {
 
     void printConstantString(GlobalString s) {
         o.println(s.getName() + ":");
-        o.println("\t.string\t\"" + s.val + "\"");
+        o.println("\t.string\t\"" + s.val.replace("\n", "\\n")
+                .replace("\\", "\\\\")
+                .replace("\"", "\\") + "\"");
     }
 }

@@ -323,6 +323,7 @@ public class SemanticChecker implements AstVisitor<Void> {
                 } else if (!n.lhs.lvalue()) {
                     throw new SemanticError("lvalue expected, got rvalue", n.pos);
                 }
+                n.type(n.lhs.type());
             }
             case SUBSCRIPT -> {
                 if (!(n.lhs.type() instanceof ArrayType)) {

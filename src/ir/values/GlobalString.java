@@ -16,12 +16,14 @@ public class GlobalString extends Constant {
         return val.replace("\\", "\\5m")
                 .replace("\n", "\\0A")
                 .replace("\0", "\\00")
-                .replace("\t", "\\09")
                 .replace("\"", "\\22");
     }
 
     public static GlobalString get(Module m, String val) {
-        GlobalString ptr = new GlobalString(m, val.replace("\"", "") + '\0'), entry = m.constantStrings.putIfAbsent(val, ptr);
+        GlobalString ptr = new GlobalString(m, val.substring(1, val.length() - 1)
+                .replace("\\n", "\n")
+                .replace("\\\\", "\\")
+                .replace("\\", "\"") + '\0'), entry = m.constantStrings.putIfAbsent(val, ptr);
         if (entry == null) {
             ptr.num = m.structCnt++;
             return ptr;

@@ -213,6 +213,8 @@ public class AsmBuilder {
             if (((GetElementPtrInst) inst).indexes.size() == 2) {
                 if (type instanceof StructType) {
                     offset = ((StructType) type).getOffset(((ConstantInt) ((GetElementPtrInst) inst).indexes.get(1)).val) / 8;
+                } else if (((ConstantInt) ((GetElementPtrInst) inst).indexes.get(1)).val != 0) {
+                    throw new InternalError("unsupported use of GEP");
                 }
             }
             if (((GetElementPtrInst) inst).indexes.get(0) instanceof ConstantInt) {
@@ -220,7 +222,7 @@ public class AsmBuilder {
                 Calc.createI(getReg(inst), Calc.OpType.addi, ptrVal, Immediate.create(offset), currentBlock);
             } else {
                 VReg tmp = VReg.create();
-                Calc.createI(tmp, Calc.OpType.mul, getReg(ConstantInt.get(type.m, type.size() / 8, 32)),
+                Calc.createI(tmp, Calc.OpType.mul, getReg(ConstantInt.get(type.m, 32, type.size() / 8)),
                         getReg(((GetElementPtrInst) inst).indexes.get(0)), currentBlock);
                 if (offset == 0) {
                     Calc.createI(getReg(inst), Calc.OpType.add, ptrVal, tmp, currentBlock);

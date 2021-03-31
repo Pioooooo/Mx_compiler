@@ -70,10 +70,10 @@ public class Builder {
     }
 
     public Value createPointerResolve(Value ptr) {
-        if (ptr.getType().isResolvable()) {
-            return createLoad(ptr);
-        } else {
+        if (ptr==null || !ptr.getType().isResolvable()) {
             return ptr;
+        } else {
+            return createLoad(ptr);
         }
     }
 

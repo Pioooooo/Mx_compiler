@@ -343,7 +343,7 @@ public class IRBuilder implements AstVisitor<Value> {
         if (n.returnVal != null) {
             val = n.returnVal.accept(this);
         }
-        builder.createRet(val);
+        builder.createRet(builder.createPointerResolve(val));
         return null;
     }
 
