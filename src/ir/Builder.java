@@ -33,6 +33,14 @@ public class Builder {
         insertPoint = basicBlock.getTail();
     }
 
+    public void setInsertPoint(Function function) {
+        if (function.getTail().previous() == null) {
+            BasicBlock.create(0, function.module, function);
+        }
+        bb = function.getTail().previous();
+        insertPoint = bb.getTail();
+    }
+
     public GlobalString getGlobalString(String val) {
         return GlobalString.get(m, val);
     }

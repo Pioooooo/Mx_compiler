@@ -155,7 +155,7 @@ public class IRBuilder implements AstVisitor<Value> {
             if (currentFunction == null) {
                 x.entity.setValue(builder.createGlobalVariable(x.entity.type().irType(m)));
                 if (x.initVal != null) {
-                    builder.setInsertPoint(BasicBlock.create(loopDepth, m, initFunction));
+                    builder.setInsertPoint(initFunction);
                     x.initVal.ptr = x.entity.value();
                     builder.createAssign(x.entity.value(), x.initVal.accept(this));
                 }

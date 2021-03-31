@@ -5,25 +5,29 @@ import ir.Type;
 import ir.type.PointerType;
 
 public class GlobalString extends Constant {
-    final public String val;
+    final public String val, src;
 
-    GlobalString(Module m, String val) {
+    GlobalString(Module m, String val, String src) {
         super(PointerType.get(Type.getArrayTy(Type.getIntNTy(m, 8), val.length()), true));
         this.val = val;
+        this.src = src;
     }
 
     public String getIRString() {
-        return val.replace("\\", "\\5m")
-                .replace("\n", "\\0A")
-                .replace("\0", "\\00")
-                .replace("\"", "\\22");
+        return src.substring(1, src.length() - 1)
+                .replace("\\\\", "\\5C")
+                .replace("\\n", "\\0A")
+                .replace("\\t", "\\09")
+                .replace("\\\"", "\\22") + "\\00";
     }
 
-    public static GlobalString get(Module m, String val) {
-        GlobalString ptr = new GlobalString(m, val.substring(1, val.length() - 1)
-                .replace("\\n", "\n")
+    public static GlobalString get(Module m, String src) {
+        GlobalString ptr = new GlobalString(m, src.substring(1, src.length() - 1)
                 .replace("\\\\", "\\")
-                .replace("\\", "\"") + '\0'), entry = m.constantStrings.putIfAbsent(val, ptr);
+                .replace("\\n", "\n")
+                .replace("\\t", "\t")
+                .replace("\\\"", "\"") + '\0',
+                src), entry = m.constantStrings.putIfAbsent(src, ptr);
         if (entry == null) {
             ptr.num = m.structCnt++;
             return ptr;
