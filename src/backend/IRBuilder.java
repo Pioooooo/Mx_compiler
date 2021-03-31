@@ -8,6 +8,7 @@ import ir.Module;
 import ir.*;
 import ir.type.FunctionType;
 import ir.type.StructType;
+import ir.values.Argument;
 import ir.values.ConstantPointerNull;
 import util.error.InternalError;
 
@@ -657,6 +658,11 @@ public class IRBuilder implements AstVisitor<Value> {
         Value o = n.entity.value();
         if (o == null) {
             throw new InternalError("undefined variable", n.pos);
+        }
+        if (o instanceof Argument) {
+            n.entity.setValue(builder.createEntryBlockAlloca(o.getType()));
+            builder.createStore(o, n.entity.value(), (Inst) ((Inst) n.entity.value()).getNext());
+            o = n.entity.value();
         }
         return branchAdd(n, o);
     }

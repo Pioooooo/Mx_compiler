@@ -70,7 +70,7 @@ public class Builder {
     }
 
     public Value createPointerResolve(Value ptr) {
-        if (ptr==null || !ptr.getType().isResolvable()) {
+        if (ptr == null || !ptr.getType().isResolvable()) {
             return ptr;
         } else {
             return createLoad(ptr);
@@ -198,6 +198,10 @@ public class Builder {
 
     public StoreInst createStore(Value val, Value ptr) {
         return StoreInst.create(val, ptr, bb, insertPoint.get());
+    }
+
+    public StoreInst createStore(Value val, Value ptr, Inst inst) {
+        return StoreInst.create(val, ptr, inst);
     }
 
     public GetElementPtrInst createGEP(Type type, Value ptr, ArrayList<Value> idxList) {
