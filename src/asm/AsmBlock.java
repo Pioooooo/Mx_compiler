@@ -75,12 +75,12 @@ public class AsmBlock implements ListNodeWithParent<AsmBlock, AsmFunction>, Iter
 
     @Override
     public void setPrev(ListNode<AsmBlock> prev) {
-        this.prev = prev.get();
+        this.prev = pre == null ? null : prev.get();
     }
 
     @Override
     public void setNext(ListNode<AsmBlock> next) {
-        this.next = next.get();
+        this.next = next == null ? null : next.get();
     }
 
     @Override
