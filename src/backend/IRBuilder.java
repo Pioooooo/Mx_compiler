@@ -177,7 +177,9 @@ public class IRBuilder implements AstVisitor<Value> {
 
     @Override
     public Value visit(ExprStmtNode n) {
-        n.expr.accept(this);
+        if (n.expr != null) {
+            n.expr.accept(this);
+        }
         return null;
     }
 
@@ -195,7 +197,11 @@ public class IRBuilder implements AstVisitor<Value> {
             }
         }
         if (!function.getTail().previous().isTerminated()) {
-            builder.createRet();
+            if (n.funcName.equals("main")) {
+                builder.createRet(builder.getInt32(0));
+            } else {
+                builder.createRet();
+            }
         }
         currentFunction = null;
         return null;
@@ -261,8 +267,7 @@ public class IRBuilder implements AstVisitor<Value> {
             n.condition.thenBlock = loopBlock;
             n.condition.elseBlock = destBlock;
             n.condition.accept(this);
-            condBlock = builder.getInsertBlock();
-            if (!condBlock.isTerminated()) {
+            if (!builder.getInsertBlock().isTerminated()) {
                 builder.createBr(loopBlock);
             }
         } else {
@@ -637,7 +642,7 @@ public class IRBuilder implements AstVisitor<Value> {
             params.add(builder.getFunction().getClassPtr());
         }
         n.params.forEach(x -> params.add(builder.createPointerResolve(x.accept(this))));
-        return builder.createCall(callee, params);
+        return branchAdd(n, builder.createCall(callee, params));
     }
 
     @Override
@@ -647,7 +652,7 @@ public class IRBuilder implements AstVisitor<Value> {
             ArrayList<Value> idx = new ArrayList<>();
             idx.add(builder.getInt32(0));
             idx.add(builder.getInt32(n.entity.numElement));
-            return builder.createGEP(n.entity.value().getType(), classPtr, idx);
+            return branchAdd(n, builder.createGEP(n.entity.value().getType(), classPtr, idx));
         }
         Value o = n.entity.value();
         if (o == null) {
