@@ -117,14 +117,13 @@ public class IRBuilder implements AstVisitor<Value> {
     }
 
     Value branchAdd(ExprNode n, Value v) {
+        if (n.ptr != null) {
+            return builder.createAssign(n.ptr, v);
+        }
         if (n.thenBlock == null) {
             return v;
         } else {
-            if (n.ptr != null) {
-                builder.createCondBr(builder.createAssign(n.ptr, v), n.thenBlock, n.elseBlock);
-            } else {
-                builder.createCondBr(builder.createPointerResolve(v), n.thenBlock, n.elseBlock);
-            }
+            builder.createCondBr(builder.createPointerResolve(v), n.thenBlock, n.elseBlock);
             return null;
         }
     }
@@ -471,7 +470,6 @@ public class IRBuilder implements AstVisitor<Value> {
                     n.rhs.accept(this);
                     return null;
                 } else {
-
                     Function function = builder.getFunction();
                     BasicBlock trueBlock = BasicBlock.create(loopDepth, m, function),
                             mergeBlock = BasicBlock.create(loopDepth, m, function);
@@ -480,10 +478,12 @@ public class IRBuilder implements AstVisitor<Value> {
                     if (ptr == null) {
                         ptr = builder.createEntryBlockAlloca(m.int1Ty);
                     }
-                    ptr = builder.createAssign(ptr, builder.getInt1(0));
-                    n.lhs.thenBlock = trueBlock;
-                    n.lhs.elseBlock = mergeBlock;
-                    n.lhs.accept(this);
+                    builder.createAssign(ptr, builder.getInt1(0));
+//                    n.lhs.thenBlock = trueBlock;
+//                    n.lhs.elseBlock = mergeBlock;
+//                    n.lhs.ptr = ptr;
+                    Value lValue = n.lhs.accept(this);
+                    builder.createCondBr(builder.createPointerResolve(lValue), trueBlock, mergeBlock);
                     builder.setInsertPoint(trueBlock);
                     n.rhs.ptr = ptr;
                     Value rValue = n.rhs.accept(this);
@@ -517,10 +517,11 @@ public class IRBuilder implements AstVisitor<Value> {
                     if (ptr == null) {
                         ptr = builder.createEntryBlockAlloca(m.int1Ty);
                     }
-                    ptr = builder.createAssign(ptr, builder.getInt1(1));
+                    builder.createAssign(ptr, builder.getInt1(1));
                     n.lhs.thenBlock = mergeBlock;
                     n.lhs.elseBlock = falseBlock;
-                    n.lhs.accept(this);
+                    Value lValue = n.lhs.accept(this);
+                    builder.createCondBr(builder.createPointerResolve(lValue), mergeBlock, falseBlock);
                     builder.setInsertPoint(falseBlock);
                     n.rhs.ptr = n.ptr;
                     Value rValue = n.rhs.accept(this);
