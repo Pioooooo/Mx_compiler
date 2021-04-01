@@ -200,9 +200,9 @@ public class IRBuilder implements AstVisitor<Value> {
         function.basicBlockList.forEach(b -> {
             if (!b.isTerminated()) {
                 if (n.funcName.equals("main")) {
-                    builder.createRet(builder.getInt32(0), b,b.getTail().get());
-                } else {
-                    builder.createRet(null, b,b.getTail().get());
+                    builder.createRet(builder.getInt32(0), b, b.getTail().get());
+                } else if (n.function.getRetType().isVoid()) {
+                    builder.createRet(null, b, b.getTail().get());
                 }
             }
         });
