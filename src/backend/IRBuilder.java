@@ -666,7 +666,7 @@ public class IRBuilder implements AstVisitor<Value> {
             throw new InternalError("undefined variable", n.pos);
         }
         if (o instanceof Argument) {
-            n.entity.setValue(builder.createEntryBlockAlloca(o.getType()));
+            n.entity.setValue(((Argument) o).ptr = builder.createEntryBlockAlloca(o.getType()));
             builder.createStore(o, n.entity.value(), builder.getFunction().getHead().get(), (Inst) ((Inst) n.entity.value()).getNext());
             o = n.entity.value();
         }

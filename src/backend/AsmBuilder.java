@@ -45,7 +45,7 @@ public class AsmBuilder {
         currentFunction.built = true;
         currentBlock = get(function.getHead().get());
         root.functions.put(currentFunction.name, currentFunction);
-        function.getArgs().forEach(a -> currentFunction.args.add(getReg(a)));
+        function.getArgs().forEach(a -> currentFunction.args.add(getReg(a, true)));
         root.getCalleeSave().forEach(r -> {
             VReg tmp = VReg.create();
             currentFunction.calleeSaveVReg.add(tmp);
@@ -59,8 +59,10 @@ public class AsmBuilder {
         }
         if (currentFunction.args.size() > 8) {
             offset = 0;
+//            Calc.createI(root.getPReg("t0"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-((currentFunction.args.size() - 8) * 4)), currentBlock);
             for (int i = 8; i < currentFunction.args.size(); i++) {
                 Load.createW(currentFunction.args.get(i), root.getPReg("sp"), Immediate.create(offset, true), currentBlock);
+//                Load.createW(currentFunction.args.get(i), root.getPReg("t0"), Immediate.create(offset), currentBlock);
                 offset += 4;
             }
         }
@@ -78,7 +80,13 @@ public class AsmBuilder {
     public void buildInst(Inst inst) {
         if (inst instanceof AllocaInst) { // TODO: mem2reg
             ((AllocaInst) inst).offset = currentFunction.spOffset;
+//            if (currentFunction.spOffset >= 2048) {
+//                VReg off = VReg.create();
+//                AsmInst head = Calc.createI(root.getPReg("sp"), Calc.OpType.add, root.getPReg("sp"), off, currentBlock);
+//                Li.create(off, Immediate.create(-currentFunction.spOffset), head);
+//            } else {
             Calc.createI(getReg(inst), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(currentFunction.spOffset), currentBlock);
+//            }
             currentFunction.spOffset += 4;
             return;
         }
@@ -259,7 +267,7 @@ public class AsmBuilder {
                 Lui.create(tmp, Address.create(1, (((StoreInst) inst).ptr).getName()), currentBlock);
                 Store.createW(getReg(((StoreInst) inst).val), tmp, Address.create(0, ((StoreInst) inst).ptr.getName()), currentBlock);
             } else {
-                Store.createW(getReg(((StoreInst) inst).val), getReg(((StoreInst) inst).ptr), Immediate.create(0), currentBlock);
+                Store.createW(getReg(((StoreInst) inst).val, true), getReg(((StoreInst) inst).ptr), Immediate.create(0), currentBlock);
             }
             return;
         }
@@ -305,9 +313,18 @@ public class AsmBuilder {
             }
             throw new InternalError("calling getReg on GlobalPointer");
         }
-        if (val instanceof Inst || val instanceof Argument) {
+        if (val instanceof Inst) {
             if (val.asmReg == null) {
                 val.asmReg = VReg.create();
+            }
+            return val.asmReg;
+        }
+        if (val instanceof Argument) {
+            if (((Argument) val).ptr != null) {
+                return getReg(((Argument) val).ptr);
+            }
+            if (val.asmReg == null) {
+                return val.asmReg = VReg.create();
             }
             return val.asmReg;
         }
@@ -324,5 +341,15 @@ public class AsmBuilder {
         VReg tmp = VReg.create();
         Li.create(tmp, Immediate.create(value), currentBlock);
         return tmp;
+    }
+
+    Register getReg(Value val, boolean originArgument) {
+        if (!originArgument || !(val instanceof Argument)) {
+            return getReg(val);
+        }
+        if (val.asmReg == null) {
+            return val.asmReg = VReg.create();
+        }
+        return val.asmReg;
     }
 }

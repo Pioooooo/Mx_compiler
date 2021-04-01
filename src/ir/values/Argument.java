@@ -7,6 +7,7 @@ import ir.Value;
 public class Argument extends Value {
     Function parent;
     public int argNo;
+    public Value ptr;
 
     public Argument(Type type, Function parent, int argNo) {
         super(type);

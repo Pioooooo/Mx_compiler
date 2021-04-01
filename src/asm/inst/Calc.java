@@ -16,10 +16,9 @@ public class Calc extends AsmInst {
 
     public Register rd;
     public OpType op;
-    boolean isInt;
     public Operand rs1, rs2;
 
-    Calc(Register rd, OpType op, Operand rs1, Operand rs2, boolean isInt, AsmBlock block) {
+    Calc(Register rd, OpType op, Operand rs1, Operand rs2, AsmBlock block) {
         super(block);
         this.rd = rd;
         this.op = op;
@@ -27,7 +26,7 @@ public class Calc extends AsmInst {
         this.rs2 = rs2;
     }
 
-    Calc(Register rd, OpType op, Operand rs1, Operand rs2, boolean isInt, AsmInst inst) {
+    Calc(Register rd, OpType op, Operand rs1, Operand rs2, AsmInst inst) {
         super(inst);
         this.rd = rd;
         this.op = op;
@@ -35,16 +34,12 @@ public class Calc extends AsmInst {
         this.rs2 = rs2;
     }
 
-    public static Calc createR(Register rd, OpType op, Operand rs1, Operand rs2, AsmBlock block) {
-        return new Calc(rd, op, rs1, rs2, false, block);
-    }
-
     public static Calc createI(Register rd, OpType op, Operand rs1, Operand rs2, AsmBlock block) {
-        return new Calc(rd, op, rs1, rs2, true, block);
+        return new Calc(rd, op, rs1, rs2, block);
     }
 
     public static Calc createI(Register rd, OpType op, Operand rs1, Operand rs2, AsmInst inst) {
-        return new Calc(rd, op, rs1, rs2, true, inst);
+        return new Calc(rd, op, rs1, rs2, inst);
     }
 
     @Override
@@ -83,6 +78,6 @@ public class Calc extends AsmInst {
 
     @Override
     public String toString() {
-        return op + (isInt ? "i" : "") + " " + rd + ", " + rs1 + ", " + rs2;
+        return op + " " + rd + ", " + rs1 + ", " + rs2;
     }
 }

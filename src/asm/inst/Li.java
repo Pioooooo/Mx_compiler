@@ -18,8 +18,18 @@ public class Li extends AsmInst {
         this.imm = imm;
     }
 
+    Li(Register reg, Immediate imm, AsmInst inst) {
+        super(inst);
+        this.reg = reg;
+        this.imm = imm;
+    }
+
     public static Li create(Register reg, Immediate imm, AsmBlock block) {
         return new Li(reg, imm, block);
+    }
+
+    public static Li create(Register reg, Immediate imm, AsmInst inst) {
+        return new Li(reg, imm, inst);
     }
 
     @Override

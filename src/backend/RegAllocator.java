@@ -454,7 +454,6 @@ public class RegAllocator {
                             unspillableNodes.add(tmp);
                             inst.replaceDef(n, tmp);
                             Store.createW(tmp, root.getPReg("sp"), Immediate.create(offset.get(n)), inst.getNext().get());
-                            it.next();
                         }
                     }
                 });
@@ -510,5 +509,18 @@ public class RegAllocator {
                 ((Load) i).offset.val += currentFunction.spOffset;
             }
         });
+//        if (realOffset != 0) {
+//            if (realOffset > 2048) {
+//                AsmInst head = Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), root.getPReg("t1"), currentFunction.getHead().get().getHead().get());
+//                Li.create(root.getPReg("t1"), Immediate.create(-realOffset), head);
+//                currentFunction.getTail().forEach(t -> {
+//                    AsmInst tail = Calc.createI(root.getPReg("sp"), Calc.OpType.add, root.getPReg("sp"), root.getPReg("t1"), t.getTail().previous());
+//                    Li.create(root.getPReg("t1"), Immediate.create(realOffset), tail);
+//                });
+//            } else {
+//                Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-realOffset), currentFunction.getHead().get().getHead().get());
+//                currentFunction.getTail().forEach(t -> Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(realOffset), t.getTail().previous()));
+//            }
+//        }
     }
 }
