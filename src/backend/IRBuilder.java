@@ -136,6 +136,7 @@ public class IRBuilder implements AstVisitor<Value> {
         return null;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public Value visit(BlockStmtNode n) {
         n.stmts.stream().filter(x -> {
@@ -202,6 +203,8 @@ public class IRBuilder implements AstVisitor<Value> {
                     builder.createRet(builder.getInt32(0), b, b.getTail().get());
                 } else if (n.function.getRetType().isVoid()) {
                     builder.createRet(null, b, b.getTail().get());
+                } else if (n.isConstructor) {
+                    builder.createRet(function.getClassPtr());
                 }
             }
         });
