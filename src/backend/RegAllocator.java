@@ -241,9 +241,10 @@ public class RegAllocator {
     }
 
     HashSet<Mv> nodeMoves(Register n) {
-        HashSet<Mv> ret = new HashSet<>(activeMoves);
-        ret.addAll(workListMoves);
-        ret.retainAll(moveList.get(n));
+        HashSet<Mv> ret = new HashSet<>(moveList.get(n)), tmp = new HashSet<>(moveList.get(n));
+        ret.retainAll(workListMoves);
+        tmp.retainAll(activeMoves);
+        ret.addAll(tmp);
         return ret;
     }
 
@@ -376,7 +377,7 @@ public class RegAllocator {
             }
             activeMoves.remove(m);
             frozenMoves.add(m);
-            if (nodeMoves(v).isEmpty() && degree.get(v) < K) {
+            if (!moveRelated(v) && degree.get(v) < K) {
                 freezeWorklist.remove(v);
                 simplifyWorklist.add(v);
             }
@@ -502,7 +503,7 @@ public class RegAllocator {
         int realOffset = currentFunction.spOffset + Math.max(0, currentFunction.args.size() - 8) * 4;
         if (realOffset != 0) {
             Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-realOffset), currentFunction.getHead().get().getHead().get());
-            currentFunction.getTail().forEach(t -> Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(realOffset),t.getTail().previous()));
+            currentFunction.getTail().forEach(t -> Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(realOffset), t.getTail().previous()));
         }
         currentFunction.getHead().get().instList.forEach(i -> {
             if (i instanceof Load && ((Load) i).offset.inParam) {
