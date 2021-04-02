@@ -101,14 +101,16 @@ public class IRBuilder implements AstVisitor<Value> {
             BasicBlock bodyBlock = BasicBlock.create(loopDepth, m, function),
                     destBlock = BasicBlock.create(loopDepth, m, function);
             Value i = builder.createEntryBlockAlloca(m.int32Ty);
-            i = builder.createAssign(i, builder.getInt32(0));
+            builder.createAssign(i, builder.getInt32(0));
             builder.createBr(bodyBlock);
             builder.setInsertPoint(bodyBlock);
-            Value iPtr = builder.createGEP(arrayPtr, i),
+            Value iVal = builder.createPointerResolve(i),
+                    iPtr = builder.createGEP(arrayPtr, iVal),
                     iItem = createArrayMalloc(elementType, n, dim + 1);
-            builder.createStore(iPtr, iItem);
-            i = builder.createSAdd(i, builder.getInt32(1));
-            Value cmp = builder.createSLt(i, size);
+            builder.createStore(iItem, iPtr);
+            iVal = builder.createSAdd(iVal, builder.getInt32(1));
+            builder.createStore(iVal, i);
+            Value cmp = builder.createSLt(iVal, size);
             builder.createCondBr(cmp, bodyBlock, destBlock);
             builder.setInsertPoint(destBlock);
             loopDepth--;
