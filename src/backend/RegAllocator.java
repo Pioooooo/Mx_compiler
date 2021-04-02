@@ -441,7 +441,14 @@ public class RegAllocator {
                             VReg tmp = VReg.create();
                             unspillableNodes.add(tmp);
                             inst.replaceUse(n, tmp);
-                            Load.createW(tmp, root.getPReg("sp"), Immediate.create(offset.get(n)), inst);
+                            if (offset.get(n) >= 2048) {
+                                PReg addr = root.getPReg("t0"), off = root.getPReg("t1");
+                                AsmInst cur = Load.createW(tmp, addr, Immediate.create(0), inst);
+                                cur = Calc.createI(addr, Calc.OpType.add, root.getPReg("sp"), off, cur);
+                                Li.create(off, Immediate.create(offset.get(n)), cur);
+                            } else {
+                                Load.createW(tmp, root.getPReg("sp"), Immediate.create(offset.get(n)), inst);
+                            }
                         }
                     }
                 });
@@ -454,7 +461,17 @@ public class RegAllocator {
                             VReg tmp = VReg.create();
                             unspillableNodes.add(tmp);
                             inst.replaceDef(n, tmp);
-                            Store.createW(tmp, root.getPReg("sp"), Immediate.create(offset.get(n)), inst.getNext().get());
+                            if (offset.get(n) >= 2048) {
+                                PReg addr = root.getPReg("t0"), off = root.getPReg("t1");
+                                AsmInst cur = Store.createW(tmp, addr, Immediate.create(0), inst.getNext().get());
+                                cur = Calc.createI(addr, Calc.OpType.add, root.getPReg("sp"), off, cur);
+                                Li.create(off, Immediate.create(offset.get(n)), cur);
+//                                AsmInst cur = Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-1024), inst.getNext().get());
+//                                cur = Store.createW(tmp, root.getPReg("sp"), Immediate.create(offset.get(n) - 1024), cur);
+//                                Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(1024), cur);
+                            } else {
+                                Store.createW(tmp, root.getPReg("sp"), Immediate.create(offset.get(n)), inst.getNext().get());
+                            }
                         }
                     }
                 });
@@ -501,27 +518,27 @@ public class RegAllocator {
 
     void addSp() {
         int realOffset = currentFunction.spOffset + Math.max(0, currentFunction.args.size() - 8) * 4;
-        if (realOffset != 0) {
-            Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-realOffset), currentFunction.getHead().get().getHead().get());
-            currentFunction.getTail().forEach(t -> Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(realOffset), t.getTail().previous()));
-        }
-        currentFunction.getHead().get().instList.forEach(i -> {
-            if (i instanceof Load && ((Load) i).offset.inParam) {
-                ((Load) i).offset.val += currentFunction.spOffset;
-            }
-        });
 //        if (realOffset != 0) {
-//            if (realOffset > 2048) {
-//                AsmInst head = Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), root.getPReg("t1"), currentFunction.getHead().get().getHead().get());
-//                Li.create(root.getPReg("t1"), Immediate.create(-realOffset), head);
-//                currentFunction.getTail().forEach(t -> {
-//                    AsmInst tail = Calc.createI(root.getPReg("sp"), Calc.OpType.add, root.getPReg("sp"), root.getPReg("t1"), t.getTail().previous());
-//                    Li.create(root.getPReg("t1"), Immediate.create(realOffset), tail);
-//                });
-//            } else {
-//                Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-realOffset), currentFunction.getHead().get().getHead().get());
-//                currentFunction.getTail().forEach(t -> Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(realOffset), t.getTail().previous()));
-//            }
+//            Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-realOffset), currentFunction.getHead().get().getHead().get());
+//            currentFunction.getTail().forEach(t -> Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(realOffset), t.getTail().previous()));
 //        }
+//        currentFunction.getHead().get().instList.forEach(i -> {
+//            if (i instanceof Load && ((Load) i).offset.inParam) {
+//                ((Load) i).offset.val += currentFunction.spOffset;
+//            }
+//        });
+        if (realOffset != 0) {
+            if (realOffset >= 2048) {
+                AsmInst head = Calc.createI(root.getPReg("sp"), Calc.OpType.add, root.getPReg("sp"), root.getPReg("t1"), currentFunction.getHead().get().getHead().get());
+                Li.create(root.getPReg("t1"), Immediate.create(-realOffset), head);
+                currentFunction.getTail().forEach(t -> {
+                    AsmInst tail = Calc.createI(root.getPReg("sp"), Calc.OpType.add, root.getPReg("sp"), root.getPReg("t1"), t.getTail().previous());
+                    Li.create(root.getPReg("t1"), Immediate.create(realOffset), tail);
+                });
+            } else {
+                Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-realOffset), currentFunction.getHead().get().getHead().get());
+                currentFunction.getTail().forEach(t -> Calc.createI(root.getPReg("sp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(realOffset), t.getTail().previous()));
+            }
+        }
     }
 }

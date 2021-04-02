@@ -1,9 +1,6 @@
 package backend;
 
-import asm.AsmBlock;
-import asm.AsmFunction;
-import asm.AsmRoot;
-import asm.Operand;
+import asm.*;
 import asm.inst.*;
 import asm.operand.Address;
 import asm.operand.Immediate;
@@ -59,10 +56,10 @@ public class AsmBuilder {
         }
         if (currentFunction.args.size() > 8) {
             offset = 0;
-//            Calc.createI(root.getPReg("t0"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-((currentFunction.args.size() - 8) * 4)), currentBlock);
+            Calc.createI(root.getPReg("fp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-((currentFunction.args.size() - 8) * 4)), currentBlock);
             for (int i = 8; i < currentFunction.args.size(); i++) {
-                Load.createW(currentFunction.args.get(i), root.getPReg("sp"), Immediate.create(offset, true), currentBlock);
-//                Load.createW(currentFunction.args.get(i), root.getPReg("t0"), Immediate.create(offset), currentBlock);
+//                Load.createW(currentFunction.args.get(i), root.getPReg("sp"), Immediate.create(offset, true), currentBlock);
+                Load.createW(currentFunction.args.get(i), root.getPReg("fp"), Immediate.create(offset), currentBlock);
                 offset += 4;
             }
         }
@@ -80,13 +77,13 @@ public class AsmBuilder {
     public void buildInst(Inst inst) {
         if (inst instanceof AllocaInst) { // TODO: mem2reg
             ((AllocaInst) inst).offset = currentFunction.spOffset;
-//            if (currentFunction.spOffset >= 2048) {
-//                VReg off = VReg.create();
-//                AsmInst head = Calc.createI(root.getPReg("sp"), Calc.OpType.add, root.getPReg("sp"), off, currentBlock);
-//                Li.create(off, Immediate.create(-currentFunction.spOffset), head);
-//            } else {
-            Calc.createI(getReg(inst), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(currentFunction.spOffset), currentBlock);
-//            }
+            if (currentFunction.spOffset >= 2048) {
+                VReg off = VReg.create();
+                AsmInst head = Calc.createI(root.getPReg("sp"), Calc.OpType.add, root.getPReg("sp"), off, currentBlock);
+                Li.create(off, Immediate.create(-currentFunction.spOffset), head);
+            } else {
+                Calc.createI(getReg(inst), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(currentFunction.spOffset), currentBlock);
+            }
             currentFunction.spOffset += 4;
             return;
         }

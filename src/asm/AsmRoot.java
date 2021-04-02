@@ -63,8 +63,8 @@ public class AsmRoot {
 
     public ArrayList<PReg> getColors() {
         ArrayList<PReg> ret = new ArrayList<>();
-        for (int i = 5; i <= 7; i++) {
-//        for (int i = 7; i <= 7; i++) {
+//        for (int i = 5; i <= 7; i++) {
+        for (int i = 7; i <= 7; i++) {
             ret.add(getPReg(i));
         }
         for (int i = 10; i <= 17; i++) {
