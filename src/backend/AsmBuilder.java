@@ -56,10 +56,10 @@ public class AsmBuilder {
         }
         if (currentFunction.args.size() > 8) {
             offset = 0;
-            Calc.createI(root.getPReg("fp"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-((currentFunction.args.size() - 8) * 4)), currentBlock);
+            Calc.createI(root.getPReg("s0"), Calc.OpType.addi, root.getPReg("sp"), Immediate.create(-((currentFunction.args.size() - 8) * 4)), currentBlock);
             for (int i = 8; i < currentFunction.args.size(); i++) {
 //                Load.createW(currentFunction.args.get(i), root.getPReg("sp"), Immediate.create(offset, true), currentBlock);
-                Load.createW(currentFunction.args.get(i), root.getPReg("fp"), Immediate.create(offset), currentBlock);
+                Load.createW(currentFunction.args.get(i), root.getPReg("s0"), Immediate.create(offset), currentBlock);
                 offset += 4;
             }
         }
