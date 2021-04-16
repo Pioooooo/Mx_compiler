@@ -159,11 +159,16 @@ public class AsmBuilder {
             }
             if (((Binary) inst).rhs instanceof ConstantInt) {
                 rs1 = getReg(((Binary) inst).lhs);
-                rs2 = Immediate.create(((ConstantInt) ((Binary) inst).rhs).val);
+                int val = (((ConstantInt) ((Binary) inst).rhs).val);
                 if (op == Calc.OpType.sub) {
-                    op = Calc.OpType.addi;
-                    ((Immediate) rs2).val *= -1;
+                    op = Calc.OpType.add;
+                    val *= -1;
+                }
+                if (val >> 12 != 0) {
+                    rs2 = VReg.create();
+                    Li.create((Register) rs2, Immediate.create(val), currentBlock);
                 } else {
+                    rs2 = Immediate.create(val);
                     op = Calc.OpType.valueOf(op + "i");
                 }
                 Calc.createI(rd, op, rs1, rs2, currentBlock);
@@ -175,8 +180,13 @@ public class AsmBuilder {
                     }
                     default -> {
                         rs1 = getReg(((Binary) inst).rhs);
-                        rs2 = Immediate.create(((ConstantInt) ((Binary) inst).lhs).val);
-                        op = Calc.OpType.valueOf(op + "i");
+                        if (((ConstantInt) ((Binary) inst).lhs).val >> 12 != 0) {
+                            rs2 = VReg.create();
+                            Li.create((Register) rs2, Immediate.create(((ConstantInt) ((Binary) inst).lhs).val), currentBlock);
+                        } else {
+                            rs2 = Immediate.create(((ConstantInt) ((Binary) inst).lhs).val);
+                            op = Calc.OpType.valueOf(op + "i");
+                        }
                         Calc.createI(rd, op, rs1, rs2, currentBlock);
                         return;
                     }
