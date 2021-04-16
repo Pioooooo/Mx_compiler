@@ -86,7 +86,7 @@ public class AsmBuilder {
             var it = pCopy.entrySet().iterator();
             while (it.hasNext()) {
                 var e = it.next();
-                if (!(e.getValue() instanceof PhiInst) || !pCopy.containsValue(e.getKey())) {
+                if (!pCopy.containsValue(e.getKey())) {
                     Mv.create(getReg(e.getKey(), tail), getReg(e.getValue(), tail), tail);
                     it.remove();
                     eliminated = true;
