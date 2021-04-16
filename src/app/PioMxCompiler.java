@@ -5,13 +5,13 @@ import asm.AsmRoot;
 import ast.AstPrinter;
 import ast.Nodes;
 import codegen.AsmBuilder;
-import ir.IRBuilder;
 import codegen.RegAllocator;
 import frontend.AstBuilder;
 import frontend.SemanticChecker;
 import frontend.SymbolCollector;
 import frontend.TypeCollector;
 import frontend.scope.Scope;
+import ir.IRBuilder;
 import ir.IRPrinter;
 import ir.Module;
 import org.antlr.v4.runtime.CharStreams;
@@ -56,6 +56,8 @@ public class PioMxCompiler implements Callable<Integer> {
         boolean printIR;
         @Option(names = {"-c", "--codegen"}, description = "do code generation")
         boolean codeGen;
+        @Option(names = {"-O", "--optimize"}, description = "do code generation")
+        boolean optimize;
     }
 
     @Override
@@ -84,21 +86,21 @@ public class PioMxCompiler implements Callable<Integer> {
             new SymbolCollector(globalScope).visit(astRoot);
             new TypeCollector(globalScope, module).visit(astRoot);
             new SemanticChecker(globalScope, module).visit(astRoot);
-            if (stage != null && !stage.printIR && !stage.codeGen) {
+            if (stage != null && stage.semantic) {
                 return 0;
             }
             IRBuilder irBuilder = new IRBuilder(globalScope, module);
             irBuilder.visit(astRoot);
             new DeadBlockRemove(module).run();
-            new MemToReg(module).run();
+            if (stage != null && stage.optimize) {
+                new MemToReg(module).run();
+            }
             if (stage != null && stage.printIR) {
                 IRPrinter printer = new IRPrinter();
                 printer.print(module, stage.codeGen || out == null ?
                         new PrintStream(new FileOutputStream((input == null ? "a" : input.getAbsolutePath()) + ".ll"))
                         : out);
                 System.err.println("ir printed");
-            }
-            if (stage != null && !stage.codeGen) {
                 return 0;
             }
             AsmRoot asmRoot = new AsmRoot();
