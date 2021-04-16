@@ -60,7 +60,7 @@ public class MemToReg {
                     continue;
                 }
             }
-            phiInsert(it.next());
+            phiInsert(a);
         }
         visited = new HashSet<>();
         rename(f);
