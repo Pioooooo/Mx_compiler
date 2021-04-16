@@ -80,7 +80,7 @@ public class MemToReg {
             var it = worklist.iterator();
             BasicBlock x = it.next();
             it.remove();
-            dom.getDomFrontier().get(x).stream().filter(liveInBlocks::contains).filter(y -> !phi.containsKey(y)).forEach(y -> {
+            dom.getDomFrontier().getOrDefault(x, new ArrayList<>()).stream().filter(liveInBlocks::contains).filter(y -> !phi.containsKey(y)).forEach(y -> {
                 PhiInst p = PhiInst.create(a.getType().getBaseType(), y);
                 phi.put(y, p);
                 phiAllocaMap.put(p, a);

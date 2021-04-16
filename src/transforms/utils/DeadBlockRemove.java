@@ -17,6 +17,18 @@ public class DeadBlockRemove {
 
     void run(Function f) {
         f.basicBlockList.forEach(this::run);
+        BasicBlock entry = f.basicBlockList.getHead().get();
+        boolean eliminated = true;
+        while (eliminated) {
+            eliminated = false;
+            for (BasicBlock b : f.basicBlockList) {
+                if (b != entry && b.pre.size() == 0) {
+                    b.suc.forEach(s -> s.pre.remove(b));
+                    b.removeSelf();
+                    eliminated = true;
+                }
+            }
+        }
     }
 
     void run(BasicBlock b) {
