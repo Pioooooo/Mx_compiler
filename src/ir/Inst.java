@@ -32,17 +32,12 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
 
     @Override
     public void addUse(Value u) {
-        if (u instanceof Inst) {
-            use.add((Inst) u);
-        }
+        use.add(u);
     }
 
     @Override
     public boolean removeUse(Value u) {
-        if (u instanceof Inst) {
-            return use.remove(u);
-        }
-        return false;
+        return use.remove(u);
     }
 
     @Override

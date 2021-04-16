@@ -43,7 +43,7 @@ public class AsmBuilder {
         currentFunction.built = true;
         currentBlock = get(f.getHead().get());
         root.functions.put(currentFunction.name, currentFunction);
-        f.getArgs().forEach(a -> currentFunction.args.add(getReg(a, true)));
+        f.getArgs().forEach(a -> currentFunction.args.add(getReg(a)));
         root.getCalleeSave().forEach(r -> {
             VReg tmp = VReg.create();
             currentFunction.calleeSaveVReg.add(tmp);
@@ -323,7 +323,7 @@ public class AsmBuilder {
                 Lui.create(tmp, Address.create(1, (((StoreInst) inst).ptr).getName()), currentBlock);
                 Store.createW(getReg(((StoreInst) inst).val), tmp, Address.create(0, ((StoreInst) inst).ptr.getName()), currentBlock);
             } else {
-                Store.createW(getReg(((StoreInst) inst).val, true), getReg(((StoreInst) inst).ptr), Immediate.create(0), currentBlock);
+                Store.createW(getReg(((StoreInst) inst).val), getReg(((StoreInst) inst).ptr), Immediate.create(0), currentBlock);
             }
             return;
         }
@@ -380,9 +380,6 @@ public class AsmBuilder {
             return val.asmReg;
         }
         if (val instanceof Argument) {
-            if (((Argument) val).ptr != null) {
-                return getReg(((Argument) val).ptr);
-            }
             if (val.asmReg == null) {
                 return val.asmReg = VReg.create();
             }
@@ -410,15 +407,5 @@ public class AsmBuilder {
             Li.create(tmp, Immediate.create(value), currentBlock);
         }
         return tmp;
-    }
-
-    Register getReg(Value val, boolean originArgument) {
-        if (!originArgument || !(val instanceof Argument)) {
-            return getReg(val);
-        }
-        if (val.asmReg == null) {
-            return val.asmReg = VReg.create();
-        }
-        return val.asmReg;
     }
 }
