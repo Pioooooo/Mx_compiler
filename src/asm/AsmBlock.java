@@ -89,6 +89,20 @@ public class AsmBlock implements ListNodeWithParent<AsmBlock, AsmFunction>, Iter
     }
 
     @Override
+    public void removeSelf() {
+        if (function != null) {
+            function.blocks.remove(this);
+            return;
+        }
+        if (next != null) {
+            next.setPrev(prev);
+        }
+        if (prev != null) {
+            prev.setNext(next);
+        }
+    }
+
+    @Override
     public AsmFunction getParent() {
         return function;
     }

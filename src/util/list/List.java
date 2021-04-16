@@ -1,6 +1,10 @@
 package util.list;
 
 import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class List<NodeTy> implements Iterable<NodeTy> {
     ListNode<NodeTy> head, tail;
@@ -45,20 +49,37 @@ public class List<NodeTy> implements Iterable<NodeTy> {
         return new ListIterator<>(this, e);
     }
 
+    public void addAll(List<NodeTy> l) {
+        tail.setNext(l.head);
+        if (l.head != null) {
+            l.head.setPrev(tail);
+            tail = l.tail;
+        }
+    }
+
     ListNode<NodeTy> getPrev(ListNode<NodeTy> i) {
         return i == null ? tail : i.getPrev();
     }
 
     public ListIterator<NodeTy> getHead() {
-        return new ListIterator<NodeTy>(this);
+        return new ListIterator<>(this);
     }
 
     public ListIterator<NodeTy> getTail() {
-        return new ListIterator<NodeTy>(this, null);
+        return new ListIterator<>(this, null);
     }
 
     @Override
     public Iterator<NodeTy> iterator() {
-        return new ListIterator<NodeTy>(this);
+        return new ListIterator<>(this);
+    }
+
+    @Override
+    public Spliterator<NodeTy> spliterator() {
+        return Spliterators.spliteratorUnknownSize(iterator(), Spliterator.ORDERED);
+    }
+
+    public Stream<NodeTy> stream() {
+        return StreamSupport.stream(spliterator(), false);
     }
 }

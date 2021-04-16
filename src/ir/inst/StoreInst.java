@@ -13,18 +13,24 @@ public class StoreInst extends Inst {
         super(Type.getVoidTy(val.getContext()), basicBlock, inst);
         this.val = val;
         this.ptr = ptr;
+        val.addUse(this);
+        ptr.addUse(this);
     }
 
     StoreInst(Value val, Value ptr, BasicBlock basicBlock) {
         super(Type.getVoidTy(val.getContext()), basicBlock);
         this.val = val;
         this.ptr = ptr;
+        val.addUse(this);
+        ptr.addUse(this);
     }
 
     StoreInst(Value val, Value ptr, Inst inst) {
         super(Type.getVoidTy(val.getContext()), inst);
         this.val = val;
         this.ptr = ptr;
+        val.addUse(this);
+        ptr.addUse(this);
     }
 
     public static StoreInst create(Value val, Value ptr, BasicBlock basicBlock, Inst inst) {
@@ -37,6 +43,21 @@ public class StoreInst extends Inst {
 
     public static StoreInst create(Value val, Value ptr, Inst inst) {
         return new StoreInst(val, ptr, inst);
+    }
+
+    @Override
+    public void replaceUse(Value o, Value n) {
+        if (val == o) {
+            val = n;
+        }
+        if (ptr == o) {
+            ptr = n;
+        }
+    }
+
+    @Override
+    public Value simplify() {
+        return null;
     }
 
     @Override

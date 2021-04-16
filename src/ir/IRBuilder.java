@@ -1,11 +1,9 @@
-package backend;
+package ir;
 
 import ast.AstVisitor;
 import ast.Nodes.*;
 import frontend.scope.Scope;
 import frontend.symbol.type.ArrayType;
-import ir.Module;
-import ir.*;
 import ir.type.FunctionType;
 import ir.type.StructType;
 import ir.values.Argument;

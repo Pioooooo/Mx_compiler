@@ -18,8 +18,18 @@ public class Lui extends AsmInst {
         this.imm = imm;
     }
 
+    Lui(Register reg, Immediate imm, AsmInst inst) {
+        super(inst);
+        this.reg = reg;
+        this.imm = imm;
+    }
+
     public static Lui create(Register reg, Immediate imm, AsmBlock block) {
         return new Lui(reg, imm, block);
+    }
+
+    public static Lui create(Register reg, Immediate imm, AsmInst inst) {
+        return new Lui(reg, imm, inst);
     }
 
     @Override

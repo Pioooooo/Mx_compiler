@@ -47,6 +47,8 @@ public class IRPrinter {
             return;
         }
         valueCnt = function.getArgs().size();
+        function.basicBlockList.stream().flatMap(b -> b.instList.stream()).filter(Inst::hasRet)
+                .forEach(i -> i.num = valueCnt++);
         function.basicBlockList.forEach(this::printBasicBlock);
         o.println("}");
     }
@@ -59,9 +61,6 @@ public class IRPrinter {
     }
 
     void printInst(Inst inst) {
-        if (inst.hasRet()) {
-            inst.num = valueCnt++;
-        }
         o.println("  " + inst.getFullInst());
     }
 }

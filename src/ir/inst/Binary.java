@@ -17,6 +17,8 @@ public class Binary extends Inst {
         this.opType = opType;
         this.lhs = lhs;
         this.rhs = rhs;
+        lhs.addUse(this);
+        rhs.addUse(this);
     }
 
     Binary(Value lhs, Value rhs, OpType opType, BasicBlock basicBlock) {
@@ -24,6 +26,8 @@ public class Binary extends Inst {
         this.opType = opType;
         this.lhs = lhs;
         this.rhs = rhs;
+        lhs.addUse(this);
+        rhs.addUse(this);
     }
 
     Binary(Value lhs, Value rhs, OpType opType, Inst inst) {
@@ -31,6 +35,8 @@ public class Binary extends Inst {
         this.opType = opType;
         this.lhs = lhs;
         this.rhs = rhs;
+        lhs.addUse(this);
+        rhs.addUse(this);
     }
 
     public static Binary create(Value lhs, Value rhs, OpType opType, BasicBlock basicBlock, Inst inst) {
@@ -43,6 +49,21 @@ public class Binary extends Inst {
 
     public static Binary create(Value lhs, Value rhs, OpType opType, Inst inst) {
         return new Binary(lhs, rhs, opType, inst);
+    }
+
+    @Override
+    public void replaceUse(Value o, Value n) {
+        if (lhs == o) {
+            lhs = n;
+        }
+        if (rhs == o) {
+            rhs = n;
+        }
+    }
+
+    @Override
+    public Value simplify() {
+        return null;
     }
 
     @Override

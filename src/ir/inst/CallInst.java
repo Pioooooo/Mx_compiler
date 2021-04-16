@@ -17,12 +17,21 @@ public class CallInst extends Inst {
         super(((FunctionType) function.getType()).retType, basicBlock, inst);
         this.function = function;
         this.args = args;
+        args.forEach(v -> v.addUse(this));
     }
 
     CallInst(Function function, ArrayList<Value> args, BasicBlock basicBlock) {
         super(((FunctionType) function.getType()).retType, basicBlock);
         this.function = function;
         this.args = args;
+        args.forEach(v -> v.addUse(this));
+    }
+
+    CallInst(Function function, ArrayList<Value> args, Inst inst) {
+        super(((FunctionType) function.getType()).retType, inst);
+        this.function = function;
+        this.args = args;
+        args.forEach(v -> v.addUse(this));
     }
 
     CallInst(Function function, BasicBlock basicBlock, Inst inst) {
@@ -31,12 +40,6 @@ public class CallInst extends Inst {
 
     CallInst(Function function, BasicBlock basicBlock) {
         this(function, new ArrayList<>(), basicBlock);
-    }
-
-    CallInst(Function function, ArrayList<Value> args, Inst inst) {
-        super(((FunctionType) function.getType()).retType, inst);
-        this.function = function;
-        this.args = args;
     }
 
     CallInst(Function function, Inst inst) {
@@ -65,6 +68,16 @@ public class CallInst extends Inst {
 
     public static CallInst create(Function function, Inst inst) {
         return new CallInst(function, inst);
+    }
+
+    @Override
+    public void replaceUse(Value o, Value n) {
+        args.replaceAll(a -> a == o ? n : o);
+    }
+
+    @Override
+    public Value simplify() {
+        return null;
     }
 
     @Override

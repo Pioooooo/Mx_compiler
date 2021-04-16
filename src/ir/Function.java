@@ -115,17 +115,31 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
 
     @Override
     public void setPrev(ListNode<Function> prev) {
-        this.prev = prev.get();
+        this.prev = prev == null ? null : prev.get();
     }
 
     @Override
     public void setNext(ListNode<Function> next) {
-        this.next = next.get();
+        this.next = next == null ? null : next.get();
     }
 
     @Override
     public Function get() {
         return this;
+    }
+
+    @Override
+    public void removeSelf() {
+        if (module != null) {
+            module.functions.remove(name);
+            return;
+        }
+        if (next != null) {
+            next.setPrev(prev);
+        }
+        if (prev != null) {
+            prev.setNext(next);
+        }
     }
 
     @Override
@@ -136,5 +150,22 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
     @Override
     public void setParent(Module parent) {
         this.module = parent;
+    }
+
+    @Override
+    public void addUse(Value u) {
+    }
+
+    @Override
+    public boolean removeUse(Value u) {
+        return false;
+    }
+
+    @Override
+    public void replaceUseWith(Value n) {
+    }
+
+    @Override
+    public void replaceUse(Value o, Value n) {
     }
 }

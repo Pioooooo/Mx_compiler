@@ -1,4 +1,4 @@
-package backend;
+package codegen;
 
 import asm.*;
 import asm.inst.*;
@@ -21,6 +21,7 @@ public class AsmBuilder {
 
     AsmFunction currentFunction;
     AsmBlock currentBlock;
+    PhiResolver phiResolver;
     int offset;
 
     public AsmBuilder(Module m, AsmRoot root) {
@@ -28,21 +29,21 @@ public class AsmBuilder {
         this.root = root;
     }
 
-    public void build() {
+    public void run() {
         root.globals = m.globals;
         root.constantStrings = m.constantStrings;
-        m.functions.values().forEach(this::buildFunction);
+        m.functions.values().forEach(this::run);
         HashMap<String, AsmFunction> functions = new HashMap<>();
         root.functions.values().stream().filter(f -> f.built).forEach(f -> functions.put(f.name, f));
         root.functions = functions;
     }
 
-    public void buildFunction(Function function) {
-        currentFunction = get(function);
+    public void run(Function f) {
+        currentFunction = get(f);
         currentFunction.built = true;
-        currentBlock = get(function.getHead().get());
+        currentBlock = get(f.getHead().get());
         root.functions.put(currentFunction.name, currentFunction);
-        function.getArgs().forEach(a -> currentFunction.args.add(getReg(a, true)));
+        f.getArgs().forEach(a -> currentFunction.args.add(getReg(a, true)));
         root.getCalleeSave().forEach(r -> {
             VReg tmp = VReg.create();
             currentFunction.calleeSaveVReg.add(tmp);
@@ -63,19 +64,61 @@ public class AsmBuilder {
                 offset += 4;
             }
         }
-        function.basicBlockList.forEach(this::buildBlock);
+        phiResolver = new PhiResolver(f);
+        phiResolver.run();
+        f.basicBlockList.forEach(this::run);
         currentFunction = null;
     }
 
-    void buildBlock(BasicBlock block) {
-        currentBlock = get(block);
-        currentBlock.name = "." + currentFunction.name + "." + block.getName();
-        block.instList.forEach(this::buildInst);
+    void run(BasicBlock b) {
+        currentBlock = get(b);
+        currentBlock.name = "." + currentFunction.name + "." + b.getName();
+        b.instList.forEach(this::run);
+        // deal with phi
+        var pCopy = phiResolver.getPCopy(b);
+        AsmInst tail = currentBlock.getTail().previous();
+        boolean eliminated = true;
+        while (eliminated) {
+            eliminated = false;
+            var it = pCopy.entrySet().iterator();
+            while (it.hasNext()) {
+                var e = it.next();
+                if (!(e.getValue() instanceof PhiInst) || !pCopy.containsKey(e.getValue())) {
+                    Mv.create(getReg(e.getKey(), tail), getReg(e.getValue(), tail), tail);
+                    it.remove();
+                    eliminated = true;
+                }
+            }
+        }
+        HashMap<Register, Register> pCopyReg = new HashMap<>();
+        pCopy.forEach((key, value) -> pCopyReg.put(getReg(key), getReg(value)));
+        while (!pCopyReg.isEmpty()) {
+            eliminated = true;
+            while (eliminated) {
+                eliminated = false;
+                var it = pCopyReg.entrySet().iterator();
+                while (it.hasNext()) {
+                    var e = it.next();
+                    if (!pCopyReg.containsKey(e.getValue())) {
+                        Mv.create(e.getKey(), e.getValue(), tail);
+                        it.remove();
+                        eliminated = true;
+                    }
+                }
+            }
+            var it = pCopyReg.entrySet().iterator();
+            if (it.hasNext()) {
+                var e = it.next();
+                VReg tmp = new VReg();
+                Mv.create(tmp, e.getValue(), tail);
+                pCopyReg.replaceAll((k, v) -> v == e.getValue() ? tmp : v);
+            }
+        }
         currentBlock = null;
     }
 
-    public void buildInst(Inst inst) {
-        if (inst instanceof AllocaInst) { // TODO: mem2reg
+    public void run(Inst inst) {
+        if (inst instanceof AllocaInst) {
             ((AllocaInst) inst).offset = currentFunction.spOffset;
             if (currentFunction.spOffset >= 2048) {
                 VReg off = VReg.create();
@@ -246,6 +289,9 @@ public class AsmBuilder {
             }
             return;
         }
+        if (inst instanceof PhiInst) {
+            return;
+        }
         if (inst instanceof RetInst) {
             if (((RetInst) inst).val != null) {
                 assign(root.getPReg("a0"), ((RetInst) inst).val);
@@ -304,6 +350,10 @@ public class AsmBuilder {
     }
 
     Register getReg(Value val) {
+        return getReg(val, null);
+    }
+
+    Register getReg(Value val, AsmInst insertBefore) {
         if (val instanceof GlobalPointer) {
             if (val instanceof ConstantPointerNull) {
                 return root.getPReg("zero");
@@ -327,8 +377,13 @@ public class AsmBuilder {
         }
         if (val instanceof GlobalString) {
             VReg tmp = VReg.create(), tmp1 = VReg.create();
-            Lui.create(tmp, Address.create(1, val.getName()), currentBlock);
-            Calc.createI(tmp1, Calc.OpType.addi, tmp, Address.create(0, val.getName()), currentBlock);
+            if (insertBefore != null) {
+                Lui.create(tmp, Address.create(1, val.getName()), insertBefore);
+                Calc.createI(tmp1, Calc.OpType.addi, tmp, Address.create(0, val.getName()), insertBefore);
+            } else {
+                Lui.create(tmp, Address.create(1, val.getName()), currentBlock);
+                Calc.createI(tmp1, Calc.OpType.addi, tmp, Address.create(0, val.getName()), currentBlock);
+            }
             return tmp1;
         }
         int value = 0;
@@ -336,7 +391,11 @@ public class AsmBuilder {
             value = ((ConstantInt) val).val;
         }
         VReg tmp = VReg.create();
-        Li.create(tmp, Immediate.create(value), currentBlock);
+        if (insertBefore != null) {
+            Li.create(tmp, Immediate.create(value), insertBefore);
+        } else {
+            Li.create(tmp, Immediate.create(value), currentBlock);
+        }
         return tmp;
     }
 

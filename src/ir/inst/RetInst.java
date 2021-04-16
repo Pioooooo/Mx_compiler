@@ -11,16 +11,25 @@ public class RetInst extends Terminator {
     RetInst(Value val, BasicBlock basicBlock, Inst inst) {
         super(val == null ? Type.getVoidTy(basicBlock.getContext()) : val.getType(), basicBlock, inst);
         this.val = val;
+        if (val != null) {
+            val.addUse(this);
+        }
     }
 
     RetInst(Value val, BasicBlock basicBlock) {
         super(val == null ? Type.getVoidTy(basicBlock.getContext()) : val.getType(), basicBlock);
         this.val = val;
+        if (val != null) {
+            val.addUse(this);
+        }
     }
 
     RetInst(Value val, Inst inst) {
         super(val == null ? Type.getVoidTy(inst.getContext()) : val.getType(), inst);
         this.val = val;
+        if (val != null) {
+            val.addUse(this);
+        }
     }
 
     public static RetInst create(Value val, BasicBlock basicBlock, Inst inst) {
@@ -33,6 +42,18 @@ public class RetInst extends Terminator {
 
     public static RetInst create(Value val, Inst inst) {
         return new RetInst(val, inst);
+    }
+
+    @Override
+    public void replaceUse(Value o, Value n) {
+        if (val == o) {
+            val = n;
+        }
+    }
+
+    @Override
+    public Value simplify() {
+        return null;
     }
 
     @Override

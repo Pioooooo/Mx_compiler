@@ -16,18 +16,24 @@ public class GetElementPtrInst extends Inst {
         super(type, basicBlock, inst);
         this.ptrVal = ptrVal;
         this.indexes = indexes;
+        ptrVal.addUse(this);
+        indexes.forEach(v -> v.addUse(this));
     }
 
     GetElementPtrInst(Type type, Value ptrVal, ArrayList<Value> indexes, BasicBlock basicBlock) {
         super(type, basicBlock);
         this.ptrVal = ptrVal;
         this.indexes = indexes;
+        ptrVal.addUse(this);
+        indexes.forEach(v -> v.addUse(this));
     }
 
     GetElementPtrInst(Type type, Value ptrVal, ArrayList<Value> indexes, Inst inst) {
         super(type, inst);
         this.ptrVal = ptrVal;
         this.indexes = indexes;
+        ptrVal.addUse(this);
+        indexes.forEach(v -> v.addUse(this));
     }
 
     public static GetElementPtrInst create(Type type, Value ptrVal, ArrayList<Value> indexes, BasicBlock basicBlock, Inst inst) {
@@ -40,6 +46,19 @@ public class GetElementPtrInst extends Inst {
 
     public static GetElementPtrInst create(Type type, Value ptrVal, ArrayList<Value> indexes, Inst inst) {
         return new GetElementPtrInst(type, ptrVal, indexes, inst);
+    }
+
+    @Override
+    public void replaceUse(Value o, Value n) {
+        if (ptrVal == o) {
+            ptrVal = n;
+        }
+        indexes.replaceAll(i -> i == o ? n : o);
+    }
+
+    @Override
+    public Value simplify() {
+        return null;
     }
 
     @Override

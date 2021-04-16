@@ -59,17 +59,31 @@ public class AsmFunction implements ListNodeWithParent<AsmFunction, AsmRoot> {
 
     @Override
     public void setPrev(ListNode<AsmFunction> prev) {
-        this.prev = prev.get();
+        this.prev = prev == null ? null : prev.get();
     }
 
     @Override
     public void setNext(ListNode<AsmFunction> next) {
-        this.next = next.get();
+        this.next = next == null ? null : next.get();
     }
 
     @Override
     public AsmFunction get() {
         return this;
+    }
+
+    @Override
+    public void removeSelf() {
+        if (root != null) {
+            root.functions.remove(name);
+            return;
+        }
+        if (next != null) {
+            next.setPrev(prev);
+        }
+        if (prev != null) {
+            prev.setNext(next);
+        }
     }
 
     @Override

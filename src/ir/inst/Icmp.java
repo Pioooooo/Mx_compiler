@@ -18,6 +18,8 @@ public class Icmp extends Inst {
         this.op = op;
         this.lhs = lhs;
         this.rhs = rhs;
+        lhs.addUse(this);
+        rhs.addUse(this);
     }
 
     Icmp(Value lhs, Value rhs, OpType op, BasicBlock basicBlock) {
@@ -25,6 +27,8 @@ public class Icmp extends Inst {
         this.op = op;
         this.lhs = lhs;
         this.rhs = rhs;
+        lhs.addUse(this);
+        rhs.addUse(this);
     }
 
     Icmp(Value lhs, Value rhs, OpType op, Inst inst) {
@@ -32,6 +36,8 @@ public class Icmp extends Inst {
         this.op = op;
         this.lhs = lhs;
         this.rhs = rhs;
+        lhs.addUse(this);
+        rhs.addUse(this);
     }
 
     public static Icmp create(Value lhs, Value rhs, OpType opType, BasicBlock basicBlock, Inst inst) {
@@ -44,6 +50,21 @@ public class Icmp extends Inst {
 
     public static Icmp create(Value lhs, Value rhs, OpType opType, Inst inst) {
         return new Icmp(lhs, rhs, opType, inst);
+    }
+
+    @Override
+    public void replaceUse(Value o, Value n) {
+        if (lhs == o) {
+            lhs = n;
+        }
+        if (rhs == o) {
+            rhs = n;
+        }
+    }
+
+    @Override
+    public Value simplify() {
+        return null;
     }
 
     @Override

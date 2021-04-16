@@ -231,7 +231,7 @@ define dso_local zeroext i1 @__g_str_gt(i8* %0, i8* %1) #0 {
   %5 = load i8*, i8** %3, align 8
   %6 = load i8*, i8** %4, align 8
   %7 = call i32 @strcmp(i8* %5, i8* %6) #6
-  %8 = icmp slt i32 %7, 0
+  %8 = icmp sgt i32 %7, 0
   ret i1 %8
 }
 

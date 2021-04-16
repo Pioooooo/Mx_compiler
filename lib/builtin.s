@@ -437,7 +437,7 @@ __g_str_gt:                             # @__g_str_gt
 	lw	a0, -16(s0)
 	lw	a1, -24(s0)
 	call	strcmp
-	srli	a0, a0, 31
+	sgtz	a0, a0
 	lw	s0, 24(sp)
 	lw	ra, 28(sp)
 	addi	sp, sp, 32

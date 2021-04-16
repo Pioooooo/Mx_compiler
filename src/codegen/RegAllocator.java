@@ -1,4 +1,4 @@
-package backend;
+package codegen;
 
 import asm.AsmBlock;
 import asm.AsmFunction;
@@ -112,10 +112,10 @@ public class RegAllocator {
 
         weight = new HashMap<>();
         offset = new HashMap<>();
-        currentFunction.blocks.forEach(b -> b.instList.forEach(i -> {
+        currentFunction.blocks.stream().flatMap(b -> b.instList.stream()).forEach(i -> {
             initial.addAll(i.getUse());
             initial.addAll(i.getDef());
-        }));
+        });
         initial.forEach(x -> {
             moveList.put(x, new HashSet<>());
             adjList.put(x, new HashSet<>());

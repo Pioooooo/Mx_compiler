@@ -14,6 +14,11 @@ public class BrInst extends Terminator {
         this.cond = cond;
         this.trueDest = trueDest;
         this.falseDest = falseDest;
+        basicBlock.addSuccessor(trueDest);
+        basicBlock.addSuccessor(falseDest);
+        if (cond != null) {
+            cond.addUse(this);
+        }
     }
 
     BrInst(Value cond, BasicBlock trueDest, BasicBlock falseDest, BasicBlock basicBlock) {
@@ -21,6 +26,11 @@ public class BrInst extends Terminator {
         this.cond = cond;
         this.trueDest = trueDest;
         this.falseDest = falseDest;
+        basicBlock.addSuccessor(trueDest);
+        basicBlock.addSuccessor(falseDest);
+        if (cond != null) {
+            cond.addUse(this);
+        }
     }
 
     BrInst(Value cond, BasicBlock trueDest, BasicBlock falseDest, Inst inst) {
@@ -28,6 +38,11 @@ public class BrInst extends Terminator {
         this.cond = cond;
         this.trueDest = trueDest;
         this.falseDest = falseDest;
+        inst.getParent().addSuccessor(trueDest);
+        inst.getParent().addSuccessor(falseDest);
+        if (cond != null) {
+            cond.addUse(this);
+        }
     }
 
     BrInst(BasicBlock trueDest, BasicBlock basicBlock, Inst inst) {
@@ -64,6 +79,24 @@ public class BrInst extends Terminator {
 
     public static BrInst create(BasicBlock trueDest, Inst inst) {
         return new BrInst(trueDest, inst);
+    }
+
+    @Override
+    public void replaceUse(Value o, Value n) {
+        if (cond == o) {
+            cond = n;
+        }
+        if (trueDest == o) {
+            trueDest = (BasicBlock) n;
+        }
+        if (falseDest == o) {
+            falseDest = (BasicBlock) n;
+        }
+    }
+
+    @Override
+    public Value simplify() {
+        return null;
     }
 
     @Override

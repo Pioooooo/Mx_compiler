@@ -4,24 +4,23 @@ import ir.Function;
 import ir.Type;
 import ir.Value;
 
-public class Argument extends Value {
+public class Argument extends Constant {
     Function parent;
-    public int argNo;
     public Value ptr;
 
-    public Argument(Type type, Function parent, int argNo) {
+    public Argument(Type type, Function parent, int num) {
         super(type);
         this.parent = parent;
-        this.argNo = argNo;
+        this.num = num;
     }
 
     @Override
     public String toString() {
-        return "%val." + argNo;
+        return "%val." + num;
     }
 
     @Override
     public String getName() {
-        return "val." + argNo;
+        return "val." + num;
     }
 }

@@ -5,11 +5,11 @@ import ir.type.IntegerType;
 import ir.values.ConstantInt;
 import ir.values.GlobalPointer;
 import ir.values.GlobalString;
-import org.antlr.v4.runtime.misc.Pair;
 import util.list.ListIterator;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 public class Builder {
     BasicBlock bb;
@@ -97,12 +97,12 @@ public class Builder {
         return CallInst.create(size.getContext().getBuiltinFunction("__g_malloc"), args, bb, insertPoint.get());
     }
 
-    public PhiInst createPhi(Type type, ArrayList<Pair<BasicBlock, Value>> blocks) {
+    public PhiInst createPhi(Type type, HashMap<BasicBlock, Value> blocks) {
         return PhiInst.create(type, blocks, bb, insertPoint.get());
     }
 
     public PhiInst createPhi(Type type) {
-        return PhiInst.create(type, new ArrayList<>(), bb, insertPoint.get());
+        return PhiInst.create(type, bb, insertPoint.get());
     }
 
     public CallInst createCall(Function callee, ArrayList<Value> args) {

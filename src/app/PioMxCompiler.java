@@ -4,9 +4,9 @@ import asm.AsmPrinter;
 import asm.AsmRoot;
 import ast.AstPrinter;
 import ast.Nodes;
-import backend.AsmBuilder;
-import backend.IRBuilder;
-import backend.RegAllocator;
+import codegen.AsmBuilder;
+import ir.IRBuilder;
+import codegen.RegAllocator;
 import frontend.AstBuilder;
 import frontend.SemanticChecker;
 import frontend.SymbolCollector;
@@ -26,6 +26,8 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import recognizer.MxLexer;
 import recognizer.MxParser;
+import transforms.utils.DeadBlockRemove;
+import transforms.utils.MemToReg;
 import util.MxErrorListener;
 
 import java.io.File;
@@ -87,6 +89,8 @@ public class PioMxCompiler implements Callable<Integer> {
             }
             IRBuilder irBuilder = new IRBuilder(globalScope, module);
             irBuilder.visit(astRoot);
+            new DeadBlockRemove(module).run();
+            new MemToReg(module).run();
             if (stage != null && stage.printIR) {
                 IRPrinter printer = new IRPrinter();
                 printer.print(module, stage.codeGen || out == null ?
@@ -98,7 +102,7 @@ public class PioMxCompiler implements Callable<Integer> {
                 return 0;
             }
             AsmRoot asmRoot = new AsmRoot();
-            new AsmBuilder(module, asmRoot).build();
+            new AsmBuilder(module, asmRoot).run();
             new RegAllocator(asmRoot).run();
             new AsmPrinter().print(asmRoot, out == null ?
                     new PrintStream(new FileOutputStream((input == null ? "a" : input.getAbsolutePath()) + ".s"))

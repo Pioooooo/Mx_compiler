@@ -16,8 +16,18 @@ public class Mv extends AsmInst {
         this.src = src;
     }
 
+    Mv(Register reg, Register src, AsmInst inst) {
+        super(inst);
+        this.reg = reg;
+        this.src = src;
+    }
+
     public static Mv create(Register reg, Register src, AsmBlock block) {
         return new Mv(reg, src, block);
+    }
+
+    public static Mv create(Register reg, Register src, AsmInst inst) {
+        return new Mv(reg, src, inst);
     }
 
     @Override

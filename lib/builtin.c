@@ -59,7 +59,7 @@ bool __g_str_lt(char* l,char* r){
     return strcmp(l,r)<0;
 }
 bool __g_str_gt(char* l,char* r){
-    return strcmp(l,r)<0;
+    return strcmp(l,r)>0;
 }
 bool __g_str_le(char* l,char* r){
     return strcmp(l,r)<=0;

@@ -10,9 +10,8 @@ abstract public class Terminator extends Inst {
         super(type, basicBlock, inst);
         if (basicBlock.isTerminated()) {
             throw new InternalError("calling terminate() on terminated Block");
-        } else {
-            basicBlock.terminate();
         }
+        basicBlock.terminate();
     }
 
     public Terminator(Type type, BasicBlock basicBlock) {

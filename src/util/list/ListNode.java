@@ -10,4 +10,6 @@ public interface ListNode<NodeTy> {
     void setNext(ListNode<NodeTy> next);
 
     NodeTy get();
+
+    void removeSelf();
 }

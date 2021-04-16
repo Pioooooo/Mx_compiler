@@ -8,13 +8,18 @@ import util.list.ListIterator;
 import util.list.ListNode;
 import util.list.ListNodeWithParent;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, Function>, Iterable<Inst> {
     public List<Inst> instList = new List<>();
     boolean terminated = false;
+    public ArrayList<BasicBlock> pre = new ArrayList<>();
+    public ArrayList<BasicBlock> suc = new ArrayList<>();
+
     BasicBlock prev, next;
     Function function;
+
     public int num, loopDepth;
     public AsmBlock asmBlock;
 
@@ -42,6 +47,13 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
 
     public static BasicBlock create(int loopDepth, Module m) {
         return new BasicBlock(loopDepth, 0, m, null, null);
+    }
+
+    public void addSuccessor(BasicBlock suc) {
+        if (suc != null) {
+            this.suc.add(suc);
+            suc.pre.add(this);
+        }
     }
 
     @Override
@@ -82,6 +94,13 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
         return instList.getTail();
     }
 
+    public void replaceSuc(BasicBlock o, BasicBlock n) {
+        getTail().get().replaceUse(o, n);
+        n.pre.add(this);
+        o.pre.remove(this);
+        suc.replaceAll(s -> s == o ? n : s);
+    }
+
     @Override
     public ListNode<BasicBlock> getPrev() {
         return prev;
@@ -94,17 +113,46 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
 
     @Override
     public void setPrev(ListNode<BasicBlock> prev) {
-        this.prev = prev.get();
+        this.prev = prev == null ? null : prev.get();
     }
 
     @Override
     public void setNext(ListNode<BasicBlock> next) {
-        this.next = next.get();
+        this.next = next == null ? null : next.get();
     }
 
     @Override
     public BasicBlock get() {
         return this;
+    }
+
+    @Override
+    public void removeSelf() {
+        if (function != null) {
+            function.basicBlockList.remove(this);
+            return;
+        }
+        if (next != null) {
+            next.setPrev(prev);
+        }
+        if (prev != null) {
+            prev.setNext(next);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BasicBlock that = (BasicBlock) o;
+
+        return instList.equals(that.instList);
+    }
+
+    @Override
+    public int hashCode() {
+        return instList.hashCode();
     }
 
     @Override
@@ -120,5 +168,22 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     @Override
     public Iterator<Inst> iterator() {
         return instList.iterator();
+    }
+
+    @Override
+    public void addUse(Value u) {
+    }
+
+    @Override
+    public boolean removeUse(Value u) {
+        return false;
+    }
+
+    @Override
+    public void replaceUseWith(Value n) {
+    }
+
+    @Override
+    public void replaceUse(Value o, Value n) {
     }
 }

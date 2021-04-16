@@ -3,6 +3,8 @@ package ir;
 import util.list.ListNode;
 import util.list.ListNodeWithParent;
 
+import java.util.ArrayList;
+
 abstract public class Inst extends Value implements ListNodeWithParent<Inst, BasicBlock> {
     Inst prev, next;
     BasicBlock basicBlock;
@@ -14,11 +16,6 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
         basicBlock.instList.insertBefore(inst, this);
     }
 
-    @Override
-    public String getName() {
-        return "val." + num;
-    }
-
     protected Inst(Type type, BasicBlock basicBlock) {
         super(type);
         this.basicBlock = basicBlock;
@@ -27,12 +24,43 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
 
     protected Inst(Type type, Inst inst) {
         super(type);
-        this.basicBlock = inst.get().basicBlock;
+        this.basicBlock = inst.getParent();
         basicBlock.instList.insertBefore(inst, this);
+    }
+
+    public abstract Value simplify();
+
+    @Override
+    public void addUse(Value u) {
+        if (u instanceof Inst) {
+            use.add((Inst) u);
+        }
+    }
+
+    @Override
+    public boolean removeUse(Value u) {
+        if (u instanceof Inst) {
+            return use.remove(u);
+        }
+        return false;
+    }
+
+    @Override
+    public void replaceUseWith(Value n) {
+        for (Value u : use) {
+            u.replaceUse(this, n);
+            n.addUse(u);
+        }
+        use = new ArrayList<>();
     }
 
     public boolean hasRet() {
         return false;
+    }
+
+    @Override
+    public String getName() {
+        return "val." + num;
     }
 
     abstract public String getFullInst();
@@ -65,6 +93,20 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
     @Override
     public Inst get() {
         return this;
+    }
+
+    @Override
+    public void removeSelf() {
+        if (basicBlock != null) {
+            basicBlock.instList.remove(this);
+            return;
+        }
+        if (next != null) {
+            next.setPrev(prev);
+        }
+        if (prev != null) {
+            prev.setNext(next);
+        }
     }
 
     @Override

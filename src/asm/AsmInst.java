@@ -60,6 +60,20 @@ abstract public class AsmInst implements ListNodeWithParent<AsmInst, AsmBlock> {
     }
 
     @Override
+    public void removeSelf() {
+        if (block != null) {
+            block.instList.remove(this);
+            return;
+        }
+        if (next != null) {
+            next.setPrev(prev);
+        }
+        if (prev != null) {
+            prev.setNext(next);
+        }
+    }
+
+    @Override
     public AsmBlock getParent() {
         return block;
     }
