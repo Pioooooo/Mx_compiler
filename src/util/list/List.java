@@ -50,6 +50,11 @@ public class List<NodeTy> implements Iterable<NodeTy> {
     }
 
     public void addAll(List<NodeTy> l) {
+        if (tail == null) {
+            head = l.head;
+            tail = l.tail;
+            return;
+        }
         tail.setNext(l.head);
         if (l.head != null) {
             l.head.setPrev(tail);
