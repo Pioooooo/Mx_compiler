@@ -36,36 +36,38 @@ public class MemToReg {
         phiAllocaMap = new HashMap<>();
         insertedPhi = new HashMap<>();
         f.basicBlockList.forEach(b -> insertedPhi.put(b, new ArrayList<>()));
-        f.allocas.forEach(this::phiInsert);
+        for (var it = f.allocas.iterator(); it.hasNext(); ) {
+            AllocaInst a = it.next();
+            if (a.use.isEmpty()) {
+                a.removeSelf();
+                it.remove();
+                continue;
+            }
+            BasicBlock useBlock = ((Inst) a.use.get(0)).getParent();
+            if (a.use.stream().noneMatch(i -> ((Inst) i).getParent() != useBlock)) {
+                rewriteSingleBlockAlloca(a, useBlock);
+                if (a.use.isEmpty()) {
+                    a.removeSelf();
+                    it.remove();
+                    continue;
+                }
+            }
+            if (a.storeInst.size() == 1) {
+                rewriteSingleStoreAlloca(a);
+                if (a.use.isEmpty()) {
+                    a.removeSelf();
+                    it.remove();
+                    continue;
+                }
+            }
+            phiInsert(it.next());
+        }
         visited = new HashSet<>();
         rename(f);
         phiEliminate(f);
     }
 
     void phiInsert(AllocaInst a) {
-        Function f = a.getParent().getParent();
-        if (a.use.isEmpty()) {
-            a.removeSelf();
-            f.allocas.remove(a);
-            return;
-        }
-        BasicBlock useBlock = ((Inst) a.use.get(0)).getParent();
-        if (a.use.stream().noneMatch(i -> ((Inst) i).getParent() != useBlock)) {
-            rewriteSingleBlockAlloca(a, useBlock);
-            if (a.use.isEmpty()) {
-                a.removeSelf();
-                f.allocas.remove(a);
-                return;
-            }
-        }
-        if (a.storeInst.size() == 1) {
-            rewriteSingleStoreAlloca(a);
-            if (a.use.isEmpty()) {
-                a.removeSelf();
-                f.allocas.remove(a);
-                return;
-            }
-        }
         HashSet<BasicBlock> defBlocks = new HashSet<>();
         HashSet<BasicBlock> worklist = new HashSet<>();
         HashMap<BasicBlock, PhiInst> phi = new HashMap<>();

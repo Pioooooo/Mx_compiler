@@ -76,6 +76,9 @@ public class AsmBuilder {
         b.instList.forEach(this::run);
         // deal with phi
         var pCopy = phiResolver.getPCopy(b);
+        if (!currentBlock.getTail().hasPrevious()) {
+            return;
+        }
         AsmInst tail = currentBlock.getTail().previous();
         boolean eliminated = true;
         while (eliminated) {

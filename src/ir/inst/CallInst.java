@@ -72,7 +72,7 @@ public class CallInst extends Inst {
 
     @Override
     public void replaceUse(Value o, Value n) {
-        args.replaceAll(a -> a == o ? n : o);
+        args.replaceAll(a -> a == o ? n : a);
     }
 
     @Override
