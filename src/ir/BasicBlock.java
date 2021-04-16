@@ -95,7 +95,7 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     }
 
     public void replaceSuc(BasicBlock o, BasicBlock n) {
-        getTail().get().replaceUse(o, n);
+        getTail().previous().replaceUse(o, n);
         n.pre.add(this);
         o.pre.remove(this);
         suc.replaceAll(s -> s == o ? n : s);

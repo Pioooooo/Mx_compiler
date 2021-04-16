@@ -53,7 +53,7 @@ public class GetElementPtrInst extends Inst {
         if (ptrVal == o) {
             ptrVal = n;
         }
-        indexes.replaceAll(i -> i == o ? n : o);
+        indexes.replaceAll(i -> i == o ? n : i);
     }
 
     @Override
