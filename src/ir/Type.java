@@ -4,6 +4,7 @@ import ir.type.ArrayType;
 import ir.type.IntegerType;
 import ir.type.PointerType;
 import ir.type.StructType;
+import ir.values.ConstantPointerNull;
 import util.error.InternalError;
 
 public class Type {
@@ -98,6 +99,13 @@ public class Type {
 
     public static Type getStructTy(Module m, String typename) {
         return StructType.get(m, typename);
+    }
+
+    public Value getDefaultValue(Module m) {
+        return switch (id) {
+            case PointerTyID, ArrayTyID, StructTyID -> ConstantPointerNull.get(m);
+            default -> throw new InternalError("calling getDefaultValue on Type");
+        };
     }
 
     @Override

@@ -2,6 +2,8 @@ package ir.type;
 
 import ir.Module;
 import ir.Type;
+import ir.Value;
+import ir.values.ConstantInt;
 
 import java.util.Objects;
 
@@ -21,6 +23,11 @@ public class IntegerType extends Type {
     public static IntegerType get(Module m, int size) {
         IntegerType intTy = new IntegerType(m, size), entry = m.integerTypes.putIfAbsent(size, intTy);
         return Objects.requireNonNullElse(entry, intTy);
+    }
+
+    @Override
+    public Value getDefaultValue(Module m) {
+        return ConstantInt.get(m, size, 0);
     }
 
     @Override

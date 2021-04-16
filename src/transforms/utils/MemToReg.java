@@ -106,7 +106,7 @@ public class MemToReg {
     void rename(Function f) {
         Stack<RenameData> worklist = new Stack<>();
         HashMap<AllocaInst, Value> values = new HashMap<>();
-        f.allocas.forEach(a -> values.put(a, ConstantPointerNull.get(f.getParent())));
+        f.allocas.forEach(a -> values.put(a, a.getType().getBaseType().getDefaultValue(f.getParent())));
         worklist.push(new RenameData(f.getHead().get(), null, values));
         do {
             RenameData rData = worklist.pop();
