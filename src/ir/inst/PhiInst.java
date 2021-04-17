@@ -4,6 +4,7 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Type;
 import ir.Value;
+import ir.values.ConstantPointerNull;
 
 import java.util.HashMap;
 import java.util.stream.Collectors;
@@ -68,6 +69,9 @@ public class PhiInst extends Inst {
         Value commonValue = blocks.values().iterator().next();
         if (blocks.values().stream().allMatch(v -> v == commonValue)) {
             return commonValue;
+        }
+        if (use.stream().allMatch(u -> !(u instanceof Inst) || u == this)) {
+            return ConstantPointerNull.get(type.m);
         }
         return null;
     }
