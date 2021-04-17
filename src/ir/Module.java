@@ -1,6 +1,7 @@
 package ir;
 
 import ir.type.*;
+import ir.values.ConstantInt;
 import ir.values.GlobalPointer;
 import ir.values.GlobalString;
 import org.antlr.v4.runtime.misc.Pair;
@@ -28,6 +29,7 @@ public class Module {
 
     public ArrayList<GlobalPointer> globals = new ArrayList<>();
     public HashMap<String, GlobalString> constantStrings = new HashMap<>();
+    public HashMap<Pair<Integer, Integer>, ConstantInt> constantInts = new HashMap<>();
     public HashMap<String, Function> functions = new HashMap<>();
     public HashMap<String, Function> builtinFunctions = new HashMap<>();
 

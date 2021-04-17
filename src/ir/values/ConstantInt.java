@@ -2,7 +2,10 @@ package ir.values;
 
 import ir.Module;
 import ir.type.IntegerType;
+import org.antlr.v4.runtime.misc.Pair;
 import util.error.InternalError;
+
+import java.util.Objects;
 
 public class ConstantInt extends Constant {
     public final int val;
@@ -13,11 +16,12 @@ public class ConstantInt extends Constant {
     }
 
     public static ConstantInt get(Module m, int size, int val) {
-        return new ConstantInt(IntegerType.get(m, size), val); // TODO: singleton
+        ConstantInt constantInt = new ConstantInt(IntegerType.get(m, size), val), entry = m.constantInts.putIfAbsent(new Pair<>(size, val), constantInt);
+        return Objects.requireNonNullElse(entry, constantInt);
     }
 
     public static ConstantInt getBool(Module m, int size, boolean val) {
-        return new ConstantInt(IntegerType.get(m, size), val ? 1 : 0);
+        return ConstantInt.get(m, size, val ? 1 : 0);
     }
 
     @Override
