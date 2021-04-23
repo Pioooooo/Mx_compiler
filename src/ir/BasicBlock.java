@@ -9,6 +9,7 @@ import util.list.ListNode;
 import util.list.ListNodeWithParent;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
 public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, Function>, Iterable<Inst> {
@@ -171,16 +172,8 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     }
 
     @Override
-    public void addUse(Value u) {
-    }
-
-    @Override
-    public boolean removeUse(Value u) {
-        return false;
-    }
-
-    @Override
-    public void replaceUseWith(Value n) {
+    public HashSet<Value> getDef() {
+        return new HashSet<>();
     }
 
     @Override

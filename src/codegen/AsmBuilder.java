@@ -206,8 +206,8 @@ public class AsmBuilder {
                 J.create(get(((BrInst) inst).trueDest), currentBlock);
                 return;
             }
-            if (inst.getParent().getHead().hasNext() && inst.getParent().getTail().previous() instanceof Icmp && inst.getParent().getTail().previous() == ((BrInst) inst).cond) {
-                Icmp cmp = (Icmp) inst.getParent().getTail().previous();
+            if (inst != inst.getParent().getHead().get() && inst.getPrev() instanceof Icmp && inst.getPrev() == ((BrInst) inst).cond) {
+                Icmp cmp = (Icmp) inst.getPrev();
                 Branch.OpType op = switch (cmp.op) {
                     case slt -> Branch.OpType.blt;
                     case sgt -> Branch.OpType.bgt;
@@ -241,6 +241,9 @@ public class AsmBuilder {
             return;
         }
         if (inst instanceof Icmp) {
+            if (inst.getNext() instanceof BrInst && ((BrInst) inst.getNext()).cond == inst) {
+                return;
+            }
             VReg tmp = VReg.create();
             switch (((Icmp) inst).op) {
                 case slt -> Calc.createI(getReg(inst), Calc.OpType.slt, getReg(((Icmp) inst).lhs), getReg(((Icmp) inst).rhs), currentBlock);

@@ -4,6 +4,8 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Value;
 
+import java.util.HashSet;
+
 public class LoadInst extends Inst {
     public Value ptr;
 
@@ -38,6 +40,13 @@ public class LoadInst extends Inst {
     }
 
     @Override
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(ptr);
+        return def;
+    }
+
+    @Override
     public void replaceUse(Value o, Value n) {
         if (ptr == o) {
             ptr = n;
@@ -47,12 +56,6 @@ public class LoadInst extends Inst {
     @Override
     public Value simplify() {
         return null;
-    }
-
-    @Override
-    public void removeSelfAndUse() {
-        ptr.removeUse(this);
-        removeSelf();
     }
 
     @Override

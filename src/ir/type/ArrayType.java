@@ -35,19 +35,4 @@ public class ArrayType extends Type {
     public String toString() {
         return "[" + size + " x " + containedType.toString() + ']';
     }
-    //    @Override
-//    public int size() {
-//        return baseType.size();
-//    }
-//
-//    @Override
-//    public Type baseType() {
-//        return baseType;
-//    }
-//
-//    @Override
-//    public Boolean equals(Type other) {
-//        return false;//TODO:maybe
-//    }
-//
 }

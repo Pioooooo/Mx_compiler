@@ -7,6 +7,7 @@ import ir.Value;
 import ir.values.ConstantPointerNull;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 public class PhiInst extends Inst {
@@ -15,19 +16,28 @@ public class PhiInst extends Inst {
     PhiInst(Type type, HashMap<BasicBlock, Value> blocks, BasicBlock basicBlock, Inst inst) {
         super(type, basicBlock, inst);
         this.blocks = blocks;
-        blocks.values().forEach(v -> v.addUse(this));
+        blocks.forEach((b, v) -> {
+            b.addUse(this);
+            v.addUse(this);
+        });
     }
 
     PhiInst(Type type, HashMap<BasicBlock, Value> blocks, BasicBlock basicBlock) {
         super(type, basicBlock);
         this.blocks = blocks;
-        blocks.values().forEach(v -> v.addUse(this));
+        blocks.forEach((b, v) -> {
+            b.addUse(this);
+            v.addUse(this);
+        });
     }
 
     PhiInst(Type type, HashMap<BasicBlock, Value> blocks, Inst inst) {
         super(type, inst);
         this.blocks = blocks;
-        blocks.values().forEach(v -> v.addUse(this));
+        blocks.forEach((b, v) -> {
+            b.addUse(this);
+            v.addUse(this);
+        });
     }
 
     public static PhiInst create(Type type, HashMap<BasicBlock, Value> blocks, BasicBlock basicBlock, Inst inst) {
@@ -60,8 +70,18 @@ public class PhiInst extends Inst {
     }
 
     @Override
+    public HashSet<Value> getDef() {
+        return new HashSet<>(blocks.values());
+    }
+
+    @Override
     public void replaceUse(Value o, Value n) {
-        blocks.replaceAll((k, v) -> v == o ? n : v);
+        if (o instanceof BasicBlock && blocks.containsKey(o)) {
+            blocks.put((BasicBlock) n, blocks.get(o));
+            blocks.remove(o);
+        } else {
+            blocks.replaceAll((k, v) -> v == o ? n : v);
+        }
     }
 
     @Override
@@ -74,12 +94,6 @@ public class PhiInst extends Inst {
             return ConstantPointerNull.get(type.m);
         }
         return null;
-    }
-
-    @Override
-    public void removeSelfAndUse() {
-        blocks.values().forEach(v -> v.removeUse(this));
-        removeSelf();
     }
 
     @Override

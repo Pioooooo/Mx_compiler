@@ -4,6 +4,8 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Value;
 
+import java.util.HashSet;
+
 public class Binary extends Inst {
     public enum OpType {
         mul, sdiv, srem, shl, ashr, and, or, xor, sub, add
@@ -52,6 +54,14 @@ public class Binary extends Inst {
     }
 
     @Override
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(lhs);
+        def.add(rhs);
+        return def;
+    }
+
+    @Override
     public void replaceUse(Value o, Value n) {
         if (lhs == o) {
             lhs = n;
@@ -64,13 +74,6 @@ public class Binary extends Inst {
     @Override
     public Value simplify() {
         return null;
-    }
-
-    @Override
-    public void removeSelfAndUse() {
-        lhs.removeUse(this);
-        rhs.removeUse(this);
-        removeSelf();
     }
 
     @Override

@@ -5,6 +5,8 @@ import ir.Inst;
 import ir.Type;
 import ir.Value;
 
+import java.util.HashSet;
+
 public class RetInst extends Terminator {
     public Value val;
 
@@ -57,11 +59,10 @@ public class RetInst extends Terminator {
     }
 
     @Override
-    public void removeSelfAndUse() {
-        if (val != null) {
-            val.removeUse(this);
-        }
-        removeSelf();
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(val);
+        return def;
     }
 
     @Override

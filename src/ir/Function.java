@@ -153,18 +153,13 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
     }
 
     @Override
-    public void addUse(Value u) {
-        use.add(u);
-    }
-
-
-    @Override
-    public boolean removeUse(Value u) {
-        return use.remove(u);
+    public HashSet<Value> getDef() {
+        return new HashSet<>();
     }
 
     @Override
-    public void replaceUseWith(Value n) {
+    public void removeSelfAndDef() {
+        removeSelf();
     }
 
     @Override

@@ -5,6 +5,8 @@ import ir.Inst;
 import ir.Type;
 import ir.Value;
 
+import java.util.HashSet;
+
 public class BitCastInst extends Inst {
     public Value val;
 
@@ -39,6 +41,13 @@ public class BitCastInst extends Inst {
     }
 
     @Override
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(val);
+        return def;
+    }
+
+    @Override
     public void replaceUse(Value o, Value n) {
         if (val == o) {
             val = n;
@@ -48,12 +57,6 @@ public class BitCastInst extends Inst {
     @Override
     public Value simplify() {
         return null;
-    }
-
-    @Override
-    public void removeSelfAndUse() {
-        val.removeUse(this);
-        removeSelf();
     }
 
     @Override

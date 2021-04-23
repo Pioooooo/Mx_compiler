@@ -31,25 +31,9 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
     public abstract Value simplify();
 
     @Override
-    public void addUse(Value u) {
-        use.add(u);
-    }
-
-    @Override
-    public boolean removeUse(Value u) {
-        return use.remove(u);
-    }
-
-    @Override
-    public abstract void removeSelfAndUse();
-
-    @Override
-    public void replaceUseWith(Value n) {
-        for (Value u : use) {
-            u.replaceUse(this, n);
-            n.addUse(u);
-        }
-        use = new HashSet<>();
+    public void removeSelfAndDef() {
+        super.removeSelfAndDef();
+        removeSelf();
     }
 
     public boolean hasRet() {

@@ -7,6 +7,7 @@ import ir.Value;
 import ir.type.PointerType;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class AllocaInst extends Inst {
     public int offset;
@@ -46,6 +47,11 @@ public class AllocaInst extends Inst {
     }
 
     @Override
+    public HashSet<Value> getDef() {
+        return new HashSet<>();
+    }
+
+    @Override
     public void addUse(Value u) {
         if (u instanceof LoadInst) {
             loadInst.add((LoadInst) u);
@@ -65,11 +71,6 @@ public class AllocaInst extends Inst {
             storeInst.remove(u);
         }
         return super.removeUse(u);
-    }
-
-    @Override
-    public void removeSelfAndUse() {
-        removeSelf();
     }
 
     @Override

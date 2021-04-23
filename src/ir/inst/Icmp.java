@@ -5,6 +5,8 @@ import ir.Inst;
 import ir.Type;
 import ir.Value;
 
+import java.util.HashSet;
+
 public class Icmp extends Inst {
     public enum OpType {
         slt, sge, sle, sgt, eq, ne
@@ -53,6 +55,14 @@ public class Icmp extends Inst {
     }
 
     @Override
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(lhs);
+        def.add(rhs);
+        return def;
+    }
+
+    @Override
     public void replaceUse(Value o, Value n) {
         if (lhs == o) {
             lhs = n;
@@ -65,13 +75,6 @@ public class Icmp extends Inst {
     @Override
     public Value simplify() {
         return null;
-    }
-
-    @Override
-    public void removeSelfAndUse() {
-        lhs.removeUse(this);
-        rhs.removeUse(this);
-        removeSelf();
     }
 
     @Override

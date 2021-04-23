@@ -14,14 +14,31 @@ abstract public class Value {
         this.type = type;
     }
 
-    public abstract void addUse(Value u);
+    public abstract HashSet<Value> getDef();
 
-    public abstract boolean removeUse(Value u);
-
-    public void removeSelfAndUse() {
+    public HashSet<Value> getUse() {
+        return use;
     }
 
-    public abstract void replaceUseWith(Value n);
+    public void addUse(Value u) {
+        use.add(u);
+    }
+
+    public boolean removeUse(Value u) {
+        return use.remove(u);
+    }
+
+    public void removeSelfAndDef() {
+        getDef().forEach(v -> v.removeUse(this));
+    }
+
+    public void replaceUseWith(Value n) {
+        for (Value u : use) {
+            u.replaceUse(this, n);
+            n.addUse(u);
+        }
+        use.clear();
+    }
 
     public abstract void replaceUse(Value o, Value n);
 

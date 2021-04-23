@@ -3,6 +3,7 @@ package transforms.util;
 import ir.BasicBlock;
 import ir.Function;
 import ir.Module;
+import ir.inst.BrInst;
 import ir.inst.CallInst;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -48,14 +49,21 @@ public class CleanUp {
             b.instList.remove(b.getTail().previous());
             b.suc = next.suc;
             b.instList.addAll(next.instList);
+            next.instList.forEach(i -> i.setParent(b));
             next.suc.forEach(s -> {
                 s.pre.remove(next);
                 s.pre.add(b);
             });
+            next.replaceUseWith(b);
             next.removeSelf();
-            // for Inst in next.instList
-            next.instList = b.instList;
+        } else if (b.getHead().get() instanceof BrInst && b.suc.size() == 1) {
+            b.pre.forEach(p -> {
+                p.suc.remove(b);
+                p.suc.add(next);
+            });
             next.pre = b.pre;
+            b.replaceUseWith(next);
+            b.removeSelf();
         }
     }
 
@@ -65,7 +73,7 @@ public class CleanUp {
             eliminated.set(false);
             f.basicBlockList.forEach(b -> b.forEach(i -> {
                 if (!i.getType().isVoid() && !(i instanceof CallInst) && i.use.size() == 0) {
-                    i.removeSelfAndUse();
+                    i.removeSelfAndDef();
                     eliminated.set(true);
                 }
             }));

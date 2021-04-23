@@ -129,11 +129,11 @@ public class MemToReg {
                 if (inst instanceof StoreInst && ((StoreInst) inst).ptr instanceof AllocaInst) {
                     AllocaInst a = (AllocaInst) ((StoreInst) inst).ptr;
                     incomingValues.put(a, ((StoreInst) inst).val);
-                    inst.removeSelfAndUse();
+                    inst.removeSelfAndDef();
                 } else if (inst instanceof LoadInst && ((LoadInst) inst).ptr instanceof AllocaInst) {
                     AllocaInst a = (AllocaInst) ((LoadInst) inst).ptr;
                     inst.replaceUseWith(incomingValues.get(a));
-                    inst.removeSelfAndUse();
+                    inst.removeSelfAndDef();
                 }
             });
             if (b.suc.isEmpty()) {
@@ -158,7 +158,7 @@ public class MemToReg {
                 Value v = p.simplify();
                 if (v != null) {
                     p.replaceUseWith(v);
-                    p.removeSelfAndUse();
+                    p.removeSelfAndDef();
                     it.remove();
                     eliminated = true;
                 }
@@ -208,10 +208,10 @@ public class MemToReg {
         for (Inst i : b.instList) {
             if (i instanceof StoreInst && ((StoreInst) i).ptr == a) {
                 cur = ((StoreInst) i).val;
-                i.removeSelfAndUse();
+                i.removeSelfAndDef();
             } else if (i instanceof LoadInst && ((LoadInst) i).ptr == a && cur != null) {
                 i.replaceUseWith(cur);
-                i.removeSelfAndUse();
+                i.removeSelfAndDef();
             }
         }
     }
@@ -226,17 +226,17 @@ public class MemToReg {
                 stored = true;
             } else if (i instanceof LoadInst && ((LoadInst) i).ptr == a && stored) {
                 i.replaceUseWith(val);
-                i.removeSelfAndUse();
+                i.removeSelfAndDef();
             }
         }
         a.loadInst.forEach(l -> {
             if (dom.dominates(storeBlock, l.getParent())) {
                 l.replaceUseWith(val);
-                l.removeSelfAndUse();
+                l.removeSelfAndDef();
             }
         });
         if (a.loadInst.isEmpty()) {
-            store.removeSelfAndUse();
+            store.removeSelfAndDef();
         }
     }
 }

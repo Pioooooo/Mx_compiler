@@ -34,15 +34,4 @@ public class IntegerType extends Type {
     public String toString() {
         return "i" + size;
     }
-
-//    @Override
-//    public int size() {
-//        return size;
-//    }
-//
-//    @Override
-//    public Boolean equals(Type other) {
-//        return other instanceof IntType && other.size() == size;
-//    }
-//
 }

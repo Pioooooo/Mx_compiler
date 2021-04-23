@@ -7,6 +7,7 @@ import ir.Value;
 import ir.type.FunctionType;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 public class CallInst extends Inst {
@@ -74,6 +75,14 @@ public class CallInst extends Inst {
     }
 
     @Override
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(function);
+        def.addAll(args);
+        return def;
+    }
+
+    @Override
     public void replaceUse(Value o, Value n) {
         args.replaceAll(a -> a == o ? n : a);
     }
@@ -81,13 +90,6 @@ public class CallInst extends Inst {
     @Override
     public Value simplify() {
         return null;
-    }
-
-    @Override
-    public void removeSelfAndUse() {
-        function.removeUse(this);
-        args.forEach(a -> a.removeUse(this));
-        removeSelf();
     }
 
     @Override

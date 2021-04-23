@@ -6,6 +6,8 @@ import ir.Type;
 import ir.Value;
 import ir.values.ConstantPointerNull;
 
+import java.util.HashSet;
+
 public class StoreInst extends Inst {
     public Value val, ptr;
 
@@ -46,6 +48,14 @@ public class StoreInst extends Inst {
     }
 
     @Override
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(val);
+        def.add(ptr);
+        return def;
+    }
+
+    @Override
     public void replaceUse(Value o, Value n) {
         if (val == o) {
             val = n;
@@ -58,13 +68,6 @@ public class StoreInst extends Inst {
     @Override
     public Value simplify() {
         return null;
-    }
-
-    @Override
-    public void removeSelfAndUse() {
-        val.removeUse(this);
-        ptr.removeUse(this);
-        removeSelf();
     }
 
     @Override

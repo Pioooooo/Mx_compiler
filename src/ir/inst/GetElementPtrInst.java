@@ -6,6 +6,7 @@ import ir.Type;
 import ir.Value;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 public class GetElementPtrInst extends Inst {
@@ -62,10 +63,11 @@ public class GetElementPtrInst extends Inst {
     }
 
     @Override
-    public void removeSelfAndUse() {
-        ptrVal.removeUse(this);
-        indexes.forEach(i -> i.removeUse(this));
-        removeSelf();
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(ptrVal);
+        def.addAll(indexes);
+        return def;
     }
 
     @Override

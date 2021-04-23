@@ -4,6 +4,8 @@ import ir.Function;
 import ir.Type;
 import ir.Value;
 
+import java.util.HashSet;
+
 public class Argument extends Constant {
     Function parent;
     public Value ptr;
@@ -17,6 +19,11 @@ public class Argument extends Constant {
     @Override
     public String toString() {
         return "%val." + num;
+    }
+
+    @Override
+    public HashSet<Value> getDef() {
+        return new HashSet<>();
     }
 
     @Override

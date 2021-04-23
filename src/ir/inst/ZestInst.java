@@ -4,6 +4,8 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Value;
 
+import java.util.HashSet;
+
 public class ZestInst extends Inst {
     Value val;
 
@@ -26,9 +28,10 @@ public class ZestInst extends Inst {
     }
 
     @Override
-    public void removeSelfAndUse() {
-        val.removeUse(this);
-        removeSelf();
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(val);
+        return def;
     }
 
     @Override

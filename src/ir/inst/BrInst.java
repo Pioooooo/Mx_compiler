@@ -5,6 +5,8 @@ import ir.Inst;
 import ir.Type;
 import ir.Value;
 
+import java.util.HashSet;
+
 public class BrInst extends Terminator {
     public Value cond;
     public BasicBlock trueDest, falseDest;
@@ -16,6 +18,10 @@ public class BrInst extends Terminator {
         this.falseDest = falseDest;
         basicBlock.addSuccessor(trueDest);
         basicBlock.addSuccessor(falseDest);
+        trueDest.addUse(this);
+        if (falseDest != null) {
+            falseDest.addUse(this);
+        }
         if (cond != null) {
             cond.addUse(this);
         }
@@ -28,6 +34,10 @@ public class BrInst extends Terminator {
         this.falseDest = falseDest;
         basicBlock.addSuccessor(trueDest);
         basicBlock.addSuccessor(falseDest);
+        trueDest.addUse(this);
+        if (falseDest != null) {
+            falseDest.addUse(this);
+        }
         if (cond != null) {
             cond.addUse(this);
         }
@@ -40,6 +50,10 @@ public class BrInst extends Terminator {
         this.falseDest = falseDest;
         inst.getParent().addSuccessor(trueDest);
         inst.getParent().addSuccessor(falseDest);
+        trueDest.addUse(this);
+        if (falseDest != null) {
+            falseDest.addUse(this);
+        }
         if (cond != null) {
             cond.addUse(this);
         }
@@ -82,6 +96,13 @@ public class BrInst extends Terminator {
     }
 
     @Override
+    public HashSet<Value> getDef() {
+        var def = new HashSet<Value>();
+        def.add(cond);
+        return def;
+    }
+
+    @Override
     public void replaceUse(Value o, Value n) {
         if (cond == o) {
             cond = n;
@@ -97,14 +118,6 @@ public class BrInst extends Terminator {
     @Override
     public Value simplify() {
         return null;
-    }
-
-    @Override
-    public void removeSelfAndUse() {
-        if (cond != null) {
-            cond.removeUse(this);
-        }
-        removeSelf();
     }
 
     @Override
