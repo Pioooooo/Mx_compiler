@@ -26,6 +26,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import recognizer.MxLexer;
 import recognizer.MxParser;
+import transforms.SCCP;
 import transforms.util.CleanUp;
 import transforms.util.MemToReg;
 import util.MxErrorListener;
@@ -66,6 +67,9 @@ public class PioMxCompiler implements Callable<Integer> {
             if (input == null) {
                 System.err.println("ready >>> ");
             }
+            if (stage != null && stage.printIR) {
+                stage.optimize = true;
+            }
             MxLexer lexer = new MxLexer(CharStreams.fromStream(input == null ? System.in : new FileInputStream(input)));
             lexer.removeErrorListeners();
             lexer.addErrorListener(new MxErrorListener());
@@ -93,6 +97,9 @@ public class PioMxCompiler implements Callable<Integer> {
             irBuilder.visit(astRoot);
             new CleanUp(module).run();
             new MemToReg(module).run();
+            if (stage != null && stage.optimize) {
+                new SCCP(module).run();
+            }
             if (stage != null && stage.printIR) {
                 IRPrinter printer = new IRPrinter();
                 printer.print(module, stage.codeGen || out == null ?

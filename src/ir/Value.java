@@ -8,7 +8,7 @@ abstract public class Value {
     protected Type type;
     public Register asmReg;
 
-    public HashSet<Value> use = new HashSet<>();
+    public HashSet<Inst> use = new HashSet<>();
 
     public Value(Type type) {
         this.type = type;
@@ -16,24 +16,20 @@ abstract public class Value {
 
     public abstract HashSet<Value> getDef();
 
-    public HashSet<Value> getUse() {
+    public HashSet<Inst> getUse() {
         return use;
     }
 
-    public void addUse(Value u) {
+    public void addUse(Inst u) {
         use.add(u);
     }
 
-    public boolean removeUse(Value u) {
+    public boolean removeUse(Inst u) {
         return use.remove(u);
     }
 
-    public void removeSelfAndDef() {
-        getDef().forEach(v -> v.removeUse(this));
-    }
-
     public void replaceUseWith(Value n) {
-        for (Value u : use) {
+        for (Inst u : use) {
             u.replaceUse(this, n);
             n.addUse(u);
         }

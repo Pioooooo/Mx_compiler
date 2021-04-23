@@ -52,7 +52,7 @@ public class AllocaInst extends Inst {
     }
 
     @Override
-    public void addUse(Value u) {
+    public void addUse(Inst u) {
         if (u instanceof LoadInst) {
             loadInst.add((LoadInst) u);
         }
@@ -63,7 +63,7 @@ public class AllocaInst extends Inst {
     }
 
     @Override
-    public boolean removeUse(Value u) {
+    public boolean removeUse(Inst u) {
         if (u instanceof LoadInst) {
             loadInst.remove(u);
         }

@@ -22,11 +22,6 @@ public class Argument extends Constant {
     }
 
     @Override
-    public HashSet<Value> getDef() {
-        return new HashSet<>();
-    }
-
-    @Override
     public String getName() {
         return "val." + num;
     }

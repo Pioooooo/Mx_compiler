@@ -90,7 +90,7 @@ public class PhiInst extends Inst {
         if (blocks.values().stream().allMatch(v -> v == commonValue)) {
             return commonValue;
         }
-        if (use.stream().allMatch(u -> !(u instanceof Inst) || u == this)) {
+        if (use.stream().allMatch(u -> u == this)) {
             return ConstantPointerNull.get(type.m);
         }
         return null;

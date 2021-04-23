@@ -98,7 +98,13 @@ public class BrInst extends Terminator {
     @Override
     public HashSet<Value> getDef() {
         var def = new HashSet<Value>();
-        def.add(cond);
+        if (cond != null) {
+            def.add(cond);
+        }
+        def.add(trueDest);
+        if (falseDest != null) {
+            def.add(falseDest);
+        }
         return def;
     }
 

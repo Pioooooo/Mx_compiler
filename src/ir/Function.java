@@ -158,11 +158,6 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
     }
 
     @Override
-    public void removeSelfAndDef() {
-        removeSelf();
-    }
-
-    @Override
     public void replaceUse(Value o, Value n) {
     }
 }

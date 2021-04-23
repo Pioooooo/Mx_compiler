@@ -3,6 +3,7 @@ package ir.inst;
 import ir.BasicBlock;
 import ir.Inst;
 import ir.Value;
+import ir.values.ConstantInt;
 
 import java.util.HashSet;
 
@@ -73,7 +74,26 @@ public class Binary extends Inst {
 
     @Override
     public Value simplify() {
-        return null;
+        if (lhs instanceof ConstantInt && rhs instanceof ConstantInt) {
+            if ((opType == OpType.sdiv || opType == OpType.srem) && ((ConstantInt) rhs).val == 0) {
+                return null;
+            }
+            int val = switch (opType) {
+                case mul -> ((ConstantInt) lhs).val * ((ConstantInt) rhs).val;
+                case sdiv -> ((ConstantInt) lhs).val / ((ConstantInt) rhs).val;
+                case srem -> ((ConstantInt) lhs).val % ((ConstantInt) rhs).val;
+                case shl -> ((ConstantInt) lhs).val << ((ConstantInt) rhs).val;
+                case ashr -> ((ConstantInt) lhs).val >> ((ConstantInt) rhs).val;
+                case and -> ((ConstantInt) lhs).val & ((ConstantInt) rhs).val;
+                case or -> ((ConstantInt) lhs).val | ((ConstantInt) rhs).val;
+                case xor -> ((ConstantInt) lhs).val ^ ((ConstantInt) rhs).val;
+                case sub -> ((ConstantInt) lhs).val - ((ConstantInt) rhs).val;
+                case add -> ((ConstantInt) lhs).val + ((ConstantInt) rhs).val;
+            };
+            return ConstantInt.get(getContext(), type.size(), val);
+        } else {
+            return null;
+        }
     }
 
     @Override

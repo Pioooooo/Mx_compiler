@@ -30,9 +30,8 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
 
     public abstract Value simplify();
 
-    @Override
     public void removeSelfAndDef() {
-        super.removeSelfAndDef();
+        getDef().forEach(v -> v.removeUse(this));
         removeSelf();
     }
 

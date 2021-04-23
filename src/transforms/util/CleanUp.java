@@ -46,7 +46,7 @@ public class CleanUp {
         }
         BasicBlock next = b.suc.get(0);
         if (b.suc.size() == 1 && next.pre.size() == 1) {
-            b.instList.remove(b.getTail().previous());
+            b.getTail().previous().removeSelfAndDef();
             b.suc = next.suc;
             b.instList.addAll(next.instList);
             next.instList.forEach(i -> i.setParent(b));
@@ -54,16 +54,7 @@ public class CleanUp {
                 s.pre.remove(next);
                 s.pre.add(b);
             });
-            next.replaceUseWith(b);
             next.removeSelf();
-        } else if (b.getHead().get() instanceof BrInst && b.suc.size() == 1) {
-            b.pre.forEach(p -> {
-                p.suc.remove(b);
-                p.suc.add(next);
-            });
-            next.pre = b.pre;
-            b.replaceUseWith(next);
-            b.removeSelf();
         }
     }
 
@@ -72,7 +63,7 @@ public class CleanUp {
         while (eliminated.get()) {
             eliminated.set(false);
             f.basicBlockList.forEach(b -> b.forEach(i -> {
-                if (!i.getType().isVoid() && !(i instanceof CallInst) && i.use.size() == 0) {
+                if (!i.getType().isVoid() && !(i instanceof CallInst) && i.use.isEmpty()) {
                     i.removeSelfAndDef();
                     eliminated.set(true);
                 }
