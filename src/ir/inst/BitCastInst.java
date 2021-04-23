@@ -51,6 +51,12 @@ public class BitCastInst extends Inst {
     }
 
     @Override
+    public void removeSelfAndUse() {
+        val.removeUse(this);
+        removeSelf();
+    }
+
+    @Override
     public boolean hasRet() {
         return true;
     }

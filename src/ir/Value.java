@@ -2,13 +2,13 @@ package ir;
 
 import asm.operand.Register;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 abstract public class Value {
     protected Type type;
     public Register asmReg;
 
-    public ArrayList<Value> use = new ArrayList<>();
+    public HashSet<Value> use = new HashSet<>();
 
     public Value(Type type) {
         this.type = type;
@@ -17,6 +17,9 @@ abstract public class Value {
     public abstract void addUse(Value u);
 
     public abstract boolean removeUse(Value u);
+
+    public void removeSelfAndUse() {
+    }
 
     public abstract void replaceUseWith(Value n);
 

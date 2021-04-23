@@ -3,11 +3,14 @@ package transforms.util;
 import ir.BasicBlock;
 import ir.Function;
 import ir.Module;
+import ir.inst.CallInst;
 
-public class DeadBlockRemove {
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class CleanUp {
     Module m;
 
-    public DeadBlockRemove(Module m) {
+    public CleanUp(Module m) {
         this.m = m;
     }
 
@@ -16,7 +19,12 @@ public class DeadBlockRemove {
     }
 
     void run(Function f) {
-        f.basicBlockList.forEach(this::run);
+        deadBlockRemove(f);
+        deadInstRemove(f);
+    }
+
+    void deadBlockRemove(Function f) {
+        f.basicBlockList.forEach(this::deadBlockRemove);
         BasicBlock entry = f.basicBlockList.getHead().get();
         boolean eliminated = true;
         while (eliminated) {
@@ -31,7 +39,7 @@ public class DeadBlockRemove {
         }
     }
 
-    void run(BasicBlock b) {
+    void deadBlockRemove(BasicBlock b) {
         if (b.suc.isEmpty()) {
             return;
         }
@@ -48,6 +56,19 @@ public class DeadBlockRemove {
             // for Inst in next.instList
             next.instList = b.instList;
             next.pre = b.pre;
+        }
+    }
+
+    void deadInstRemove(Function f) {
+        AtomicBoolean eliminated = new AtomicBoolean(true);
+        while (eliminated.get()) {
+            eliminated.set(false);
+            f.basicBlockList.forEach(b -> b.forEach(i -> {
+                if (!i.getType().isVoid() && !(i instanceof CallInst) && i.use.size() == 0) {
+                    i.removeSelfAndUse();
+                    eliminated.set(true);
+                }
+            }));
         }
     }
 }

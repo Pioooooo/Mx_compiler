@@ -68,6 +68,11 @@ public class AllocaInst extends Inst {
     }
 
     @Override
+    public void removeSelfAndUse() {
+        removeSelf();
+    }
+
+    @Override
     public void replaceUse(Value o, Value n) {
     }
 

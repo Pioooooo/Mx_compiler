@@ -50,6 +50,12 @@ public class LoadInst extends Inst {
     }
 
     @Override
+    public void removeSelfAndUse() {
+        ptr.removeUse(this);
+        removeSelf();
+    }
+
+    @Override
     public boolean hasRet() {
         return true;
     }

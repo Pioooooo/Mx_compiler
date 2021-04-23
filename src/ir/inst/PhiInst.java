@@ -56,7 +56,7 @@ public class PhiInst extends Inst {
 
     public void addIncoming(BasicBlock basicBlock, Value value) {
         blocks.put(basicBlock, value);
-        addUse(value);
+        value.addUse(this);
     }
 
     @Override
@@ -74,6 +74,12 @@ public class PhiInst extends Inst {
             return ConstantPointerNull.get(type.m);
         }
         return null;
+    }
+
+    @Override
+    public void removeSelfAndUse() {
+        blocks.values().forEach(v -> v.removeUse(this));
+        removeSelf();
     }
 
     @Override

@@ -3,7 +3,7 @@ package ir;
 import util.list.ListNode;
 import util.list.ListNodeWithParent;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 abstract public class Inst extends Value implements ListNodeWithParent<Inst, BasicBlock> {
     Inst prev, next;
@@ -41,12 +41,15 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
     }
 
     @Override
+    public abstract void removeSelfAndUse();
+
+    @Override
     public void replaceUseWith(Value n) {
         for (Value u : use) {
             u.replaceUse(this, n);
             n.addUse(u);
         }
-        use = new ArrayList<>();
+        use = new HashSet<>();
     }
 
     public boolean hasRet() {

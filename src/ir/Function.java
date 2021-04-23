@@ -154,11 +154,13 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
 
     @Override
     public void addUse(Value u) {
+        use.add(u);
     }
+
 
     @Override
     public boolean removeUse(Value u) {
-        return false;
+        return use.remove(u);
     }
 
     @Override

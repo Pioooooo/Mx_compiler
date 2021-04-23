@@ -61,6 +61,13 @@ public class StoreInst extends Inst {
     }
 
     @Override
+    public void removeSelfAndUse() {
+        val.removeUse(this);
+        ptr.removeUse(this);
+        removeSelf();
+    }
+
+    @Override
     public String getFullInst() {
         return "store " + (val instanceof ConstantPointerNull ? ptr.getType().getBaseType() : val.getType()) + " " + val + ", " + ptr.getType() + " " + ptr + ", align " + val.getType().size() / 8;
     }

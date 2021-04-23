@@ -17,21 +17,24 @@ public class CallInst extends Inst {
         super(((FunctionType) function.getType()).retType, basicBlock, inst);
         this.function = function;
         this.args = args;
-        args.forEach(v -> v.addUse(this));
+        function.addUse(this);
+        args.forEach(a -> a.addUse(this));
     }
 
     CallInst(Function function, ArrayList<Value> args, BasicBlock basicBlock) {
         super(((FunctionType) function.getType()).retType, basicBlock);
         this.function = function;
         this.args = args;
-        args.forEach(v -> v.addUse(this));
+        function.addUse(this);
+        args.forEach(a -> a.addUse(this));
     }
 
     CallInst(Function function, ArrayList<Value> args, Inst inst) {
         super(((FunctionType) function.getType()).retType, inst);
         this.function = function;
         this.args = args;
-        args.forEach(v -> v.addUse(this));
+        function.addUse(this);
+        args.forEach(a -> a.addUse(this));
     }
 
     CallInst(Function function, BasicBlock basicBlock, Inst inst) {
@@ -78,6 +81,13 @@ public class CallInst extends Inst {
     @Override
     public Value simplify() {
         return null;
+    }
+
+    @Override
+    public void removeSelfAndUse() {
+        function.removeUse(this);
+        args.forEach(a -> a.removeUse(this));
+        removeSelf();
     }
 
     @Override

@@ -68,6 +68,13 @@ public class Icmp extends Inst {
     }
 
     @Override
+    public void removeSelfAndUse() {
+        lhs.removeUse(this);
+        rhs.removeUse(this);
+        removeSelf();
+    }
+
+    @Override
     public boolean hasRet() {
         return true;
     }

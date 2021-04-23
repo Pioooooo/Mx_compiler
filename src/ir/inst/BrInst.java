@@ -10,7 +10,7 @@ public class BrInst extends Terminator {
     public BasicBlock trueDest, falseDest;
 
     BrInst(Value cond, BasicBlock trueDest, BasicBlock falseDest, BasicBlock basicBlock, Inst inst) {
-        super(Type.getLabelTy(trueDest.getContext()), basicBlock, inst);
+        super(Type.getVoidTy(trueDest.getContext()), basicBlock, inst);
         this.cond = cond;
         this.trueDest = trueDest;
         this.falseDest = falseDest;
@@ -22,7 +22,7 @@ public class BrInst extends Terminator {
     }
 
     BrInst(Value cond, BasicBlock trueDest, BasicBlock falseDest, BasicBlock basicBlock) {
-        super(Type.getLabelTy(trueDest.getContext()), basicBlock);
+        super(Type.getVoidTy(trueDest.getContext()), basicBlock);
         this.cond = cond;
         this.trueDest = trueDest;
         this.falseDest = falseDest;
@@ -34,7 +34,7 @@ public class BrInst extends Terminator {
     }
 
     BrInst(Value cond, BasicBlock trueDest, BasicBlock falseDest, Inst inst) {
-        super(Type.getLabelTy(trueDest.getContext()), inst);
+        super(Type.getVoidTy(trueDest.getContext()), inst);
         this.cond = cond;
         this.trueDest = trueDest;
         this.falseDest = falseDest;
@@ -97,6 +97,14 @@ public class BrInst extends Terminator {
     @Override
     public Value simplify() {
         return null;
+    }
+
+    @Override
+    public void removeSelfAndUse() {
+        if (cond != null) {
+            cond.removeUse(this);
+        }
+        removeSelf();
     }
 
     @Override

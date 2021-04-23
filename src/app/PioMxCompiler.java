@@ -26,7 +26,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import recognizer.MxLexer;
 import recognizer.MxParser;
-import transforms.util.DeadBlockRemove;
+import transforms.util.CleanUp;
 import transforms.util.MemToReg;
 import util.MxErrorListener;
 
@@ -91,7 +91,7 @@ public class PioMxCompiler implements Callable<Integer> {
             }
             IRBuilder irBuilder = new IRBuilder(globalScope, module);
             irBuilder.visit(astRoot);
-            new DeadBlockRemove(module).run();
+            new CleanUp(module).run();
             new MemToReg(module).run();
             if (stage != null && stage.printIR) {
                 IRPrinter printer = new IRPrinter();

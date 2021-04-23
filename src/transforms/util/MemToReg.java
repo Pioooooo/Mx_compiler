@@ -42,7 +42,7 @@ public class MemToReg {
                 it.remove();
                 continue;
             }
-            BasicBlock useBlock = ((Inst) a.use.get(0)).getParent();
+            BasicBlock useBlock = ((Inst) a.use.iterator().next()).getParent();
             if (a.use.stream().noneMatch(i -> ((Inst) i).getParent() != useBlock)) {
                 rewriteSingleBlockAlloca(a, useBlock);
                 if (a.use.isEmpty()) {
@@ -63,7 +63,7 @@ public class MemToReg {
         }
         visited = new HashSet<>();
         rename(f);
-        phiEliminate(f);
+        phiEliminate();
     }
 
     void phiInsert(AllocaInst a) {
@@ -129,11 +129,11 @@ public class MemToReg {
                 if (inst instanceof StoreInst && ((StoreInst) inst).ptr instanceof AllocaInst) {
                     AllocaInst a = (AllocaInst) ((StoreInst) inst).ptr;
                     incomingValues.put(a, ((StoreInst) inst).val);
-                    inst.removeSelf();
+                    inst.removeSelfAndUse();
                 } else if (inst instanceof LoadInst && ((LoadInst) inst).ptr instanceof AllocaInst) {
                     AllocaInst a = (AllocaInst) ((LoadInst) inst).ptr;
                     inst.replaceUseWith(incomingValues.get(a));
-                    inst.removeSelf();
+                    inst.removeSelfAndUse();
                 }
             });
             if (b.suc.isEmpty()) {
@@ -148,7 +148,7 @@ public class MemToReg {
         }
     }
 
-    void phiEliminate(Function f) {
+    void phiEliminate() {
         boolean eliminated = true;
         while (eliminated) {
             eliminated = false;
@@ -158,7 +158,7 @@ public class MemToReg {
                 Value v = p.simplify();
                 if (v != null) {
                     p.replaceUseWith(v);
-                    p.removeSelf();
+                    p.removeSelfAndUse();
                     it.remove();
                     eliminated = true;
                 }
@@ -208,10 +208,10 @@ public class MemToReg {
         for (Inst i : b.instList) {
             if (i instanceof StoreInst && ((StoreInst) i).ptr == a) {
                 cur = ((StoreInst) i).val;
-                i.removeSelf();
+                i.removeSelfAndUse();
             } else if (i instanceof LoadInst && ((LoadInst) i).ptr == a && cur != null) {
                 i.replaceUseWith(cur);
-                i.removeSelf();
+                i.removeSelfAndUse();
             }
         }
     }
@@ -226,17 +226,17 @@ public class MemToReg {
                 stored = true;
             } else if (i instanceof LoadInst && ((LoadInst) i).ptr == a && stored) {
                 i.replaceUseWith(val);
-                i.removeSelf();
+                i.removeSelfAndUse();
             }
         }
         a.loadInst.forEach(l -> {
             if (dom.dominates(storeBlock, l.getParent())) {
                 l.replaceUseWith(val);
-                l.removeSelf();
+                l.removeSelfAndUse();
             }
         });
-        if (a.use.isEmpty()) {
-            store.removeSelf();
+        if (a.loadInst.isEmpty()) {
+            store.removeSelfAndUse();
         }
     }
 }
