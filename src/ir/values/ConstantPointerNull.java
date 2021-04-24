@@ -8,7 +8,7 @@ public class ConstantPointerNull extends GlobalPointer {
         super(Type.getPointerTy(Type.getVoidTy(m), false));
     }
 
-    ConstantPointerNull(Module m, Type type) {
+    ConstantPointerNull(Type type) {
         super(type);
     }
 
@@ -16,8 +16,8 @@ public class ConstantPointerNull extends GlobalPointer {
         return new ConstantPointerNull(m);
     }
 
-    public static ConstantPointerNull get(Module m, Type type) {
-        return new ConstantPointerNull(m, type);
+    public static ConstantPointerNull get(Type type) {
+        return new ConstantPointerNull(type);
     }
 
     @Override

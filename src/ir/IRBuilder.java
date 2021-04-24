@@ -522,6 +522,7 @@ public class IRBuilder implements AstVisitor<Value> {
 //                    builder.createAssign(ptr, builder.getInt1(1));
 //                    n.lhs.thenBlock = mergeBlock;
 //                    n.lhs.elseBlock = falseBlock;
+                    n.lhs.ptr = ptr;
                     Value lValue = n.lhs.accept(this);
                     builder.createCondBr(builder.createPointerResolve(lValue), mergeBlock, falseBlock);
                     builder.setInsertPoint(falseBlock);

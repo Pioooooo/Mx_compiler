@@ -103,9 +103,9 @@ public class Type {
 
     public Value getDefaultValue(Module m) {
         return switch (id) {
-            case PointerTyID -> ConstantPointerNull.get(m, this);
-            case ArrayTyID -> ConstantPointerNull.get(m, getPointerTy(getBaseType(), false));
-            case StructTyID -> ConstantPointerNull.get(m, getPointerTy(this, false));
+            case PointerTyID -> ConstantPointerNull.get(this);
+            case ArrayTyID -> ConstantPointerNull.get(getPointerTy(getBaseType(), false));
+            case StructTyID -> ConstantPointerNull.get(getPointerTy(this, false));
             default -> throw new InternalError("calling getDefaultValue on Type");
         };
     }
