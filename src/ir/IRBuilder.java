@@ -475,15 +475,11 @@ public class IRBuilder implements AstVisitor<Value> {
                     Function function = builder.getFunction();
                     BasicBlock trueBlock = BasicBlock.create(loopDepth, m, function),
                             mergeBlock = BasicBlock.create(loopDepth, m, function);
-//                            condBlock = builder.getInsertBlock();
                     Value ptr = n.ptr;
                     if (ptr == null) {
                         ptr = builder.createEntryBlockAlloca(m.int1Ty);
                     }
-//                    builder.createAssign(ptr, builder.getInt1(0));
-//                    n.lhs.thenBlock = trueBlock;
-//                    n.lhs.elseBlock = mergeBlock;
-                    n.lhs.ptr = ptr;
+                    builder.createAssign(ptr, builder.getInt1(0));
                     Value lValue = n.lhs.accept(this);
                     builder.createCondBr(builder.createPointerResolve(lValue), trueBlock, mergeBlock);
                     builder.setInsertPoint(trueBlock);
@@ -492,11 +488,6 @@ public class IRBuilder implements AstVisitor<Value> {
                     builder.createBr(mergeBlock);
                     builder.setInsertPoint(mergeBlock);
                     return ptr;
-//                    trueBlock = builder.getInsertBlock();
-//                    PhiInst phi = builder.createPhi(builder.getIntNTy(8));
-//                    phi.addIncoming(condBlock, builder.getInt32(0));
-//                    phi.addIncoming(trueBlock, rValue);
-//                    return phi;
                 }
             }
             case LOR -> {
@@ -514,15 +505,13 @@ public class IRBuilder implements AstVisitor<Value> {
                     Function function = builder.getFunction();
                     BasicBlock falseBlock = BasicBlock.create(loopDepth, m, function),
                             mergeBlock = BasicBlock.create(loopDepth, m, function);
-//                            condBlock = builder.getInsertBlock();
                     Value ptr = n.ptr;
                     if (ptr == null) {
                         ptr = builder.createEntryBlockAlloca(m.int1Ty);
                     }
-//                    builder.createAssign(ptr, builder.getInt1(1));
-//                    n.lhs.thenBlock = mergeBlock;
-//                    n.lhs.elseBlock = falseBlock;
-                    n.lhs.ptr = ptr;
+                    builder.createAssign(ptr, builder.getInt1(1));
+                    n.lhs.thenBlock = mergeBlock;
+                    n.lhs.elseBlock = falseBlock;
                     Value lValue = n.lhs.accept(this);
                     builder.createCondBr(builder.createPointerResolve(lValue), mergeBlock, falseBlock);
                     builder.setInsertPoint(falseBlock);
@@ -531,11 +520,6 @@ public class IRBuilder implements AstVisitor<Value> {
                     builder.createBr(mergeBlock);
                     builder.setInsertPoint(mergeBlock);
                     return ptr;
-//                    falseBlock = builder.getInsertBlock();
-//                    PhiInst phi = builder.createPhi(builder.getIntNTy(8));
-//                    phi.addIncoming(condBlock, builder.getInt32(1));
-//                    phi.addIncoming(falseBlock, rValue);
-//                    return phi;
                 }
             }
             case R_SHIFT -> {
