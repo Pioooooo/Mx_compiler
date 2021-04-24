@@ -4,6 +4,7 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Type;
 import ir.Value;
+import ir.values.ConstantInt;
 
 import java.util.HashSet;
 
@@ -42,16 +43,16 @@ public class Icmp extends Inst {
         rhs.addUse(this);
     }
 
-    public static Icmp create(Value lhs, Value rhs, OpType opType, BasicBlock basicBlock, Inst inst) {
-        return new Icmp(lhs, rhs, opType, basicBlock, inst);
+    public static Icmp create(Value lhs, Value rhs, OpType op, BasicBlock basicBlock, Inst inst) {
+        return new Icmp(lhs, rhs, op, basicBlock, inst);
     }
 
-    public static Icmp create(Value lhs, Value rhs, OpType opType, BasicBlock basicBlock) {
-        return new Icmp(lhs, rhs, opType, basicBlock);
+    public static Icmp create(Value lhs, Value rhs, OpType op, BasicBlock basicBlock) {
+        return new Icmp(lhs, rhs, op, basicBlock);
     }
 
-    public static Icmp create(Value lhs, Value rhs, OpType opType, Inst inst) {
-        return new Icmp(lhs, rhs, opType, inst);
+    public static Icmp create(Value lhs, Value rhs, OpType op, Inst inst) {
+        return new Icmp(lhs, rhs, op, inst);
     }
 
     @Override
@@ -74,7 +75,19 @@ public class Icmp extends Inst {
 
     @Override
     public Value simplify() {
-        return null;
+        if (lhs instanceof ConstantInt && rhs instanceof ConstantInt) {
+            boolean val = switch (op) {
+                case slt -> ((ConstantInt) lhs).val < ((ConstantInt) rhs).val;
+                case sge -> ((ConstantInt) lhs).val >= ((ConstantInt) rhs).val;
+                case sle -> ((ConstantInt) lhs).val <= ((ConstantInt) rhs).val;
+                case sgt -> ((ConstantInt) lhs).val > ((ConstantInt) rhs).val;
+                case eq -> ((ConstantInt) lhs).val == ((ConstantInt) rhs).val;
+                case ne -> ((ConstantInt) lhs).val != ((ConstantInt) rhs).val;
+            };
+            return ConstantInt.getBool(getContext(), 1, val);
+        } else {
+            return null;
+        }
     }
 
     @Override

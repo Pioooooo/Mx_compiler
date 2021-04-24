@@ -26,6 +26,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import recognizer.MxLexer;
 import recognizer.MxParser;
+import transforms.Optimizer;
 import transforms.SCCP;
 import transforms.util.CleanUp;
 import transforms.util.MemToReg;
@@ -99,7 +100,7 @@ public class PioMxCompiler implements Callable<Integer> {
             new CleanUp(module).run();
             new MemToReg(module).run();
             if (stage != null && stage.optimize) {
-                new SCCP(module).run();
+                new Optimizer(module).run();
             }
             if (stage != null && stage.printIR) {
                 IRPrinter printer = new IRPrinter();

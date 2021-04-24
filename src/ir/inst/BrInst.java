@@ -4,6 +4,7 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Type;
 import ir.Value;
+import ir.values.ConstantInt;
 
 import java.util.HashSet;
 
@@ -123,6 +124,14 @@ public class BrInst extends Terminator {
 
     @Override
     public Value simplify() {
+        if (cond != null && cond instanceof ConstantInt) {
+            BrInst br = null;
+            try {
+                br = BrInst.create(((ConstantInt) cond).val != 0 ? trueDest : falseDest, this);
+            } catch (InternalError ignored) {
+            }
+            return br;
+        }
         return null;
     }
 

@@ -137,7 +137,7 @@ public class AsmBuilder {
             Calc.OpType op;
             Register rd = getReg(inst), rs1;
             Operand rs2;
-            op = switch (((Binary) inst).opType) {
+            op = switch (((Binary) inst).op) {
                 case mul -> Calc.OpType.mul;
                 case sdiv -> Calc.OpType.div;
                 case srem -> Calc.OpType.rem;

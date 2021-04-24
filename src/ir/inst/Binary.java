@@ -12,46 +12,46 @@ public class Binary extends Inst {
         mul, sdiv, srem, shl, ashr, and, or, xor, sub, add
     }
 
-    public OpType opType;
+    public OpType op;
     public Value lhs, rhs;
 
-    Binary(Value lhs, Value rhs, OpType opType, BasicBlock basicBlock, Inst inst) {
+    Binary(Value lhs, Value rhs, OpType op, BasicBlock basicBlock, Inst inst) {
         super(lhs.getType(), basicBlock, inst);
-        this.opType = opType;
+        this.op = op;
         this.lhs = lhs;
         this.rhs = rhs;
         lhs.addUse(this);
         rhs.addUse(this);
     }
 
-    Binary(Value lhs, Value rhs, OpType opType, BasicBlock basicBlock) {
+    Binary(Value lhs, Value rhs, OpType op, BasicBlock basicBlock) {
         super(lhs.getType(), basicBlock);
-        this.opType = opType;
+        this.op = op;
         this.lhs = lhs;
         this.rhs = rhs;
         lhs.addUse(this);
         rhs.addUse(this);
     }
 
-    Binary(Value lhs, Value rhs, OpType opType, Inst inst) {
+    Binary(Value lhs, Value rhs, OpType op, Inst inst) {
         super(lhs.getType(), inst);
-        this.opType = opType;
+        this.op = op;
         this.lhs = lhs;
         this.rhs = rhs;
         lhs.addUse(this);
         rhs.addUse(this);
     }
 
-    public static Binary create(Value lhs, Value rhs, OpType opType, BasicBlock basicBlock, Inst inst) {
-        return new Binary(lhs, rhs, opType, basicBlock, inst);
+    public static Binary create(Value lhs, Value rhs, OpType op, BasicBlock basicBlock, Inst inst) {
+        return new Binary(lhs, rhs, op, basicBlock, inst);
     }
 
-    public static Binary create(Value lhs, Value rhs, OpType opType, BasicBlock basicBlock) {
-        return new Binary(lhs, rhs, opType, basicBlock);
+    public static Binary create(Value lhs, Value rhs, OpType op, BasicBlock basicBlock) {
+        return new Binary(lhs, rhs, op, basicBlock);
     }
 
-    public static Binary create(Value lhs, Value rhs, OpType opType, Inst inst) {
-        return new Binary(lhs, rhs, opType, inst);
+    public static Binary create(Value lhs, Value rhs, OpType op, Inst inst) {
+        return new Binary(lhs, rhs, op, inst);
     }
 
     @Override
@@ -75,10 +75,10 @@ public class Binary extends Inst {
     @Override
     public Value simplify() {
         if (lhs instanceof ConstantInt && rhs instanceof ConstantInt) {
-            if ((opType == OpType.sdiv || opType == OpType.srem) && ((ConstantInt) rhs).val == 0) {
+            if ((op == OpType.sdiv || op == OpType.srem) && ((ConstantInt) rhs).val == 0) {
                 return null;
             }
-            int val = switch (opType) {
+            int val = switch (op) {
                 case mul -> ((ConstantInt) lhs).val * ((ConstantInt) rhs).val;
                 case sdiv -> ((ConstantInt) lhs).val / ((ConstantInt) rhs).val;
                 case srem -> ((ConstantInt) lhs).val % ((ConstantInt) rhs).val;
@@ -103,6 +103,6 @@ public class Binary extends Inst {
 
     @Override
     public String getFullInst() {
-        return this + " = " + opType + " " + type + " " + lhs + ", " + rhs;
+        return this + " = " + op + " " + type + " " + lhs + ", " + rhs;
     }
 }

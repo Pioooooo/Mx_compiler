@@ -663,7 +663,7 @@ public class IRBuilder implements AstVisitor<Value> {
 
     @Override
     public Value visit(ThisExprNode n) {
-        return builder.getFunction().getArg(0);
+        return builder.getFunction().getClassPtr();
     }
 
     @Override

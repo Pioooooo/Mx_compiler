@@ -8,7 +8,7 @@ public class GlobalString extends Constant {
     final public String val, src;
 
     GlobalString(Module m, String val, String src) {
-        super(PointerType.get(Type.getArrayTy(Type.getIntNTy(m, 8), val.length()), true));
+        super(PointerType.get(Type.getArrayTy(Type.getIntNTy(m, 8), val.length()), false));
         this.val = val;
         this.src = src;
     }
@@ -33,6 +33,13 @@ public class GlobalString extends Constant {
             return ptr;
         }
         return entry;
+    }
+
+    public static GlobalString getFromVal(Module m, String val) {
+        return get(m, "\"" + val.replace("\\", "\\\\")
+                .replace("\n", "\\n")
+                .replace("\t", "\\t")
+                .replace("\"", "\\\"") + "\"");
     }
 
     @Override

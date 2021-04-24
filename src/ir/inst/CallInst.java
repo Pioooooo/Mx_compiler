@@ -5,6 +5,8 @@ import ir.Function;
 import ir.Inst;
 import ir.Value;
 import ir.type.FunctionType;
+import ir.values.ConstantInt;
+import ir.values.GlobalString;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -89,6 +91,89 @@ public class CallInst extends Inst {
 
     @Override
     public Value simplify() {
+        switch (function.getName()) {
+            case "g_toString" -> {
+                if (args.get(0) instanceof ConstantInt) {
+                    ArrayList<Value> idx = new ArrayList<>();
+                    idx.add(ConstantInt.get(getContext(), 32, 0));
+                    idx.add(ConstantInt.get(getContext(), 32, 0));
+                    return GetElementPtrInst.create(getContext().stringTy,
+                            GlobalString.get(getContext(), String.valueOf(((ConstantInt) args.get(0)).val)), idx, this);
+                }
+            }
+            case "__g_str_add" -> {
+                if (args.get(0) instanceof GetElementPtrInst && args.get(1) instanceof GetElementPtrInst) {
+                    ArrayList<Value> idx = new ArrayList<>();
+                    idx.add(ConstantInt.get(getContext(), 32, 0));
+                    idx.add(ConstantInt.get(getContext(), 32, 0));
+                    return GetElementPtrInst.create(getContext().stringTy,
+                            GlobalString.get(getContext(), ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).src.substring(0, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).src.length() - 1)
+                                    + ((GlobalString) ((GetElementPtrInst) args.get(1)).ptrVal).src.substring(1)), idx, this);
+                }
+            }
+            case "__g_str_gt" -> {
+                if (args.get(0) instanceof GetElementPtrInst && args.get(1) instanceof GetElementPtrInst) {
+                    return ConstantInt.getBool(getContext(), 1, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val
+                            .compareTo(((GlobalString) ((GetElementPtrInst) args.get(1)).ptrVal).val) > 0);
+                }
+            }
+            case "__g_str_lt" -> {
+                if (args.get(0) instanceof GetElementPtrInst && args.get(1) instanceof GetElementPtrInst) {
+                    return ConstantInt.getBool(getContext(), 1, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val
+                            .compareTo(((GlobalString) ((GetElementPtrInst) args.get(1)).ptrVal).val) < 0);
+                }
+            }
+            case "__g_str_ge" -> {
+                if (args.get(0) instanceof GetElementPtrInst && args.get(1) instanceof GetElementPtrInst) {
+                    return ConstantInt.getBool(getContext(), 1, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val
+                            .compareTo(((GlobalString) ((GetElementPtrInst) args.get(1)).ptrVal).val) >= 0);
+                }
+            }
+            case "__g_str_le" -> {
+                if (args.get(0) instanceof GetElementPtrInst && args.get(1) instanceof GetElementPtrInst) {
+                    return ConstantInt.getBool(getContext(), 1, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val
+                            .compareTo(((GlobalString) ((GetElementPtrInst) args.get(1)).ptrVal).val) <= 0);
+                }
+            }
+            case "__g_str_ne" -> {
+                if (args.get(0) instanceof GetElementPtrInst && args.get(1) instanceof GetElementPtrInst) {
+                    return ConstantInt.getBool(getContext(), 1, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val
+                            .compareTo(((GlobalString) ((GetElementPtrInst) args.get(1)).ptrVal).val) != 0);
+                }
+            }
+            case "__g_str_eq" -> {
+                if (args.get(0) instanceof GetElementPtrInst && args.get(1) instanceof GetElementPtrInst) {
+                    return ConstantInt.getBool(getContext(), 1, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val
+                            .compareTo(((GlobalString) ((GetElementPtrInst) args.get(1)).ptrVal).val) == 0);
+                }
+            }
+            case "c_string_length" -> {
+                if (args.get(0) instanceof GetElementPtrInst) {
+                    return ConstantInt.get(getContext(), 32, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val.length());
+                }
+            }
+            case "c_string_substring" -> {
+                if (args.get(0) instanceof GetElementPtrInst && args.get(1) instanceof ConstantInt && args.get(2) instanceof ConstantInt) {
+                    ArrayList<Value> idx = new ArrayList<>();
+                    idx.add(ConstantInt.get(getContext(), 32, 0));
+                    idx.add(ConstantInt.get(getContext(), 32, 0));
+                    return GetElementPtrInst.create(getContext().stringTy,
+                            GlobalString.getFromVal(getContext(), ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val
+                                    .substring(((ConstantInt) args.get(1)).val, ((ConstantInt) args.get(2)).val)), idx, this);
+                }
+            }
+            case "c_string_parseInt" -> {
+                if (args.get(0) instanceof GetElementPtrInst) {
+                    return ConstantInt.get(getContext(), 32, Integer.parseInt(((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val));
+                }
+            }
+            case "c_string_ord" -> {
+                if (args.get(0) instanceof GetElementPtrInst && args.get(1) instanceof ConstantInt) {
+                    return ConstantInt.get(getContext(), 32, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val
+                            .charAt(((ConstantInt) args.get(1)).val));
+                }
+            }
+        }
         return null;
     }
 
