@@ -66,6 +66,7 @@ public class PhiInst extends Inst {
 
     public void addIncoming(BasicBlock basicBlock, Value value) {
         blocks.put(basicBlock, value);
+        basicBlock.addUse(this);
         value.addUse(this);
     }
 

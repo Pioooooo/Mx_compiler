@@ -12,4 +12,8 @@ public interface ListNode<NodeTy> {
     NodeTy get();
 
     void removeSelf();
+
+    default boolean inList() {
+        return (getNext() == null || getNext().getPrev() == this) && (getPrev() == null || getPrev().getNext() == this);
+    }
 }

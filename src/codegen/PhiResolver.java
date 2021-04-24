@@ -29,13 +29,13 @@ public class PhiResolver {
         if (b.instList.stream().noneMatch(i -> i instanceof PhiInst)) {
             return;
         }
-        for (int i = 0; i < b.pre.size(); i++) {
-            BasicBlock p = b.pre.get(i);
+        for (BasicBlock p : b.pre) {
             if (p.suc.size() > 1) {
                 BasicBlock t = BasicBlock.create(b.loopDepth, f.getParent(), f);
                 p.replaceSuc(b, t);
                 BrInst.create(b, t);
-                b.pre.set(i, t);
+                b.pre.remove(p);
+                b.pre.add(t);
                 b.instList.forEach(inst -> {
                     if (inst instanceof PhiInst && ((PhiInst) inst).blocks.containsKey(p)) {
                         Value v = ((PhiInst) inst).blocks.get(p);

@@ -1,6 +1,8 @@
 package ir;
 
 import asm.AsmBlock;
+import ir.inst.BrInst;
+import ir.inst.PhiInst;
 import ir.inst.Terminator;
 import util.error.InternalError;
 import util.list.List;
@@ -8,15 +10,14 @@ import util.list.ListIterator;
 import util.list.ListNode;
 import util.list.ListNodeWithParent;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
 public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, Function>, Iterable<Inst> {
     public List<Inst> instList = new List<>();
     boolean terminated = false;
-    public ArrayList<BasicBlock> pre = new ArrayList<>();
-    public ArrayList<BasicBlock> suc = new ArrayList<>();
+    public HashSet<BasicBlock> pre = new HashSet<>();
+    public HashSet<BasicBlock> suc = new HashSet<>();
 
     BasicBlock prev, next;
     Function function;
@@ -99,7 +100,20 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
         getTail().previous().replaceUse(o, n);
         n.pre.add(this);
         o.pre.remove(this);
-        suc.replaceAll(s -> s == o ? n : s);
+        if (suc.remove(o)) {
+            suc.add(n);
+        }
+    }
+
+    public void replaceUse() {
+        use.forEach(i -> {
+            if (i instanceof BrInst) {
+                i.replaceUse(this, suc.iterator().next());
+            } else if (i instanceof PhiInst) {
+                Value v = ((PhiInst) i).blocks.remove(this);
+                pre.forEach(p -> ((PhiInst) i).addIncoming(p, v));
+            }
+        });
     }
 
     @Override

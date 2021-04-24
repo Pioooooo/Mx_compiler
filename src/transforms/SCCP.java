@@ -29,6 +29,9 @@ public class SCCP {
             Queue<Inst> newWorklist = new LinkedList<>();
             while (!worklist.isEmpty()) {
                 Inst i = worklist.poll();
+                if (!i.inList()) {
+                    continue;
+                }
                 Value v = i.simplify();
                 if (v != null) {
                     worklist.addAll(i.use);

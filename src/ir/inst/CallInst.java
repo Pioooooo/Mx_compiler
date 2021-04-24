@@ -149,7 +149,7 @@ public class CallInst extends Inst {
             }
             case "c_string_length" -> {
                 if (args.get(0) instanceof GetElementPtrInst) {
-                    return ConstantInt.get(getContext(), 32, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val.length());
+                    return ConstantInt.get(getContext(), 32, ((GlobalString) ((GetElementPtrInst) args.get(0)).ptrVal).val.length() - 1);
                 }
             }
             case "c_string_substring" -> {
