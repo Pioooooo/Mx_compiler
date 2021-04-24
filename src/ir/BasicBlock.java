@@ -96,15 +96,6 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
         return instList.getTail();
     }
 
-    public void replaceSuc(BasicBlock o, BasicBlock n) {
-        getTail().previous().replaceUse(o, n);
-        n.pre.add(this);
-        o.pre.remove(this);
-        if (suc.remove(o)) {
-            suc.add(n);
-        }
-    }
-
     public void replaceUse() {
         use.forEach(i -> {
             if (i instanceof BrInst) {

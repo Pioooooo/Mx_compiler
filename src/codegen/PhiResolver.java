@@ -7,6 +7,7 @@ import ir.inst.BrInst;
 import ir.inst.PhiInst;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class PhiResolver {
     Function f;
@@ -29,22 +30,25 @@ public class PhiResolver {
         if (b.instList.stream().noneMatch(i -> i instanceof PhiInst)) {
             return;
         }
-        for (BasicBlock p : b.pre) {
-            if (p.suc.size() > 1) {
-                BasicBlock t = BasicBlock.create(b.loopDepth, f.getParent(), f);
-                p.replaceSuc(b, t);
-                BrInst.create(b, t);
-                b.pre.remove(p);
-                b.pre.add(t);
-                b.instList.forEach(inst -> {
-                    if (inst instanceof PhiInst && ((PhiInst) inst).blocks.containsKey(p)) {
-                        Value v = ((PhiInst) inst).blocks.get(p);
-                        ((PhiInst) inst).blocks.put(t, v);
-                        ((PhiInst) inst).blocks.remove(p);
-                    }
-                });
-            }
-        }
+        HashSet<BasicBlock> remove = new HashSet<>(), add = new HashSet<>();
+        b.pre.stream().filter(p -> p.suc.size() > 1).forEach(p -> {
+            BasicBlock t = BasicBlock.create(b.loopDepth, f.getParent(), f);
+            p.getTail().previous().replaceUse(b, t);
+            t.pre.add(p);
+            remove.add(p);
+            p.suc.remove(b);
+            p.suc.add(t);
+            add.add(t);
+            b.instList.forEach(inst -> {
+                if (inst instanceof PhiInst && ((PhiInst) inst).blocks.containsKey(p)) {
+                    Value v = ((PhiInst) inst).blocks.get(p);
+                    ((PhiInst) inst).blocks.put(t, v);
+                    ((PhiInst) inst).blocks.remove(p);
+                }
+            });
+        });
+        b.pre.removeAll(remove);
+        add.forEach(a -> BrInst.create(b, a));
         b.instList.forEach(i -> {
             if (i instanceof PhiInst) {
                 ((PhiInst) i).blocks.forEach((k, v) -> addPCopy(k, (PhiInst) i, v));
