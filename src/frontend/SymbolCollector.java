@@ -78,7 +78,6 @@ public class SymbolCollector implements AstVisitor<Void> {
     @Override
     public Void visit(FuncDefStmtNode n) {
         currentScope.defFunc(n.funcName, new FuncType(n.funcName), n.pos);
-
         return null;
     }
 
