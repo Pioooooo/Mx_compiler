@@ -184,6 +184,7 @@ public class IRBuilder implements AstVisitor<Value> {
         return null;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
     public Value visit(FuncDefStmtNode n) {
         Function function = currentFunction = m.getFunction(n.funcName);
@@ -191,12 +192,10 @@ public class IRBuilder implements AstVisitor<Value> {
         if (n.funcName.equals("main")) {
             builder.createCall(initFunction, new ArrayList<>());
         }
-        for (StmtNode s : n.funcBody) {
-            s.accept(this);
-            if (s instanceof ReturnStmtNode) {
-                break;
-            }
-        }
+        n.funcBody.stream().filter(x -> {
+            x.accept(this);
+            return builder.getInsertBlock().isTerminated();
+        }).findFirst();
         function.basicBlockList.forEach(b -> {
             if (!b.isTerminated()) {
                 if (n.funcName.equals("main")) {
@@ -481,10 +480,10 @@ public class IRBuilder implements AstVisitor<Value> {
                     if (ptr == null) {
                         ptr = builder.createEntryBlockAlloca(m.int1Ty);
                     }
-                    builder.createAssign(ptr, builder.getInt1(0));
+//                    builder.createAssign(ptr, builder.getInt1(0));
 //                    n.lhs.thenBlock = trueBlock;
 //                    n.lhs.elseBlock = mergeBlock;
-//                    n.lhs.ptr = ptr;
+                    n.lhs.ptr = ptr;
                     Value lValue = n.lhs.accept(this);
                     builder.createCondBr(builder.createPointerResolve(lValue), trueBlock, mergeBlock);
                     builder.setInsertPoint(trueBlock);
@@ -520,9 +519,9 @@ public class IRBuilder implements AstVisitor<Value> {
                     if (ptr == null) {
                         ptr = builder.createEntryBlockAlloca(m.int1Ty);
                     }
-                    builder.createAssign(ptr, builder.getInt1(1));
-                    n.lhs.thenBlock = mergeBlock;
-                    n.lhs.elseBlock = falseBlock;
+//                    builder.createAssign(ptr, builder.getInt1(1));
+//                    n.lhs.thenBlock = mergeBlock;
+//                    n.lhs.elseBlock = falseBlock;
                     Value lValue = n.lhs.accept(this);
                     builder.createCondBr(builder.createPointerResolve(lValue), mergeBlock, falseBlock);
                     builder.setInsertPoint(falseBlock);

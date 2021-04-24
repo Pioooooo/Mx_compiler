@@ -5,6 +5,7 @@ import ir.type.IntegerType;
 import ir.values.ConstantInt;
 import ir.values.GlobalPointer;
 import ir.values.GlobalString;
+import util.error.InternalError;
 import util.list.ListIterator;
 
 import java.util.ArrayList;

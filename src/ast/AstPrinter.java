@@ -72,10 +72,12 @@ public class AstPrinter implements AstVisitor<Void> {
     @Override
     public Void visit(ExprStmtNode n) {
         println("[ExprStmtNode]@" + n.pos);
-        println("expr:");
-        depth++;
-        n.expr.accept(this);
-        depth--;
+        if (n.expr != null) {
+            println("expr:");
+            depth++;
+            n.expr.accept(this);
+            depth--;
+        }
         return null;
     }
 

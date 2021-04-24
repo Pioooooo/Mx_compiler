@@ -84,6 +84,7 @@ public class PioMxCompiler implements Callable<Integer> {
                         new PrintStream(new FileOutputStream((input == null ? "a" : input.getAbsolutePath()) + ".ast.dump"))
                         : out).visit(astRoot);
                 System.err.println("ast dumped");
+                return 0;
             }
             Scope globalScope = new Scope(null);
             Module module = new Module();
