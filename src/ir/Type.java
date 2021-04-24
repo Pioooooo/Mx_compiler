@@ -103,7 +103,7 @@ public class Type {
 
     public Value getDefaultValue(Module m) {
         return switch (id) {
-            case PointerTyID, ArrayTyID, StructTyID -> ConstantPointerNull.get(m);
+            case PointerTyID, ArrayTyID, StructTyID -> ConstantPointerNull.get(m, this);
             default -> throw new InternalError("calling getDefaultValue on Type");
         };
     }

@@ -269,7 +269,7 @@ public class AsmBuilder {
         }
         if (inst instanceof GetElementPtrInst) {
             Register ptrVal = getReg(((GetElementPtrInst) inst).ptrVal);
-            Type type = inst.getType().getBaseType().getBaseType();
+            Type type = ((GetElementPtrInst) inst).ptrVal.getType().getBaseType();
             int offset = 0;
             if (((GetElementPtrInst) inst).indexes.size() == 2) {
                 if (type instanceof StructType) {
