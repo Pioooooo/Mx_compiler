@@ -114,11 +114,11 @@ public class SemanticChecker implements AstVisitor<Void> {
         n.params.forEach(x -> x.entity = currentScope.defVar(x.name, new Entity(x.name, getType(x.type, x.dim, x.pos)), x.pos));
         n.funcBody.forEach(x -> x.accept(this));
         currentScope = currentScope.parent();
-        if (!n.funcName.equals("main") && !currentRetType.isVoid() && !returned) {
+        if (!(currentClass == null &&n.funcName.equals("main")) && !currentRetType.isVoid() && !returned) {
             throw new SemanticError("function " + n.funcName + " not returned", n.pos);
         }
         FuncType funcType = currentScope.getFunc(n.funcName, true, n.pos);
-        if (!n.funcName.equals("main")) {
+        if (currentClass != null || !n.funcName.equals("main")) {
             n.funcName = (currentClass == null ? "g_" : "c_" + currentClass.name() + "_") + n.funcName;
         }
         ArrayList<ir.Type> params = new ArrayList<>();

@@ -102,6 +102,9 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     }
 
     public void replaceUse() {
+        if (use.isEmpty()) {
+            return;
+        }
         BasicBlock next = suc.iterator().next();
         use.forEach(i -> {
             if (i instanceof BrInst) {
