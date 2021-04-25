@@ -40,7 +40,7 @@ public class CleanUp {
         eliminated = true;
         while (eliminated) {
             eliminated = false;
-            for (BasicBlock b : f.basicBlockList) {
+            for (var b = f.basicBlockList.getHead().get(); b.getNext() != null; b = b.getNext().get()) {
                 if (deadBlockRemove(b)) {
                     eliminated = true;
                 }

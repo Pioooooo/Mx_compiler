@@ -124,8 +124,6 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
                 throw new InternalError("unexpected type of use");
             }
         });
-        next.pre.remove(this);
-        next.pre.addAll(pre);
         use.clear();
     }
 

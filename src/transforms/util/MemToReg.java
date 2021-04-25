@@ -42,8 +42,8 @@ public class MemToReg {
                 it.remove();
                 continue;
             }
-            BasicBlock useBlock = ((Inst) a.use.iterator().next()).getParent();
-            if (a.use.stream().noneMatch(i -> ((Inst) i).getParent() != useBlock)) {
+            BasicBlock useBlock = a.use.iterator().next().getParent();
+            if (a.use.stream().noneMatch(i -> i.getParent() != useBlock)) {
                 rewriteSingleBlockAlloca(a, useBlock);
                 if (a.use.isEmpty()) {
                     a.removeSelf();
