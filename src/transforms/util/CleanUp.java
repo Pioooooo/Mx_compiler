@@ -44,6 +44,9 @@ public class CleanUp {
                 if (deadBlockRemove(b)) {
                     eliminated = true;
                 }
+                if (b.getNext() == null) {
+                    break;
+                }
             }
         }
     }
