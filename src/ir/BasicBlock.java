@@ -102,7 +102,7 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     }
 
     public void replaceUse() {
-        if (use.isEmpty()) {
+        if (suc.isEmpty()) {
             return;
         }
         BasicBlock next = suc.iterator().next();
