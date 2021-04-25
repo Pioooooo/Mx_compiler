@@ -3,6 +3,7 @@ package ir.inst;
 import ir.BasicBlock;
 import ir.Inst;
 import ir.Type;
+import ir.Value;
 import util.error.InternalError;
 
 abstract public class Terminator extends Inst {
@@ -20,5 +21,10 @@ abstract public class Terminator extends Inst {
 
     public Terminator(Type type, Inst inst) {
         super(type, inst);
+    }
+
+    @Override
+    public boolean sameMeaning(Value other) {
+        return false;
     }
 }

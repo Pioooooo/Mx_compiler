@@ -24,7 +24,6 @@ public class CleanUp {
     }
 
     void deadBlockRemove(Function f) {
-        f.basicBlockList.forEach(this::deadBlockRemove);
         BasicBlock entry = f.basicBlockList.getHead().get();
         boolean eliminated = true;
         while (eliminated) {
@@ -32,16 +31,26 @@ public class CleanUp {
             for (BasicBlock b : f.basicBlockList) {
                 if (b != entry && b.pre.size() == 0) {
                     b.suc.forEach(s -> s.pre.remove(b));
+                    b.replaceUse();
                     b.removeSelf();
+                    eliminated = true;
+                }
+            }
+        }
+        eliminated = true;
+        while (eliminated) {
+            eliminated = false;
+            for (BasicBlock b : f.basicBlockList) {
+                if (deadBlockRemove(b)) {
                     eliminated = true;
                 }
             }
         }
     }
 
-    void deadBlockRemove(BasicBlock b) {
+    boolean deadBlockRemove(BasicBlock b) {
         if (b.suc.isEmpty()) {
-            return;
+            return false;
         }
         BasicBlock next = b.suc.iterator().next();
         if (b.suc.size() == 1 && next.pre.size() == 1) {
@@ -55,14 +64,9 @@ public class CleanUp {
             });
             next.replaceUse();
             next.removeSelf();
-        } else if (!b.getHead().hasNext() && b.suc.size() == 1) {
-            b.getHead().get().removeSelfAndDef();
-            b.pre.forEach(p -> p.replaceUse(b, next));
-            next.pre.remove(b);
-            next.pre.addAll(b.pre);
-            b.replaceUse();
-            b.removeSelf();
+            return true;
         }
+        return false;
     }
 
     void deadInstRemove(Function f) {

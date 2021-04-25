@@ -51,4 +51,6 @@ abstract public class Value {
     }
 
     abstract public String getName();
+
+    abstract public boolean sameMeaning(Value other);
 }

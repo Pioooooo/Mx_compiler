@@ -64,6 +64,11 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "%block." + num;
     }
@@ -97,14 +102,28 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     }
 
     public void replaceUse() {
+        BasicBlock next = suc.iterator().next();
         use.forEach(i -> {
             if (i instanceof BrInst) {
-                i.replaceUse(this, suc.iterator().next());
+                i.replaceUse(this, next);
+                i.getParent().suc.remove(this);
+                i.getParent().suc.add(next);
+                next.pre.add(i.getParent());
             } else if (i instanceof PhiInst) {
                 Value v = ((PhiInst) i).blocks.remove(this);
                 pre.forEach(p -> ((PhiInst) i).addIncoming(p, v));
+                Value n = i.simplify();
+                if (n != null) {
+                    i.replaceUseWith(n);
+                    i.removeSelfAndDef();
+                }
+            } else {
+                throw new InternalError("unexpected type of use");
             }
         });
+        next.pre.remove(this);
+        next.pre.addAll(pre);
+        use.clear();
     }
 
     @Override

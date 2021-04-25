@@ -90,6 +90,11 @@ public class CallInst extends Inst {
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        return false;
+    }
+
+    @Override
     public Value simplify() {
         switch (function.getName()) {
             case "g_toString" -> {

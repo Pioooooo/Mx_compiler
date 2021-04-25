@@ -54,6 +54,11 @@ public class LoadInst extends Inst {
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        return other instanceof LoadInst && ptr == ((LoadInst) other).ptr;
+    }
+
+    @Override
     public Value simplify() {
         return null;
     }

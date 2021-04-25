@@ -58,6 +58,12 @@ public class GetElementPtrInst extends Inst {
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        return other instanceof GetElementPtrInst && ptrVal == ((GetElementPtrInst) other).ptrVal &&
+                indexes.equals(((GetElementPtrInst) other).indexes);
+    }
+
+    @Override
     public Value simplify() {
         return null;
     }

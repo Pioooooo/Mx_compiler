@@ -78,6 +78,11 @@ public class AllocaInst extends Inst {
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        return false;
+    }
+
+    @Override
     public boolean hasRet() {
         return true;
     }

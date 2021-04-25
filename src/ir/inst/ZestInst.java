@@ -23,6 +23,11 @@ public class ZestInst extends Inst {
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        return false;
+    }
+
+    @Override
     public Value simplify() {
         return null;
     }

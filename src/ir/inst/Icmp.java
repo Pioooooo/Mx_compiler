@@ -74,6 +74,24 @@ public class Icmp extends Inst {
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        if (!(other instanceof Icmp)) {
+            return false;
+        }
+        return switch (op) {
+            case slt -> ((Icmp) other).op == OpType.slt && lhs == ((Icmp) other).lhs && rhs == ((Icmp) other).rhs
+                    || ((Icmp) other).op == OpType.sge && lhs == ((Icmp) other).rhs && rhs == ((Icmp) other).lhs;
+            case sge -> ((Icmp) other).op == OpType.sge && lhs == ((Icmp) other).lhs && rhs == ((Icmp) other).rhs
+                    || ((Icmp) other).op == OpType.slt && lhs == ((Icmp) other).rhs && rhs == ((Icmp) other).lhs;
+            case sle -> ((Icmp) other).op == OpType.sle && lhs == ((Icmp) other).lhs && rhs == ((Icmp) other).rhs
+                    || ((Icmp) other).op == OpType.sgt && lhs == ((Icmp) other).rhs && rhs == ((Icmp) other).lhs;
+            case sgt -> ((Icmp) other).op == OpType.sgt && lhs == ((Icmp) other).lhs && rhs == ((Icmp) other).rhs
+                    || ((Icmp) other).op == OpType.sle && lhs == ((Icmp) other).rhs && rhs == ((Icmp) other).lhs;
+            case eq, ne -> op == ((Icmp) other).op && lhs == ((Icmp) other).lhs && rhs == ((Icmp) other).rhs;
+        };
+    }
+
+    @Override
     public Value simplify() {
         if (lhs instanceof ConstantInt && rhs instanceof ConstantInt) {
             boolean val = switch (op) {

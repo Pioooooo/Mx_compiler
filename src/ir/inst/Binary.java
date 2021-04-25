@@ -73,6 +73,18 @@ public class Binary extends Inst {
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        if (!(other instanceof Binary)) {
+            return false;
+        }
+        return switch (op) {
+            case mul, and, or, xor, add -> op == ((Binary) other).op &&
+                    (lhs == ((Binary) other).lhs && rhs == ((Binary) other).rhs || lhs == ((Binary) other).rhs && rhs == ((Binary) other).lhs);
+            case sdiv, srem, shl, ashr, sub -> op == ((Binary) other).op && lhs == ((Binary) other).lhs && rhs == ((Binary) other).rhs;
+        };
+    }
+
+    @Override
     public Value simplify() {
         if (lhs instanceof ConstantInt && rhs instanceof ConstantInt) {
             if ((op == OpType.sdiv || op == OpType.srem) && ((ConstantInt) rhs).val == 0) {

@@ -101,11 +101,9 @@ public class BrInst extends Terminator {
         var def = new HashSet<Value>();
         if (cond != null) {
             def.add(cond);
-        }
-        def.add(trueDest);
-        if (falseDest != null) {
             def.add(falseDest);
         }
+        def.add(trueDest);
         return def;
     }
 
@@ -127,7 +125,10 @@ public class BrInst extends Terminator {
         if (cond != null && cond instanceof ConstantInt) {
             BrInst br = null;
             try {
+                BasicBlock deadBlock = ((ConstantInt) cond).val != 0 ? falseDest : trueDest;
                 br = BrInst.create(((ConstantInt) cond).val != 0 ? trueDest : falseDest, this);
+                getParent().suc.remove(deadBlock);
+                deadBlock.pre.remove(getParent());
             } catch (InternalError ignored) {
             }
             return br;

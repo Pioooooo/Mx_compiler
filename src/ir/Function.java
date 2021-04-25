@@ -57,6 +57,11 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
         return name;
     }
 
+    @Override
+    public boolean sameMeaning(Value other) {
+        return false;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

@@ -86,6 +86,11 @@ public class PhiInst extends Inst {
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        return false;
+    }
+
+    @Override
     public Value simplify() {
         Value commonValue = blocks.values().iterator().next();
         if (blocks.values().stream().allMatch(v -> v == commonValue)) {

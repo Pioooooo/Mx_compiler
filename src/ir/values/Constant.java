@@ -20,4 +20,9 @@ abstract public class Constant extends Value {
     public HashSet<Value> getDef() {
         return new HashSet<>();
     }
+
+    @Override
+    public boolean sameMeaning(Value other) {
+        return false;
+    }
 }

@@ -55,6 +55,11 @@ public class BitCastInst extends Inst {
     }
 
     @Override
+    public boolean sameMeaning(Value other) {
+        return other instanceof BitCastInst && val == ((BitCastInst) other).val && type == other.getType();
+    }
+
+    @Override
     public Value simplify() {
         return null;
     }
