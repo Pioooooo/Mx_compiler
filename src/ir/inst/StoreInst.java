@@ -67,7 +67,7 @@ public class StoreInst extends Inst {
 
     @Override
     public boolean sameMeaning(Value other) {
-        return other instanceof StoreInst && val == ((StoreInst) other).val && ptr == ((StoreInst) other).ptr;
+        return false;
     }
 
     @Override
