@@ -16,5 +16,7 @@ public class Optimizer {
         new CleanUp(m).run();
         new CSE(m).run();
         new CleanUp(m).run();
+        new ADCE(m).run();
+        new CleanUp(m).run();
     }
 }

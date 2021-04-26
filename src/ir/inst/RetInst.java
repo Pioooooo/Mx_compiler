@@ -59,9 +59,16 @@ public class RetInst extends Terminator {
     }
 
     @Override
+    public boolean noSideEffect() {
+        return false;
+    }
+
+    @Override
     public HashSet<Value> getDef() {
         var def = new HashSet<Value>();
-        def.add(val);
+        if (val != null) {
+            def.add(val);
+        }
         return def;
     }
 

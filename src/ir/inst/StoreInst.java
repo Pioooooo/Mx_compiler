@@ -5,6 +5,7 @@ import ir.Inst;
 import ir.Type;
 import ir.Value;
 import ir.values.ConstantPointerNull;
+import ir.values.GlobalPointer;
 
 import java.util.HashSet;
 
@@ -17,6 +18,9 @@ public class StoreInst extends Inst {
         this.ptr = ptr;
         val.addUse(this);
         ptr.addUse(this);
+        if (ptr instanceof GlobalPointer) {
+            getParent().getParent().setHasSideEffect();
+        }
     }
 
     StoreInst(Value val, Value ptr, BasicBlock basicBlock) {
@@ -25,6 +29,9 @@ public class StoreInst extends Inst {
         this.ptr = ptr;
         val.addUse(this);
         ptr.addUse(this);
+        if (ptr instanceof GlobalPointer) {
+            getParent().getParent().setHasSideEffect();
+        }
     }
 
     StoreInst(Value val, Value ptr, Inst inst) {
@@ -33,6 +40,9 @@ public class StoreInst extends Inst {
         this.ptr = ptr;
         val.addUse(this);
         ptr.addUse(this);
+        if (ptr instanceof GlobalPointer) {
+            getParent().getParent().setHasSideEffect();
+        }
     }
 
     public static StoreInst create(Value val, Value ptr, BasicBlock basicBlock, Inst inst) {
@@ -73,6 +83,11 @@ public class StoreInst extends Inst {
     @Override
     public Value simplify() {
         return null;
+    }
+
+    @Override
+    public boolean noSideEffect() {
+        return false;
     }
 
     @Override

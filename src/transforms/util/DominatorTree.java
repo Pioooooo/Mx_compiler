@@ -115,7 +115,7 @@ public class DominatorTree {
             return true;
         }
         BasicBlock block = b.getParent();
-        if (((Inst) a).getParent() == block) {
+        if (((Inst) a).getParent() != block) {
             return domFrontier.get(((Inst) a).getParent()).contains(block);
         }
         for (Inst i : block) {

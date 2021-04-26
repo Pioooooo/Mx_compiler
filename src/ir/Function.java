@@ -14,13 +14,15 @@ import java.util.HashSet;
 
 public class Function extends Value implements ListNodeWithParent<Function, Module> {
     Module module;
+    Function prev, next;
+
+    String name;
     ArrayList<Argument> args = new ArrayList<>();
     public List<BasicBlock> basicBlockList = new List<>();
     public HashSet<AllocaInst> allocas = new HashSet<>();
-    String name;
-    Function prev, next;
     public AsmFunction asmFunction;
     int blockCnt = 0;
+    boolean noSideEffect = false;
 
     Function(FunctionType functionType, Module module, String name) {
         super(functionType);
@@ -60,6 +62,17 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
     @Override
     public boolean sameMeaning(Value other) {
         return false;
+    }
+
+    public void setHasSideEffect() {
+        if (this.noSideEffect) {
+            this.noSideEffect = false;
+            use.forEach(u -> u.getParent().getParent().setHasSideEffect());
+        }
+    }
+
+    public boolean noSideEffect() {
+        return noSideEffect;
     }
 
     public void setName(String name) {

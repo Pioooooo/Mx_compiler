@@ -64,6 +64,11 @@ public class LoadInst extends Inst {
     }
 
     @Override
+    public boolean noSideEffect() {
+        return false;
+    }
+
+    @Override
     public boolean hasRet() {
         return true;
     }

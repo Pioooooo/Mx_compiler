@@ -22,6 +22,9 @@ public class CallInst extends Inst {
         this.args = args;
         function.addUse(this);
         args.forEach(a -> a.addUse(this));
+        if(!function.noSideEffect()){
+            getParent().getParent().setHasSideEffect();
+        }
     }
 
     CallInst(Function function, ArrayList<Value> args, BasicBlock basicBlock) {
@@ -30,6 +33,9 @@ public class CallInst extends Inst {
         this.args = args;
         function.addUse(this);
         args.forEach(a -> a.addUse(this));
+        if(!function.noSideEffect()){
+            getParent().getParent().setHasSideEffect();
+        }
     }
 
     CallInst(Function function, ArrayList<Value> args, Inst inst) {
@@ -38,6 +44,9 @@ public class CallInst extends Inst {
         this.args = args;
         function.addUse(this);
         args.forEach(a -> a.addUse(this));
+        if(!function.noSideEffect()){
+            getParent().getParent().setHasSideEffect();
+        }
     }
 
     CallInst(Function function, BasicBlock basicBlock, Inst inst) {
@@ -180,6 +189,11 @@ public class CallInst extends Inst {
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean noSideEffect() {
+        return function.noSideEffect();
     }
 
     @Override

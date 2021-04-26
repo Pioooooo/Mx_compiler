@@ -137,6 +137,11 @@ public class BrInst extends Terminator {
     }
 
     @Override
+    public boolean noSideEffect() {
+        return false;
+    }
+
+    @Override
     public String getFullInst() {
         return "br " + (cond != null ? cond.getType() + " " + cond + ", label " + trueDest + ", label " + falseDest : "label " + trueDest);
     }

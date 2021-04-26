@@ -3,8 +3,6 @@ package ir;
 import util.list.ListNode;
 import util.list.ListNodeWithParent;
 
-import java.util.HashSet;
-
 abstract public class Inst extends Value implements ListNodeWithParent<Inst, BasicBlock> {
     Inst prev, next;
     BasicBlock basicBlock;
@@ -29,6 +27,10 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
     }
 
     public abstract Value simplify();
+
+    public boolean noSideEffect() {
+        return true;
+    }
 
     public void removeSelfAndDef() {
         getDef().forEach(v -> v.removeUse(this));
