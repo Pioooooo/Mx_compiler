@@ -75,6 +75,7 @@ public class List<NodeTy> implements Iterable<NodeTy> {
         } else {
             head = tail = null;
         }
+        since.setPrev(null);
         to.addAll(half);
     }
 

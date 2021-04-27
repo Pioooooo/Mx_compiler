@@ -34,11 +34,11 @@ public class Inliner {
             inlined.add(f);
             HashSet<Inst> u = new HashSet<>(f.use);
             u.forEach(i -> {
+                inline((CallInst) i);
                 Function p = i.getParent().getParent();
-                if (!inlined.contains(p)) {
+                if (!inlined.contains(p) && p.getSuc().stream().allMatch(s -> s.isBuiltIn)) {
                     worklist.add(p);
                 }
-                inline((CallInst) i);
             });
         }
     }
