@@ -108,8 +108,11 @@ public class PhiInst extends Inst {
         if (c.getClone(this) != null) {
             return;
         }
-        super.getClone(c);
-        c.setClone(this, create(type, c.getClone(blocks), c.getClone(getParent()), null));
+        if (getPrev() != null) {
+            getPrev().get().getClone(c);
+        }
+        c.setClone(this, create(type, c.getClone(getParent()), null));
+        c.phi.add(this);
     }
 
     @Override

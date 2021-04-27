@@ -3,15 +3,18 @@ package util;
 import ir.BasicBlock;
 import ir.Inst;
 import ir.Value;
+import ir.inst.PhiInst;
 import ir.values.Argument;
 import ir.values.Constant;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 public class IRCloner {
     HashMap<Value, Value> clone;
+    public HashSet<PhiInst> phi = new HashSet<>();
 
     public IRCloner(HashMap<Value, Value> clone) {
         this.clone = clone;
@@ -50,11 +53,5 @@ public class IRCloner {
 
     public ArrayList<Value> getClone(ArrayList<Value> c) {
         return c.stream().map(this::getClone).collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public <Ty1 extends Value, Ty2 extends Value> HashMap<Ty1, Ty2> getClone(HashMap<Ty1, ? extends Ty2> c) {
-        HashMap<Ty1, Ty2> ret = new HashMap<>();
-        c.forEach((k, v) -> ret.put((Ty1) getClone(k), (Ty2) getClone(v)));
-        return ret;
     }
 }

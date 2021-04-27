@@ -67,6 +67,7 @@ public class Inliner {
             c.replaceUseWith(phi = PhiInst.create(callee.getRetType(), exit));
         }
         callee.basicBlockList.forEach(b -> b.forEach(i -> i.getClone(cloner)));
+        cloner.phi.forEach(p -> p.blocks.forEach((b, v) -> ((PhiInst) cloner.getClone(p)).addIncoming(cloner.getClone(b), cloner.getClone(v))));
         exit.suc = callBlock.suc;
         callBlock.suc = new HashSet<>();
         callBlock.use.stream().filter(i -> i instanceof PhiInst).forEach(i -> {
