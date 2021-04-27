@@ -71,7 +71,7 @@ public class BitCastInst extends Inst {
             return;
         }
         super.getClone(c);
-        c.setClone(this, create(c.getClone(val), type, getParent(), null));
+        c.setClone(this, create(c.getClone(val), type, c.getClone(getParent()), null));
     }
 
     @Override
