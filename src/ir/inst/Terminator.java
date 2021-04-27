@@ -24,6 +24,12 @@ abstract public class Terminator extends Inst {
     }
 
     @Override
+    public void removeSelf() {
+        super.removeSelf();
+        getParent().unTerminate();
+    }
+
+    @Override
     public boolean sameMeaning(Value other) {
         return false;
     }

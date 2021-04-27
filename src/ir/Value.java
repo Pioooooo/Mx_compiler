@@ -1,6 +1,7 @@
 package ir;
 
 import asm.operand.Register;
+import util.IRCloner;
 
 import java.util.HashSet;
 
@@ -53,4 +54,6 @@ abstract public class Value {
     abstract public String getName();
 
     abstract public boolean sameMeaning(Value other);
+
+    public abstract void getClone(IRCloner c);
 }

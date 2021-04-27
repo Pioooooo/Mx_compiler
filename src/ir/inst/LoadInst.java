@@ -3,6 +3,7 @@ package ir.inst;
 import ir.BasicBlock;
 import ir.Inst;
 import ir.Value;
+import util.IRCloner;
 
 import java.util.HashSet;
 
@@ -27,16 +28,16 @@ public class LoadInst extends Inst {
         ptr.addUse(this);
     }
 
-    public static LoadInst create(Value pointer, BasicBlock basicBlock, Inst inst) {
-        return new LoadInst(pointer, basicBlock, inst);
+    public static LoadInst create(Value ptr, BasicBlock basicBlock, Inst inst) {
+        return new LoadInst(ptr, basicBlock, inst);
     }
 
-    public static LoadInst create(Value pointer, BasicBlock basicBlock) {
-        return new LoadInst(pointer, basicBlock);
+    public static LoadInst create(Value ptr, BasicBlock basicBlock) {
+        return new LoadInst(ptr, basicBlock);
     }
 
-    public static LoadInst create(Value pointer, Inst inst) {
-        return new LoadInst(pointer, inst);
+    public static LoadInst create(Value ptr, Inst inst) {
+        return new LoadInst(ptr, inst);
     }
 
     @Override
@@ -64,8 +65,12 @@ public class LoadInst extends Inst {
     }
 
     @Override
-    public boolean noSideEffect() {
-        return false;
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, create(c.getClone(ptr), c.getClone(getParent()), null));
     }
 
     @Override

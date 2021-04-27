@@ -11,12 +11,16 @@ public class Optimizer {
     }
 
     public void run() {
-        new CleanUp(m).run();
-        new SCCP(m).run();
-        new CleanUp(m).run();
-        new CSE(m).run();
-        new CleanUp(m).run();
-        new ADCE(m).run();
+        for (int i = 0; i < 10; i++) {
+            new CleanUp(m).run();
+            new SCCP(m).run();
+            new CleanUp(m).run();
+            new CSE(m).run();
+            new CleanUp(m).run();
+            new ADCE(m).run();
+            new CleanUp(m).run();
+            new Inliner(m).run();
+        }
         new CleanUp(m).run();
     }
 }

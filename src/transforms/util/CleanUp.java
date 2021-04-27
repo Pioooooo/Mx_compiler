@@ -5,6 +5,7 @@ import ir.Function;
 import ir.Module;
 import ir.inst.CallInst;
 
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CleanUp {
@@ -15,6 +16,20 @@ public class CleanUp {
     }
 
     public void run() {
+        HashSet<String> remove = new HashSet<>();
+        m.functions.values().forEach(f -> {
+            if (f.use.isEmpty() && !f.getName().equals("main")) {
+                remove.add(f.getName());
+            }
+        });
+        remove.forEach(m.functions::remove);
+        remove.clear();
+        m.builtinFunctions.values().forEach(f -> {
+            if (f.use.isEmpty()) {
+                remove.add(f.getName());
+            }
+        });
+        remove.forEach(m.builtinFunctions::remove);
         m.functions.values().forEach(this::run);
     }
 
@@ -60,7 +75,7 @@ public class CleanUp {
             b.getTail().previous().removeSelfAndDef();
             b.suc = next.suc;
             b.instList.addAll(next.instList);
-            next.instList.forEach(i -> i.setParent(b));
+            next.forEach(i -> i.setParent(b));
             next.suc.forEach(s -> {
                 s.pre.remove(next);
                 s.pre.add(b);

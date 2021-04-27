@@ -2,8 +2,10 @@ package ir;
 
 import asm.AsmFunction;
 import ir.inst.AllocaInst;
+import ir.inst.CallInst;
 import ir.type.FunctionType;
 import ir.values.Argument;
+import util.IRCloner;
 import util.list.List;
 import util.list.ListIterator;
 import util.list.ListNode;
@@ -11,6 +13,7 @@ import util.list.ListNodeWithParent;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 public class Function extends Value implements ListNodeWithParent<Function, Module> {
     Module module;
@@ -20,9 +23,11 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
     ArrayList<Argument> args = new ArrayList<>();
     public List<BasicBlock> basicBlockList = new List<>();
     public HashSet<AllocaInst> allocas = new HashSet<>();
+    public HashSet<CallInst> calls = new HashSet<>();
     public AsmFunction asmFunction;
     int blockCnt = 0;
     boolean noSideEffect = false;
+    public boolean isBuiltIn = false;
 
     Function(FunctionType functionType, Module module, String name) {
         super(functionType);
@@ -59,9 +64,23 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
         return name;
     }
 
+    public HashSet<Function> getPre() {
+        return use.stream().filter(u -> u instanceof CallInst).map(u -> u.getParent().getParent())
+                .collect(Collectors.toCollection(HashSet::new));
+    }
+
+    public HashSet<Function> getSuc() {
+        return calls.stream().filter(u -> !u.function.isBuiltIn).map(u -> u.function)
+                .collect(Collectors.toCollection(HashSet::new));
+    }
+
     @Override
     public boolean sameMeaning(Value other) {
         return false;
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
     }
 
     public void setHasSideEffect() {

@@ -5,6 +5,7 @@ import ir.Inst;
 import ir.Type;
 import ir.Value;
 import ir.values.ConstantInt;
+import util.IRCloner;
 
 import java.util.HashSet;
 
@@ -106,6 +107,15 @@ public class Icmp extends Inst {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, create(c.getClone(lhs), c.getClone(rhs), op, c.getClone(getParent()), null));
     }
 
     @Override

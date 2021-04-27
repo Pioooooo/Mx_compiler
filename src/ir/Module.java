@@ -63,6 +63,7 @@ public class Module {
     public Function addBuiltinFunction(String funcName, Function function) {
         function.setParent(this);
         function.setName(funcName);
+        function.isBuiltIn = true;
         return builtinFunctions.put(funcName, function);
     }
 }

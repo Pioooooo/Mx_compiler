@@ -4,6 +4,7 @@ import asm.AsmBlock;
 import ir.inst.BrInst;
 import ir.inst.PhiInst;
 import ir.inst.Terminator;
+import util.IRCloner;
 import util.error.InternalError;
 import util.list.List;
 import util.list.ListIterator;
@@ -69,6 +70,10 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     }
 
     @Override
+    public void getClone(IRCloner c) {
+    }
+
+    @Override
     public String toString() {
         return "%block." + num;
     }
@@ -87,6 +92,10 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
 
     public void terminate() {
         terminated = true;
+    }
+
+    public void unTerminate() {
+        terminated = false;
     }
 
     public boolean isTerminated() {

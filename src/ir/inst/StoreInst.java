@@ -6,6 +6,7 @@ import ir.Type;
 import ir.Value;
 import ir.values.ConstantPointerNull;
 import ir.values.GlobalPointer;
+import util.IRCloner;
 
 import java.util.HashSet;
 
@@ -83,6 +84,15 @@ public class StoreInst extends Inst {
     @Override
     public Value simplify() {
         return null;
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, create(c.getClone(val), c.getClone(ptr), c.getClone(getParent()), null));
     }
 
     @Override

@@ -4,6 +4,7 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Type;
 import ir.Value;
+import util.IRCloner;
 
 import java.util.HashSet;
 
@@ -56,6 +57,19 @@ public class RetInst extends Terminator {
     @Override
     public Value simplify() {
         return null;
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, BrInst.create((BasicBlock) c.getClone(getParent().getParent()), c.getClone(getParent()), null));
+        if (val != null) {
+            ((PhiInst) ((BasicBlock) c.getClone(getParent().getParent())).getHead().get())
+                    .addIncoming(c.getClone(getParent()), c.getClone(val));
+        }
     }
 
     @Override

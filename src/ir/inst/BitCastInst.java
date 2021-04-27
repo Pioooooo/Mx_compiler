@@ -4,6 +4,7 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Type;
 import ir.Value;
+import util.IRCloner;
 
 import java.util.HashSet;
 
@@ -62,6 +63,15 @@ public class BitCastInst extends Inst {
     @Override
     public Value simplify() {
         return null;
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, create(c.getClone(val), type, getParent(), null));
     }
 
     @Override

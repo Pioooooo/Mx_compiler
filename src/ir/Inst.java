@@ -1,5 +1,6 @@
 package ir;
 
+import util.IRCloner;
 import util.list.ListNode;
 import util.list.ListNodeWithParent;
 
@@ -44,6 +45,17 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
     @Override
     public String getName() {
         return "val." + num;
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        if (getPrev() != null) {
+            getPrev().get().getClone(c);
+        }
+        getDef().forEach(d -> d.getClone(c));
     }
 
     abstract public String getFullInst();

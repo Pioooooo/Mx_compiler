@@ -62,6 +62,22 @@ public class List<NodeTy> implements Iterable<NodeTy> {
         }
     }
 
+    public void splitTo(List<NodeTy> to, ListNode<NodeTy> since) {
+        if (since == null) {
+            return;
+        }
+        List<NodeTy> half = new List<>();
+        half.head = since;
+        half.tail = tail;
+        if (since.getPrev() != null) {
+            since.getPrev().setNext(null);
+            tail = since.getPrev();
+        } else {
+            head = tail = null;
+        }
+        to.addAll(half);
+    }
+
     ListNode<NodeTy> getPrev(ListNode<NodeTy> i) {
         return i == null ? tail : i.getPrev();
     }

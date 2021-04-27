@@ -7,6 +7,7 @@ import ir.Value;
 import ir.type.FunctionType;
 import ir.values.ConstantInt;
 import ir.values.GlobalString;
+import util.IRCloner;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,8 +22,9 @@ public class CallInst extends Inst {
         this.function = function;
         this.args = args;
         function.addUse(this);
+        getParent().getParent().calls.add(this);
         args.forEach(a -> a.addUse(this));
-        if(!function.noSideEffect()){
+        if (!function.noSideEffect()) {
             getParent().getParent().setHasSideEffect();
         }
     }
@@ -32,8 +34,9 @@ public class CallInst extends Inst {
         this.function = function;
         this.args = args;
         function.addUse(this);
+        getParent().getParent().calls.add(this);
         args.forEach(a -> a.addUse(this));
-        if(!function.noSideEffect()){
+        if (!function.noSideEffect()) {
             getParent().getParent().setHasSideEffect();
         }
     }
@@ -43,8 +46,9 @@ public class CallInst extends Inst {
         this.function = function;
         this.args = args;
         function.addUse(this);
+        getParent().getParent().calls.add(this);
         args.forEach(a -> a.addUse(this));
-        if(!function.noSideEffect()){
+        if (!function.noSideEffect()) {
             getParent().getParent().setHasSideEffect();
         }
     }
@@ -192,6 +196,15 @@ public class CallInst extends Inst {
     }
 
     @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, create(function, c.getClone(args), c.getClone(getParent()), null));
+    }
+
+    @Override
     public boolean noSideEffect() {
         return function.noSideEffect();
     }
@@ -206,5 +219,11 @@ public class CallInst extends Inst {
         return (hasRet() ? this + " = call " + function.getRetType() : "call void") + " " + function + " ("
                 + args.stream().map(a -> a.getType() + " " + a).collect(Collectors.joining(", "))
                 + ")";
+    }
+
+    @Override
+    public void removeSelf() {
+        super.removeSelf();
+        getParent().getParent().calls.remove(this);
     }
 }

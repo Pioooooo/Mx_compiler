@@ -5,6 +5,7 @@ import ir.Inst;
 import ir.Type;
 import ir.Value;
 import ir.type.PointerType;
+import util.IRCloner;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,6 +33,15 @@ public class AllocaInst extends Inst {
     @Override
     public Value simplify() {
         return null;
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, create(type, c.getClone(getParent()), null));
     }
 
     public static AllocaInst create(Type type, BasicBlock basicBlock, Inst inst) {

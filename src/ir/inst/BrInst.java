@@ -5,6 +5,7 @@ import ir.Inst;
 import ir.Type;
 import ir.Value;
 import ir.values.ConstantInt;
+import util.IRCloner;
 
 import java.util.HashSet;
 
@@ -20,11 +21,9 @@ public class BrInst extends Terminator {
         basicBlock.addSuccessor(trueDest);
         basicBlock.addSuccessor(falseDest);
         trueDest.addUse(this);
-        if (falseDest != null) {
-            falseDest.addUse(this);
-        }
         if (cond != null) {
             cond.addUse(this);
+            falseDest.addUse(this);
         }
     }
 
@@ -36,11 +35,9 @@ public class BrInst extends Terminator {
         basicBlock.addSuccessor(trueDest);
         basicBlock.addSuccessor(falseDest);
         trueDest.addUse(this);
-        if (falseDest != null) {
-            falseDest.addUse(this);
-        }
         if (cond != null) {
             cond.addUse(this);
+            falseDest.addUse(this);
         }
     }
 
@@ -52,11 +49,9 @@ public class BrInst extends Terminator {
         inst.getParent().addSuccessor(trueDest);
         inst.getParent().addSuccessor(falseDest);
         trueDest.addUse(this);
-        if (falseDest != null) {
-            falseDest.addUse(this);
-        }
         if (cond != null) {
             cond.addUse(this);
+            falseDest.addUse(this);
         }
     }
 
@@ -121,16 +116,23 @@ public class BrInst extends Terminator {
     }
 
     @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, create(c.getClone(cond), c.getClone(trueDest), c.getClone(falseDest), c.getClone(getParent()), null));
+    }
+
+    @Override
     public Value simplify() {
         if (cond != null && cond instanceof ConstantInt) {
-            BrInst br = null;
-            try {
-                BasicBlock deadBlock = ((ConstantInt) cond).val != 0 ? falseDest : trueDest;
-                br = BrInst.create(((ConstantInt) cond).val != 0 ? trueDest : falseDest, this);
-                getParent().suc.remove(deadBlock);
-                deadBlock.pre.remove(getParent());
-            } catch (InternalError ignored) {
-            }
+            BasicBlock b = getParent();
+            b.unTerminate();
+            BasicBlock deadBlock = ((ConstantInt) cond).val != 0 ? falseDest : trueDest;
+            BrInst br = BrInst.create(((ConstantInt) cond).val != 0 ? trueDest : falseDest, this);
+            b.suc.remove(deadBlock);
+            deadBlock.pre.remove(b);
             return br;
         }
         return null;

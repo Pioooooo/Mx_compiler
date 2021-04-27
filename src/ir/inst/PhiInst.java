@@ -5,6 +5,7 @@ import ir.Inst;
 import ir.Type;
 import ir.Value;
 import ir.values.ConstantPointerNull;
+import util.IRCloner;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,6 +101,15 @@ public class PhiInst extends Inst {
             return ConstantPointerNull.get(type.m);
         }
         return null;
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, create(type, c.getClone(blocks), c.getClone(getParent()), null));
     }
 
     @Override

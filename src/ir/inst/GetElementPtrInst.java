@@ -4,6 +4,7 @@ import ir.BasicBlock;
 import ir.Inst;
 import ir.Type;
 import ir.Value;
+import util.IRCloner;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,6 +67,15 @@ public class GetElementPtrInst extends Inst {
     @Override
     public Value simplify() {
         return null;
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
+        if (c.getClone(this) != null) {
+            return;
+        }
+        super.getClone(c);
+        c.setClone(this, create(type, c.getClone(ptrVal), c.getClone(indexes), c.getClone(getParent()), null));
     }
 
     @Override

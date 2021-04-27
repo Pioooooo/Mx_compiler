@@ -2,6 +2,7 @@ package ir.values;
 
 import ir.Type;
 import ir.Value;
+import util.IRCloner;
 
 import java.util.HashSet;
 
@@ -24,5 +25,9 @@ abstract public class Constant extends Value {
     @Override
     public boolean sameMeaning(Value other) {
         return false;
+    }
+
+    @Override
+    public void getClone(IRCloner c) {
     }
 }
