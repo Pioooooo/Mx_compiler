@@ -3,6 +3,7 @@ package transforms;
 import ir.Function;
 import ir.Inst;
 import ir.Module;
+import util.error.InternalError;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -37,10 +38,20 @@ public class ADCE {
                 }
             });
         }
+//        HashSet<Inst> use = new HashSet<>(), removed = new HashSet<>();
         f.basicBlockList.forEach(b -> b.forEach(i -> {
             if (!live.contains(i)) {
-                i.removeSelfAndDef();
+//                use.addAll(i.use);
+                try {
+                    i.removeSelfAndDef();
+                } catch (InternalError ignored) {
+                }
+//                removed.add(i);
             }
         }));
+//        use.removeAll(removed);
+//        if (!use.isEmpty()) {
+//            throw new InternalError("remove used inst");
+//        }
     }
 }

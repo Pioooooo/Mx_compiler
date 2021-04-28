@@ -33,7 +33,7 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
         if (function != null) {
             this.function = function;
             if (basicBlock != null) {
-                function.basicBlockList.insertBefore(this, basicBlock);
+                function.basicBlockList.insertBefore(basicBlock, this);
             } else {
                 function.basicBlockList.add(this);
             }

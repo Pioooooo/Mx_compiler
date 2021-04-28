@@ -20,6 +20,8 @@ public class Optimizer {
             new ADCE(m).run();
             new CleanUp(m).run();
             new Inliner(m).run();
+            new CleanUp(m).run();
+            new TCO(m).run();
         }
         new CleanUp(m).run();
     }
