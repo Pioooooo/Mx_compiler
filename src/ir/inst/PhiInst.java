@@ -7,6 +7,7 @@ import ir.Value;
 import ir.values.ConstantPointerNull;
 import util.IRCloner;
 
+import java.util.AbstractCollection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -73,7 +74,10 @@ public class PhiInst extends Inst {
 
     @Override
     public HashSet<Value> getDef() {
-        return new HashSet<>(blocks.values());
+        return blocks.entrySet().stream().collect(HashSet::new, (s, e) -> {
+            s.add(e.getKey());
+            s.add(e.getValue());
+        }, AbstractCollection::addAll);
     }
 
     @Override
