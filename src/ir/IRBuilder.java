@@ -358,6 +358,9 @@ public class IRBuilder implements AstVisitor<Value> {
         Value val = null;
         if (n.returnVal != null) {
             val = n.returnVal.accept(this);
+            if (val instanceof ConstantPointerNull) {
+                val.setType(currentFunction.getRetType());
+            }
         }
         builder.createRet(builder.createPointerResolve(val));
         return null;

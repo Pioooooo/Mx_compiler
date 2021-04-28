@@ -10,7 +10,14 @@ import java.util.HashSet;
 
 public class Binary extends Inst {
     public enum OpType {
-        mul, sdiv, srem, shl, ashr, and, or, xor, sub, add
+        mul, sdiv, srem, shl, ashr, and, or, xor, sub, add;
+
+        public boolean commutable() {
+            return switch (this) {
+                case mul, and, or, xor, add -> true;
+                default -> false;
+            };
+        }
     }
 
     public OpType op;
@@ -105,8 +112,68 @@ public class Binary extends Inst {
             };
             return ConstantInt.get(getContext(), type.size(), val);
         } else {
+            return algebraicSimplify();
+        }
+    }
+
+    Inst algebraicSimplify() {
+        Binary binary;
+        Value src;
+        int a, b;
+        if (lhs instanceof ConstantInt && rhs instanceof Binary && op.commutable()) {
+            binary = (Binary) rhs;
+            b = ((ConstantInt) lhs).val;
+        } else if (lhs instanceof Binary && rhs instanceof ConstantInt) {
+            binary = (Binary) lhs;
+            b = ((ConstantInt) rhs).val;
+        } else {
             return null;
         }
+        if (binary.lhs instanceof ConstantInt && !(binary.rhs instanceof ConstantInt) && binary.op.commutable()) {
+            a = ((ConstantInt) binary.lhs).val;
+            src = binary.rhs;
+        } else if (!(binary.lhs instanceof ConstantInt) && binary.rhs instanceof ConstantInt) {
+            a = ((ConstantInt) binary.rhs).val;
+            src = binary.lhs;
+        } else {
+            return null;
+        }
+        if (op == OpType.add) {
+            if (binary.op == OpType.add) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, a + b), OpType.add, getParent(), this);
+            } else if (binary.op == OpType.sub) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, b - a), OpType.add, getParent(), this);
+            }
+        } else if (op == OpType.sub) {
+            if (binary.op == OpType.add) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, a - b), OpType.add, getParent(), this);
+            } else if (binary.op == OpType.sub) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, -a - b), OpType.add, getParent(), this);
+            }
+        } else if (op == OpType.mul) {
+            if (binary.op == OpType.mul) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, a * b), OpType.mul, getParent(), this);
+            } else if (binary.op == OpType.sdiv && b % a == 0) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, b / a), OpType.mul, getParent(), this);
+            }
+        } else if (op == OpType.sdiv) {
+            if (binary.op == OpType.mul && b % a == 0) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, a / b), OpType.mul, getParent(), this);
+            } else if (binary.op == OpType.sdiv) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, a * b), OpType.sdiv, getParent(), this);
+            }
+        } else if (op == OpType.and && binary.op == OpType.and) {
+            return Binary.create(src, ConstantInt.get(getContext(), 32, a & b), OpType.and, getParent(), this);
+        } else if (op == OpType.or && binary.op == OpType.or) {
+            return Binary.create(src, ConstantInt.get(getContext(), 32, a | b), OpType.or, getParent(), this);
+        } else if (op == OpType.or && binary.op == OpType.xor) {
+            return Binary.create(src, ConstantInt.get(getContext(), 32, a ^ b), OpType.xor, getParent(), this);
+        } else if (op == OpType.shl && binary.op == OpType.shl) {
+            return Binary.create(src, ConstantInt.get(getContext(), 32, a + b), OpType.shl, getParent(), this);
+        } else if (op == OpType.shl && binary.op == OpType.ashr) {
+            return Binary.create(src, ConstantInt.get(getContext(), 32, a + b), OpType.ashr, getParent(), this);
+        }
+        return null;
     }
 
     @Override

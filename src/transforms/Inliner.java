@@ -27,7 +27,7 @@ public class Inliner {
         HashSet<Function> inlined = new HashSet<>();
         Queue<Function> worklist = new LinkedList<>();
         inlined.add(m.getFunction("main"));
-        m.functions.values().stream().filter(f -> f.getSuc().stream().allMatch(s -> s.isBuiltIn) && !f.getName().equals("main"))
+        m.functions.values().stream().filter(f -> f.getSuc().isEmpty() && !f.getName().equals("main"))
                 .forEach(worklist::add);
         while (!worklist.isEmpty()) {
             Function f = worklist.poll();
@@ -36,7 +36,7 @@ public class Inliner {
             u.forEach(i -> {
                 inline((CallInst) i);
                 Function p = i.getParent().getParent();
-                if (!inlined.contains(p) && p.getSuc().stream().allMatch(s -> s.isBuiltIn)) {
+                if (!inlined.contains(p) && p.getSuc().isEmpty()) {
                     worklist.add(p);
                 }
             });

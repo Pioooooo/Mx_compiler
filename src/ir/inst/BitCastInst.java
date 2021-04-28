@@ -62,6 +62,9 @@ public class BitCastInst extends Inst {
 
     @Override
     public Value simplify() {
+        if (type == val.getType()) {
+            return val;
+        }
         return null;
     }
 
