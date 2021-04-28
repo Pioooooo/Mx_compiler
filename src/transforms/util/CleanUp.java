@@ -16,7 +16,7 @@ public class CleanUp {
     }
 
     public void run() {
-        HashSet<String> remove = new HashSet<>();
+        /*HashSet<String> remove = new HashSet<>();
         m.functions.values().forEach(f -> {
             if (f.use.isEmpty() && !f.getName().equals("main")) {
                 remove.add(f.getName());
@@ -29,7 +29,7 @@ public class CleanUp {
                 remove.add(f.getName());
             }
         });
-        remove.forEach(m.builtinFunctions::remove);
+        remove.forEach(m.builtinFunctions::remove);*/
         m.functions.values().forEach(this::run);
     }
 
