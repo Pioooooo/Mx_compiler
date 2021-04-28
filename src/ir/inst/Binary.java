@@ -153,12 +153,20 @@ public class Binary extends Inst {
         } else if (op == OpType.mul) {
             if (binary.op == OpType.mul) {
                 return Binary.create(src, ConstantInt.get(getContext(), 32, a * b), OpType.mul, getParent(), this);
-            } else if (binary.op == OpType.sdiv && b % a == 0) {
-                return Binary.create(src, ConstantInt.get(getContext(), 32, b / a), OpType.mul, getParent(), this);
+            } else if (binary.op == OpType.sdiv) {
+                if (a % b == 0) {
+                    return Binary.create(src, ConstantInt.get(getContext(), 32, a / b), OpType.sdiv, getParent(), this);
+                } else if (b % a == 0) {
+                    return Binary.create(src, ConstantInt.get(getContext(), 32, b / a), OpType.mul, getParent(), this);
+                }
             }
         } else if (op == OpType.sdiv) {
-            if (binary.op == OpType.mul && b % a == 0) {
-                return Binary.create(src, ConstantInt.get(getContext(), 32, a / b), OpType.mul, getParent(), this);
+            if (binary.op == OpType.mul) {
+                if (a % b == 0) {
+                    return Binary.create(src, ConstantInt.get(getContext(), 32, a / b), OpType.mul, getParent(), this);
+                } else if (b % a == 0) {
+                    return Binary.create(src, ConstantInt.get(getContext(), 32, b / a), OpType.sdiv, getParent(), this);
+                }
             } else if (binary.op == OpType.sdiv) {
                 return Binary.create(src, ConstantInt.get(getContext(), 32, a * b), OpType.sdiv, getParent(), this);
             }
