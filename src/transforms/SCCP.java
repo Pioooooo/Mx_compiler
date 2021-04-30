@@ -5,6 +5,7 @@ import ir.Inst;
 import ir.Module;
 import ir.Value;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -24,12 +25,11 @@ public class SCCP {
             return;
         }
         Queue<Inst> worklist = new LinkedList<>();
-        Queue<Inst> finalWorklist = worklist;
-        f.basicBlockList.forEach(b -> b.forEach(finalWorklist::add));
+        f.basicBlockList.forEach(b -> b.forEach(worklist::add));
         boolean eliminated = true;
+        HashSet<Inst> done = new HashSet<>();
         while (eliminated) {
             eliminated = false;
-            Queue<Inst> newWorklist = new LinkedList<>();
             while (!worklist.isEmpty()) {
                 Inst i = worklist.poll();
                 if (!i.inList()) {
@@ -37,15 +37,17 @@ public class SCCP {
                 }
                 Value v = i.simplify();
                 if (v != null) {
-                    worklist.addAll(i.use);
+                    done.add(i);
+                    i.use.forEach(u -> {
+                        if (!done.contains(u)) {
+                            worklist.add(u);
+                        }
+                    });
                     i.replaceUseWith(v);
                     i.removeSelfAndDef();
                     eliminated = true;
-                } else {
-                    newWorklist.add(i);
                 }
             }
-            worklist = newWorklist;
         }
     }
 }

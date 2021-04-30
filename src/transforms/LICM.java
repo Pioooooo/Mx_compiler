@@ -93,6 +93,7 @@ public class LICM {
                                     }
                                 }
                             });
+                            BrInst.create(head, preHead);
                         }
                         Queue<Inst> worklist = new LinkedList<>();
                         loopBlocks.forEach(l -> l.forEach(i -> {
