@@ -98,7 +98,7 @@ public class CleanUp {
                 s.pre.remove(next);
                 s.pre.add(b);
             });
-            next.replaceUse();
+            next.replacePhiUseWith(b);
             next.removeSelf();
             return true;
         }

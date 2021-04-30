@@ -24,9 +24,9 @@ public class CSE {
     }
 
     void run(BasicBlock b) {
-        for (var i = b.getHead().get(); i.getNext() != null; i = i.getNext().get()) {
+        for (var i = b.getHead().get(); i != null && i.getNext() != null; i = i.getNext().get()) {
             Inst inst = i.get();
-            for (var j = inst.getNext().get(); j.getNext() != null; j = j.getNext().get()) {
+            for (var j = inst.getNext().get(); j != null && j.getNext() != null; j = j.getNext().get()) {
                 if (i.sameMeaning(j)) {
                     j.replaceUseWith(i);
                 }
