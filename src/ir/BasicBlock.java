@@ -161,9 +161,9 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
             Inst i = it.next();
             if (i instanceof PhiInst) {
                 i.replaceUse(this, n);
-                i.getParent().suc.remove(this);
-                i.getParent().suc.add(n);
-                n.pre.add(i.getParent());
+                i.getParent().pre.remove(this);
+                i.getParent().pre.add(n);
+                n.suc.add(i.getParent());
                 it.remove();
             }
         }
