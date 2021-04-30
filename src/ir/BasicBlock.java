@@ -115,6 +115,10 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
             return;
         }
         BasicBlock next = suc.iterator().next();
+        suc.forEach(s->{
+            s.pre.remove(this);
+            s.pre.addAll(pre);
+        });
         use.forEach(i -> {
             if (i instanceof BrInst) {
                 i.replaceUse(this, next);
@@ -126,8 +130,6 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
                 Value v = ((PhiInst) i).blocks.remove(this);
                 v.removeUse(i);
                 pre.forEach(p -> ((PhiInst) i).addIncoming(p, v));
-                i.getParent().pre.remove(this);
-                i.getParent().pre.addAll(pre);
                 Value n = i.simplify();
                 if (n != null) {
                     i.replaceUseWith(n);

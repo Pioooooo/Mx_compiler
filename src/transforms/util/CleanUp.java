@@ -18,13 +18,13 @@ public class CleanUp {
 
     public void run() {
         HashSet<String> remove = new HashSet<>();
-        m.functions.values().forEach(f -> {
-            if (f.use.isEmpty() && !f.getName().equals("main")) {
-                remove.add(f.getName());
-            }
-        });
-        remove.forEach(m.functions::remove);
-        remove.clear();
+//        m.functions.values().forEach(f -> {
+//            if (f.use.isEmpty() && !f.getName().equals("main")) {
+//                remove.add(f.getName());
+//            }
+//        });
+//        remove.forEach(m.functions::remove);
+//        remove.clear();
         m.builtinFunctions.values().forEach(f -> {
             if (f.use.isEmpty()) {
                 remove.add(f.getName());
