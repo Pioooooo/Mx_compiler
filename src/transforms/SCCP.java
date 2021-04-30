@@ -4,6 +4,7 @@ import ir.Function;
 import ir.Inst;
 import ir.Module;
 import ir.Value;
+import ir.inst.BrInst;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,6 +46,9 @@ public class SCCP {
                     });
                     i.replaceUseWith(v);
                     i.removeSelfAndDef();
+                    if (i instanceof BrInst) {
+                        i.getParent().addSuccessor(((BrInst) v).trueDest);
+                    }
                     eliminated = true;
                 }
             }

@@ -83,8 +83,8 @@ public class PhiInst extends Inst {
     @Override
     public void replaceUse(Value o, Value n) {
         if (o instanceof BasicBlock && blocks.containsKey(o)) {
-            blocks.put((BasicBlock) n, blocks.get(o));
-            blocks.remove(o);
+            Value v = blocks.remove(o);
+            blocks.put((BasicBlock) n, v);
         } else {
             blocks.replaceAll((k, v) -> v == o ? n : v);
         }

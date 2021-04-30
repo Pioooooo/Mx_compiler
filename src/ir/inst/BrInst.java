@@ -131,8 +131,6 @@ public class BrInst extends Terminator {
             b.unTerminate();
             BasicBlock deadBlock = ((ConstantInt) cond).val != 0 ? falseDest : trueDest;
             BrInst br = BrInst.create(((ConstantInt) cond).val != 0 ? trueDest : falseDest, this);
-            b.suc.remove(deadBlock);
-            deadBlock.pre.remove(b);
             var it = b.use.iterator();
             while (it.hasNext()) {
                 var i = it.next();

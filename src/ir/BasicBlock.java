@@ -110,26 +110,13 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
         return instList.getTail();
     }
 
-    public void replaceUse() {
-        if (suc.isEmpty()) {
-            return;
-        }
-        BasicBlock next = suc.iterator().next();
-        suc.forEach(s->{
-            s.pre.remove(this);
-            s.pre.addAll(pre);
-        });
+    public void removePhiUse() {
         use.forEach(i -> {
-            if (i instanceof BrInst) {
-                i.replaceUse(this, next);
-                i.getParent().suc.remove(this);
-                i.getParent().suc.add(next);
-                pre.remove(i.getParent());
-                next.pre.add(i.getParent());
-            } else if (i instanceof PhiInst) {
+            if (i instanceof PhiInst) {
                 Value v = ((PhiInst) i).blocks.remove(this);
                 v.removeUse(i);
-                pre.forEach(p -> ((PhiInst) i).addIncoming(p, v));
+                suc.remove(i.getParent());
+                i.getParent().pre.remove(this);
                 Value n = i.simplify();
                 if (n != null) {
                     i.replaceUseWith(n);
@@ -164,6 +151,7 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
                 i.getParent().pre.remove(this);
                 i.getParent().pre.add(n);
                 n.suc.add(i.getParent());
+                n.addUse(i);
                 it.remove();
             }
         }
@@ -247,6 +235,7 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     public boolean removeUse(Inst u) {
         if (u instanceof BrInst) {
             pre.remove(u.getParent());
+            u.getParent().suc.remove(this);
         }
         return super.removeUse(u);
     }

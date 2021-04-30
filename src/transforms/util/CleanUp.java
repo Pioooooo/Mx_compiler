@@ -48,7 +48,7 @@ public class CleanUp {
             eliminated = false;
             for (BasicBlock b : f.basicBlockList) {
                 if (b != entry && b.pre.size() == 0) {
-                    b.replaceUse();
+                    b.removePhiUse();
                     b.forEach(i -> {
                         i.use.clear();
                         i.removeSelfAndDef();
