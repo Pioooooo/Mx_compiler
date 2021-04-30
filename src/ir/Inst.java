@@ -93,11 +93,11 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
 
     @Override
     public void removeSelf() {
-        if (!use.isEmpty()) {
-            throw new InternalError("remove used inst");
-        }
         if (basicBlock != null) {
             basicBlock.instList.remove(this);
+            if (!use.isEmpty()) {
+                throw new InternalError("remove used inst");
+            }
             return;
         }
         if (next != null) {
@@ -105,6 +105,9 @@ abstract public class Inst extends Value implements ListNodeWithParent<Inst, Bas
         }
         if (prev != null) {
             prev.setNext(next);
+        }
+        if (!use.isEmpty()) {
+            throw new InternalError("remove used inst");
         }
     }
 

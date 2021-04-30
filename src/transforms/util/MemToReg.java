@@ -31,7 +31,6 @@ public class MemToReg {
     void run(Function f) {
         dom = new DominatorTree(f);
         dom.run();
-        dom.calcDomFrontier();
         phiAllocaMap = new HashMap<>();
         insertedPhi = new HashMap<>();
         f.basicBlockList.forEach(b -> insertedPhi.put(b, new ArrayList<>()));
@@ -79,7 +78,7 @@ public class MemToReg {
             var it = worklist.iterator();
             BasicBlock x = it.next();
             it.remove();
-            dom.getDomFrontier().getOrDefault(x, new ArrayList<>()).stream().filter(liveInBlocks::contains).filter(y -> !phi.containsKey(y)).forEach(y -> {
+            dom.getDomFrontier().getOrDefault(x, new HashSet<>()).stream().filter(liveInBlocks::contains).filter(y -> !phi.containsKey(y)).forEach(y -> {
                 PhiInst p = PhiInst.create(a.getType().getBaseType(), y);
                 phi.put(y, p);
                 phiAllocaMap.put(p, a);
@@ -229,12 +228,14 @@ public class MemToReg {
                 i.removeSelfAndDef();
             }
         }
+        HashSet<LoadInst> remove = new HashSet<>();
         a.loadInst.forEach(l -> {
             if (dom.dominates(storeBlock, l.getParent())) {
                 l.replaceUseWith(val);
-                l.removeSelfAndDef();
+                remove.add(l);
             }
         });
+        a.loadInst.removeAll(remove);
         if (a.loadInst.isEmpty()) {
             store.removeSelfAndDef();
         }

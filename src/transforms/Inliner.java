@@ -68,13 +68,16 @@ public class Inliner {
         }
         callee.basicBlockList.forEach(b -> b.forEach(i -> i.getClone(cloner)));
         cloner.phi.forEach(p -> p.blocks.forEach((b, v) -> ((PhiInst) cloner.getClone(p)).addIncoming(cloner.getClone(b), cloner.getClone(v))));
-        exit.suc = callBlock.suc;
-        callBlock.suc = new HashSet<>();
+        exit.suc.clear();
+        exit.suc.addAll(callBlock.suc);
+        callBlock.suc.forEach(s -> {
+            s.pre.remove(callBlock);
+            s.pre.add(exit);
+        });
+        callBlock.suc.clear();
         callBlock.use.stream().filter(i -> i instanceof PhiInst).forEach(i -> {
             i.replaceUse(callBlock, exit);
             exit.addUse(i);
-            i.getParent().pre.remove(callBlock);
-            i.getParent().pre.add(exit);
         });
         callBlock.use.removeIf(i -> i instanceof PhiInst);
         callBlock.instList.splitTo(exit.instList, c);

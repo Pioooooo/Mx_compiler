@@ -9,6 +9,7 @@ import util.error.InternalError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.function.Consumer;
 
 public class DominatorTree {
@@ -28,8 +29,6 @@ public class DominatorTree {
     HashMap<BasicBlock, BasicBlock> parent = new HashMap<>();
     HashMap<BasicBlock, ArrayList<BasicBlock>> domSon = new HashMap<>();
     HashMap<BasicBlock, ArrayList<BasicBlock>> domChildren = new HashMap<>();
-
-    HashMap<BasicBlock, ArrayList<BasicBlock>> domFrontier = new HashMap<>();
 
     BasicBlock find(BasicBlock u) {
         if (u == dsu.get(u)) {
@@ -89,10 +88,15 @@ public class DominatorTree {
             }
             domChildren.get(iDom.get(u)).add(u);
         }
+        domFrontier = null;
+        subDom = null;
     }
 
-    public void calcDomFrontier() {
-        seq.forEach(b -> domFrontier.put(b, new ArrayList<>()));
+    HashMap<BasicBlock, HashSet<BasicBlock>> domFrontier;
+
+    void calcDomFrontier() {
+        domFrontier = new HashMap<>();
+        seq.forEach(b -> domFrontier.put(b, new HashSet<>()));
         seq.stream().filter(b -> b.pre.size() > 1).forEach(b -> b.pre.forEach(a -> {
             BasicBlock x = a;
             while (x != iDom.get(b)) {
@@ -102,12 +106,41 @@ public class DominatorTree {
         }));
     }
 
-    public HashMap<BasicBlock, ArrayList<BasicBlock>> getDomFrontier() {
+    public HashMap<BasicBlock, HashSet<BasicBlock>> getDomFrontier() {
+        if (domFrontier == null) {
+            calcDomFrontier();
+        }
         return domFrontier;
     }
 
+    HashMap<BasicBlock, HashSet<BasicBlock>> subDom;
+
+    void calcSubDom() {
+        subDom = new HashMap<>();
+        seq.forEach(b -> subDom.put(b, new HashSet<>()));
+        calcSubDom(seq.get(0));
+    }
+
+    void calcSubDom(BasicBlock b) {
+        domChildren.get(b).forEach(s -> {
+            calcSubDom(s);
+            subDom.get(iDom.get(s)).addAll(subDom.get(s));
+            subDom.get(iDom.get(s)).add(s);
+        });
+    }
+
+    public HashMap<BasicBlock, HashSet<BasicBlock>> getSubDom() {
+        if (subDom == null) {
+            calcSubDom();
+        }
+        return subDom;
+    }
+
     public boolean dominates(BasicBlock a, BasicBlock b) {
-        return domFrontier.get(a).contains(b);
+        if (subDom == null) {
+            calcSubDom();
+        }
+        return subDom.get(a).contains(b);
     }
 
     public boolean dominates(Value a, Inst b) {
@@ -116,7 +149,7 @@ public class DominatorTree {
         }
         BasicBlock block = b.getParent();
         if (((Inst) a).getParent() != block) {
-            return domFrontier.get(((Inst) a).getParent()).contains(block);
+            return dominates(((Inst) a).getParent(), block);
         }
         for (Inst i : block) {
             if (i == a) {

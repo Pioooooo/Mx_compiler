@@ -19,9 +19,11 @@ public class Optimizer {
             new CleanUp(m).run();
             new ADCE(m).run();
             new CleanUp(m).run();
+            new TCO(m).run();
+            new CleanUp(m).run();
             new Inliner(m).run();
             new CleanUp(m).run();
-            new TCO(m).run();
+            new LICM(m).run();
         }
         new CleanUp(m).run();
     }

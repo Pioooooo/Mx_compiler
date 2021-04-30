@@ -12,8 +12,11 @@ public class List<NodeTy> implements Iterable<NodeTy> {
     public ListIterator<NodeTy> add(ListNode<NodeTy> e) {
         if (head == null) {
             head = tail = e;
+            e.setPrev(null);
+            e.setNext(null);
         } else {
             e.setPrev(tail);
+            e.setNext(null);
             tail.setNext(e);
             tail = e;
         }
@@ -25,11 +28,17 @@ public class List<NodeTy> implements Iterable<NodeTy> {
             e.getNext().setPrev(e.getPrev());
         } else {
             tail = e.getPrev();
+            if (tail != null) {
+                tail.setNext(null);
+            }
         }
         if (e.getPrev() != null) {
             e.getPrev().setNext(e.getNext());
         } else {
             head = e.getNext();
+            if (head != null) {
+                head.setPrev(null);
+            }
         }
     }
 
@@ -37,13 +46,12 @@ public class List<NodeTy> implements Iterable<NodeTy> {
         if (i == null) {
             return add(e);
         }
-        if (i == head) {
+        if (i.getPrev() != null) {
+            i.getPrev().setNext(e);
+        } else {
             head = e;
         }
         e.setPrev(i.getPrev());
-        if (i.getPrev() != null) {
-            i.getPrev().setNext(e);
-        }
         e.setNext(i);
         i.setPrev(e);
         return new ListIterator<>(this, e);

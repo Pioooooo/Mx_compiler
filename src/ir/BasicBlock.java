@@ -120,9 +120,11 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
                 i.replaceUse(this, next);
                 i.getParent().suc.remove(this);
                 i.getParent().suc.add(next);
+                pre.remove(i.getParent());
                 next.pre.add(i.getParent());
             } else if (i instanceof PhiInst) {
                 Value v = ((PhiInst) i).blocks.remove(this);
+                v.removeUse(i);
                 pre.forEach(p -> ((PhiInst) i).addIncoming(p, v));
                 Value n = i.simplify();
                 if (n != null) {
@@ -134,6 +136,33 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
             }
         });
         use.clear();
+    }
+
+    public void replaceBrUseWith(BasicBlock n) {
+        var it = use.iterator();
+        while (it.hasNext()) {
+            var i = it.next();
+            if (i instanceof BrInst) {
+                i.replaceUse(this, n);
+                i.getParent().suc.remove(this);
+                i.getParent().suc.add(n);
+                n.pre.add(i.getParent());
+                it.remove();
+            }
+        }
+    }
+
+    public void replacePhiUseWith(BasicBlock n) {
+        for (var it = use.iterator(); it.hasNext(); ) {
+            Inst i = it.next();
+            if (i instanceof PhiInst) {
+                i.replaceUse(this, n);
+                i.getParent().suc.remove(this);
+                i.getParent().suc.add(n);
+                n.pre.add(i.getParent());
+                it.remove();
+            }
+        }
     }
 
     @Override

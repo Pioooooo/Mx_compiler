@@ -16,7 +16,7 @@ public class CleanUp {
     }
 
     public void run() {
-        /*HashSet<String> remove = new HashSet<>();
+        HashSet<String> remove = new HashSet<>();
         m.functions.values().forEach(f -> {
             if (f.use.isEmpty() && !f.getName().equals("main")) {
                 remove.add(f.getName());
@@ -29,7 +29,7 @@ public class CleanUp {
                 remove.add(f.getName());
             }
         });
-        remove.forEach(m.builtinFunctions::remove);*/
+        remove.forEach(m.builtinFunctions::remove);
         m.functions.values().forEach(this::run);
     }
 
@@ -45,7 +45,12 @@ public class CleanUp {
             eliminated = false;
             for (BasicBlock b : f.basicBlockList) {
                 if (b != entry && b.pre.size() == 0) {
-                    b.suc.forEach(s -> s.pre.remove(b));
+                    b.forEach(i -> {
+                        if (i.use.stream().allMatch(u -> u.getParent() == b)) {
+                            i.use.clear();
+                            i.removeSelfAndDef();
+                        }
+                    });
                     b.replaceUse();
                     b.removeSelf();
                     eliminated = true;
@@ -73,7 +78,8 @@ public class CleanUp {
         BasicBlock next = b.suc.iterator().next();
         if (b.suc.size() == 1 && next.pre.size() == 1) {
             b.getTail().previous().removeSelfAndDef();
-            b.suc = next.suc;
+            b.suc.clear();
+            b.suc.addAll(next.suc);
             b.instList.addAll(next.instList);
             next.forEach(i -> i.setParent(b));
             next.suc.forEach(s -> {
