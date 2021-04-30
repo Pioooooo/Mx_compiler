@@ -29,6 +29,9 @@ public class LICM {
     HashSet<BasicBlock> loopBlocks;
 
     void run(Function f) {
+        if (!f.doOptimize()) {
+            return;
+        }
         dom = new DominatorTree(f);
         dom.run();
         ArrayList<BasicBlock> revSeq = new ArrayList<>();

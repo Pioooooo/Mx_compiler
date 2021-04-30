@@ -2,6 +2,7 @@ package transforms;
 
 import ir.BasicBlock;
 import ir.Function;
+import ir.Inst;
 import ir.Module;
 import ir.inst.BrInst;
 import ir.inst.CallInst;
@@ -23,6 +24,9 @@ public class TCO {
     }
 
     void run(Function f) {
+        if (!f.doOptimize()) {
+            return;
+        }
         ArrayList<CallInst> tailCalls = f.calls.stream()
                 .filter(c -> c.function == f && c.getNext().get() instanceof RetInst
                         && (f.getRetType().isVoid() || ((RetInst) c.getNext().get()).val == c))
@@ -43,5 +47,14 @@ public class TCO {
             BrInst.create(entry, c.getParent(), null);
             c.removeSelfAndDef();
         });
+        f.infiniteLoop = true;
+        for (BasicBlock b : f.basicBlockList) {
+            for (Inst i : b) {
+                if (i instanceof RetInst) {
+                    f.infiniteLoop = false;
+                    return;
+                }
+            }
+        }
     }
 }

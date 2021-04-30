@@ -1,6 +1,5 @@
 package transforms;
 
-import ir.IRPrinter;
 import ir.Module;
 import transforms.util.CleanUp;
 

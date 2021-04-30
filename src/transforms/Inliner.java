@@ -46,6 +46,10 @@ public class Inliner {
     void inline(CallInst c) {
         BasicBlock callBlock = c.getParent();
         Function caller = callBlock.getParent(), callee = c.function;
+        caller.infiniteLoop |= callee.infiniteLoop;
+        if (!caller.doOptimize()) {
+            return;
+        }
         int instCnt = 0, blockCnt = 0;
         for (BasicBlock basicBlock : callee.basicBlockList) {
             blockCnt++;
@@ -68,7 +72,6 @@ public class Inliner {
         }
         callee.basicBlockList.forEach(b -> b.forEach(i -> i.getClone(cloner)));
         cloner.phi.forEach(p -> p.blocks.forEach((b, v) -> ((PhiInst) cloner.getClone(p)).addIncoming(cloner.getClone(b), cloner.getClone(v))));
-        exit.suc.clear();
         exit.suc.addAll(callBlock.suc);
         callBlock.suc.forEach(s -> {
             s.pre.remove(callBlock);

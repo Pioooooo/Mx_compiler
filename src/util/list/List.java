@@ -80,10 +80,10 @@ public class List<NodeTy> implements Iterable<NodeTy> {
         if (since.getPrev() != null) {
             since.getPrev().setNext(null);
             tail = since.getPrev();
+            since.setPrev(null);
         } else {
             head = tail = null;
         }
-        since.setPrev(null);
         to.addAll(half);
     }
 

@@ -17,6 +17,9 @@ public class CSE {
     }
 
     void run(Function f) {
+        if (!f.doOptimize()) {
+            return;
+        }
         f.basicBlockList.forEach(this::run);
     }
 

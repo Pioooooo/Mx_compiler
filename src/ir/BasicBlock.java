@@ -246,7 +246,7 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     @Override
     public boolean removeUse(Inst u) {
         if (u instanceof BrInst) {
-            suc.remove(u.getParent());
+            pre.remove(u.getParent());
         }
         return super.removeUse(u);
     }

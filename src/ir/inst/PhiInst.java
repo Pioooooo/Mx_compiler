@@ -97,6 +97,9 @@ public class PhiInst extends Inst {
 
     @Override
     public Value simplify() {
+        if (blocks.isEmpty()) {
+            return getType().getDefaultValue(getContext());
+        }
         Value commonValue = blocks.values().iterator().next();
         if (blocks.values().stream().allMatch(v -> v == commonValue)) {
             return commonValue;

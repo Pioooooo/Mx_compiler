@@ -28,6 +28,7 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
     int blockCnt = 0;
     boolean noSideEffect = false;
     public boolean isBuiltIn = false;
+    public boolean infiniteLoop = false;
 
     Function(FunctionType functionType, Module module, String name) {
         super(functionType);
@@ -81,6 +82,10 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
 
     @Override
     public void getClone(IRCloner c) {
+    }
+
+    public boolean doOptimize(){
+        return !infiniteLoop;
     }
 
     public void setHasSideEffect() {

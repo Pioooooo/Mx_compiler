@@ -21,6 +21,9 @@ public class ADCE {
     }
 
     void run(Function f) {
+        if (!f.doOptimize()) {
+            return;
+        }
         HashSet<Inst> live = new HashSet<>();
         Queue<Inst> worklist = new LinkedList<>();
         f.basicBlockList.forEach(b -> b.forEach(i -> {

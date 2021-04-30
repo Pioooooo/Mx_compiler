@@ -20,6 +20,9 @@ public class SCCP {
     }
 
     void run(Function f) {
+        if (!f.doOptimize()) {
+            return;
+        }
         Queue<Inst> worklist = new LinkedList<>();
         Queue<Inst> finalWorklist = worklist;
         f.basicBlockList.forEach(b -> b.forEach(finalWorklist::add));

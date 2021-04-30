@@ -35,6 +35,9 @@ public class CleanUp {
     }
 
     void run(Function f) {
+        if (!f.doOptimize()) {
+            return;
+        }
         deadBlockRemove(f);
         deadInstRemove(f);
     }
@@ -85,7 +88,7 @@ public class CleanUp {
             return false;
         }
         BasicBlock next = b.suc.iterator().next();
-        if (b.suc.size() == 1 && next.pre.size() == 1) {
+        if (b.suc.size() == 1 && next.pre.size() == 1 && next.getPrev() != null && b != next) {
             b.getTail().previous().removeSelfAndDef();
             b.suc.clear();
             b.suc.addAll(next.suc);
