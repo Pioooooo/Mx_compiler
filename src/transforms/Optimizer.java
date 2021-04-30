@@ -1,5 +1,6 @@
 package transforms;
 
+import ir.IRPrinter;
 import ir.Module;
 import transforms.util.CleanUp;
 
@@ -26,5 +27,6 @@ public class Optimizer {
             new LICM(m).run();
         }
         new CleanUp(m).run();
+        new IRPrinter().print(m, System.err);
     }
 }

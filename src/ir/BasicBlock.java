@@ -126,6 +126,8 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
                 Value v = ((PhiInst) i).blocks.remove(this);
                 v.removeUse(i);
                 pre.forEach(p -> ((PhiInst) i).addIncoming(p, v));
+                i.getParent().pre.remove(this);
+                i.getParent().pre.addAll(pre);
                 Value n = i.simplify();
                 if (n != null) {
                     i.replaceUseWith(n);
@@ -237,6 +239,14 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     @Override
     public HashSet<Value> getDef() {
         return new HashSet<>();
+    }
+
+    @Override
+    public boolean removeUse(Inst u) {
+        if (u instanceof BrInst) {
+            suc.remove(u.getParent());
+        }
+        return super.removeUse(u);
     }
 
     @Override

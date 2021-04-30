@@ -4,6 +4,7 @@ import ir.BasicBlock;
 import ir.Function;
 import ir.Module;
 import ir.inst.CallInst;
+import util.error.InternalError;
 
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,13 +46,21 @@ public class CleanUp {
             eliminated = false;
             for (BasicBlock b : f.basicBlockList) {
                 if (b != entry && b.pre.size() == 0) {
-                    b.forEach(i -> {
-                        if (i.use.stream().allMatch(u -> u.getParent() == b)) {
-                            i.use.clear();
-                            i.removeSelfAndDef();
-                        }
-                    });
                     b.replaceUse();
+                    boolean removed = true;
+                    while (removed) {
+                        removed = false;
+                        for (var i : b) {
+                            if (i.use.stream().allMatch(u -> u.getParent() == b)) {
+                                i.use.clear();
+                                i.removeSelfAndDef();
+                                removed = true;
+                            }
+                        }
+                    }
+                    if (b.instList.getHead().get() != null) {
+                        throw new InternalError("remove inst used");
+                    }
                     b.removeSelf();
                     eliminated = true;
                 }
