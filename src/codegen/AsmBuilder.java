@@ -164,7 +164,7 @@ public class AsmBuilder {
                     op = Calc.OpType.add;
                     val *= -1;
                 }
-                if (val >> 12 != 0) {
+                if (val >> 11 != 0) {
                     rs2 = VReg.create();
                     Li.create((Register) rs2, Immediate.create(val), currentBlock);
                 } else {
@@ -180,7 +180,7 @@ public class AsmBuilder {
                     }
                     default -> {
                         rs1 = getReg(((Binary) inst).rhs);
-                        if (((ConstantInt) ((Binary) inst).lhs).val >> 12 != 0) {
+                        if (((ConstantInt) ((Binary) inst).lhs).val >> 11 != 0) {
                             rs2 = VReg.create();
                             Li.create((Register) rs2, Immediate.create(((ConstantInt) ((Binary) inst).lhs).val), currentBlock);
                         } else {
