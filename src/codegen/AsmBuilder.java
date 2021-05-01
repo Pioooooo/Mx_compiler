@@ -218,7 +218,7 @@ public class AsmBuilder {
                 };
                 Branch.create(op, getReg(cmp.lhs), getReg(cmp.rhs), get(((BrInst) inst).falseDest), currentBlock);
             } else {
-                Branch.create(Branch.OpType.bne, getReg(((BrInst) inst).cond), root.getPReg("zero"), get(((BrInst) inst).trueDest), currentBlock);
+                Branch.create(Branch.OpType.beq, getReg(((BrInst) inst).cond), root.getPReg("zero"), get(((BrInst) inst).falseDest), currentBlock);
             }
             J.create(get(((BrInst) inst).trueDest), currentBlock);
             return;
