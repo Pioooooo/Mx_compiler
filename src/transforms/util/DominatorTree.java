@@ -13,10 +13,10 @@ import java.util.HashSet;
 import java.util.function.Consumer;
 
 public class DominatorTree {
-    Function function;
+    Function f;
 
-    public DominatorTree(Function function) {
-        this.function = function;
+    public DominatorTree(Function f) {
+        this.f = f;
     }
 
     BasicBlock root;
@@ -59,7 +59,7 @@ public class DominatorTree {
     }
 
     public void run() {
-        root = function.getHead().get();
+        root = f.getHead().get();
         dfs(root);
         for (int i = seq.size() - 1; i > 0; i--) {
             BasicBlock u = seq.get(i), p;

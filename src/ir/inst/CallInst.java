@@ -116,7 +116,7 @@ public class CallInst extends Inst {
                     idx.add(ConstantInt.get(getContext(), 32, 0));
                     idx.add(ConstantInt.get(getContext(), 32, 0));
                     return GetElementPtrInst.create(getContext().stringTy,
-                            GlobalString.get(getContext(), String.valueOf(((ConstantInt) args.get(0)).val)), idx, this);
+                            GlobalString.getFromVal(getContext(), String.valueOf(((ConstantInt) args.get(0)).val)), idx, this);
                 }
             }
             case "__g_str_add" -> {

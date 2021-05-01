@@ -6,6 +6,8 @@ import ir.Module;
 import ir.inst.CallInst;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CleanUp {
@@ -43,22 +45,27 @@ public class CleanUp {
 
     void deadBlockRemove(Function f) {
         BasicBlock entry = f.basicBlockList.getHead().get();
-        boolean eliminated = true;
-        while (eliminated) {
-            eliminated = false;
-            for (BasicBlock b : f.basicBlockList) {
-                if (b != entry && b.pre.size() == 0) {
-                    b.removePhiUse();
-                    b.forEach(i -> {
-                        i.use.clear();
-                        i.removeSelfAndDef();
-                    });
-                    b.removeSelf();
-                    eliminated = true;
-                }
+        HashSet<BasicBlock> visited = new HashSet<>();
+        Queue<BasicBlock> worklist = new LinkedList<>();
+        worklist.add(entry);
+        while (!worklist.isEmpty()) {
+            BasicBlock b = worklist.poll();
+            if (!visited.contains(b)) {
+                visited.add(b);
+                worklist.addAll(b.suc);
             }
         }
-        eliminated = true;
+        f.basicBlockList.forEach(b -> {
+            if (!visited.contains(b)) {
+                b.removePhiUse();
+                b.forEach(i -> {
+                    i.use.clear();
+                    i.removeSelfAndDef();
+                });
+                b.removeSelf();
+            }
+        });
+        boolean eliminated = true;
         while (eliminated) {
             eliminated = false;
             for (var b = f.basicBlockList.getHead().get(); b.getNext() != null; b = b.getNext().get()) {

@@ -41,11 +41,11 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
     }
 
     public static BasicBlock create(int loopDepth, Module m, Function function, BasicBlock basicBlock) {
-        return new BasicBlock(loopDepth, function.blockCnt++, m, function, basicBlock);
+        return new BasicBlock(loopDepth, function == null ? 0 : function.blockCnt++, m, function, basicBlock);
     }
 
     public static BasicBlock create(int loopDepth, Module m, Function function) {
-        return new BasicBlock(loopDepth, function.blockCnt++, m, function, null);
+        return new BasicBlock(loopDepth, function == null ? 0 : function.blockCnt++, m, function, null);
     }
 
     public static BasicBlock create(int loopDepth, Module m) {
@@ -122,7 +122,7 @@ public class BasicBlock extends Value implements ListNodeWithParent<BasicBlock, 
                     i.replaceUseWith(n);
                     i.removeSelfAndDef();
                 }
-            } else {
+            } else if (!(i instanceof BrInst)) {
                 throw new InternalError("unexpected type of use");
             }
         });
