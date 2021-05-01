@@ -27,7 +27,9 @@ public class BlockRearrange {
         HashSet<AsmBlock> fixed = new HashSet<>();
         ArrayList<AsmBlock> seq = new ArrayList<>();
         Queue<AsmBlock> worklist = new LinkedList<>();
-        worklist.add(f.getHead().get());
+        if (f.getHead().get() != null) {
+            worklist.add(f.getHead().get());
+        }
         while (!worklist.isEmpty()) {
             var b = worklist.poll();
             while (true) {
