@@ -6,11 +6,9 @@ import ir.inst.BrInst;
 import ir.inst.CallInst;
 import ir.inst.PhiInst;
 import util.IRCloner;
+import util.list.List;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -23,6 +21,33 @@ public class Inliner {
 
     static int maxBlockCnt = 50, maxInstCnt = 500;
 
+    static class CloneData {
+        IRCloner cloner;
+        BasicBlock entry, exit;
+        PhiInst ret;
+
+        CloneData(CallInst c, List<BasicBlock> blockList) {
+            BasicBlock callBlock = c.getParent();
+            Function caller = callBlock.getParent(), callee = c.function;
+            cloner = new IRCloner(IntStream.range(0, c.args.size()).boxed().
+                    collect(Collectors.toMap(callee::getArg, i -> c.args.get(i), (a, b) -> b, HashMap::new)));
+            int loopDepth = callBlock.loopDepth;
+            blockList.forEach(b -> cloner.setClone(b, BasicBlock.create(b.loopDepth + loopDepth, c.getContext(), caller)));
+            entry = cloner.getClone(callee.getHead().get());
+            exit = BasicBlock.create(loopDepth, c.getContext(), caller);
+            cloner.setClone(callee, exit);
+            if (!callee.getRetType().isVoid()) {
+                ret = PhiInst.create(callee.getRetType(), exit);
+            }
+            blockList.forEach(b -> b.forEach(i -> i.getClone(cloner)));
+            cloner.phi.forEach(p -> p.blocks.forEach((b, v) -> ((PhiInst) cloner.getClone(p)).addIncoming(cloner.getClone(b), cloner.getClone(v))));
+        }
+
+        CloneData(CallInst c) {
+            this(c, c.function.basicBlockList);
+        }
+    }
+
     void run() {
         HashSet<Function> inlined = new HashSet<>();
         Queue<Function> worklist = new LinkedList<>();
@@ -32,46 +57,64 @@ public class Inliner {
         while (!worklist.isEmpty()) {
             Function f = worklist.poll();
             inlined.add(f);
+            int instCnt = 0, blockCnt = 0;
+            for (BasicBlock b : f.basicBlockList) {
+                blockCnt++;
+                for (Inst ignored : b) {
+                    instCnt++;
+                }
+            }
+            if (blockCnt > maxBlockCnt || instCnt > maxInstCnt) {
+                continue;
+            }
             HashSet<Inst> u = new HashSet<>(f.use);
-            u.forEach(i -> {
-                inline((CallInst) i);
-                Function p = i.getParent().getParent();
+            HashMap<CallInst, CloneData> clones = u.stream().filter(i -> {
+                BasicBlock callBlock = i.getParent();
+                Function caller = callBlock.getParent(), callee = ((CallInst) i).function;
+                caller.infiniteLoop |= callee.infiniteLoop;
+                return caller.doOptimize();
+            }).collect(Collectors.toMap(i -> (CallInst) i, i -> new CloneData((CallInst) i), (a, b) -> b, HashMap::new));
+            clones.forEach((c, d) -> {
+                inline(c, d);
+                Function p = c.getParent().getParent();
                 if (!inlined.contains(p) && p.getSuc().isEmpty()) {
                     worklist.add(p);
                 }
             });
         }
+        m.functions.values().stream().filter(f -> f.getSuc().contains(f)).forEach(f -> {
+            for (int i = 0; i < 10; i++) {
+                int blockCnt = 0, instCnt = 0;
+                for (BasicBlock b : f.basicBlockList) {
+                    blockCnt++;
+                    for (Inst ignored : b) {
+                        instCnt++;
+                    }
+                }
+                if (blockCnt > maxBlockCnt || instCnt > maxInstCnt) {
+                    break;
+                }
+                var calls = f.use.stream().map(u -> (CallInst) u)
+                        .collect(Collectors.toCollection(ArrayList::new));
+                var blockList = new List<>(f.basicBlockList);
+                HashMap<CallInst, CloneData> clones = calls.stream()
+                        .collect(Collectors.toMap(c -> c, c -> new CloneData(c, blockList), (a, b) -> b, HashMap::new));
+                clones.forEach(this::inline);
+            }
+        });
     }
 
-    void inline(CallInst c) {
-        BasicBlock callBlock = c.getParent();
-        Function caller = callBlock.getParent(), callee = c.function;
-        caller.infiniteLoop |= callee.infiniteLoop;
-        if (!caller.doOptimize()) {
-            return;
-        }
-        int instCnt = 0, blockCnt = 0;
-        for (BasicBlock basicBlock : callee.basicBlockList) {
-            blockCnt++;
-            for (Inst ignored : basicBlock) {
-                instCnt++;
+    void inline(CallInst c, CloneData d) {
+        BasicBlock callBlock = c.getParent(), entry = d.entry, exit = d.exit;
+        PhiInst ret = d.ret;
+        if (ret != null) {
+            c.replaceUseWith(ret);
+            Value v = ret.simplify();
+            if (v != null) {
+                ret.replaceUseWith(v);
+                ret.removeSelfAndDef();
             }
         }
-        if (blockCnt > maxBlockCnt || instCnt > maxInstCnt) {
-            return;
-        }
-        IRCloner cloner = new IRCloner(IntStream.range(0, c.args.size()).boxed().
-                collect(Collectors.toMap(callee::getArg, i -> c.args.get(i), (a, b) -> b, HashMap::new)));
-        int loopDepth = callBlock.loopDepth;
-        callee.basicBlockList.forEach(b -> cloner.setClone(b, BasicBlock.create(b.loopDepth + loopDepth, m, caller)));
-        BasicBlock entry = cloner.getClone(callee.getHead().get()), exit = BasicBlock.create(loopDepth, m, caller);
-        cloner.setClone(callee, exit);
-        PhiInst phi = null;
-        if (!callee.getRetType().isVoid()) {
-            c.replaceUseWith(phi = PhiInst.create(callee.getRetType(), exit));
-        }
-        callee.basicBlockList.forEach(b -> b.forEach(i -> i.getClone(cloner)));
-        cloner.phi.forEach(p -> p.blocks.forEach((b, v) -> ((PhiInst) cloner.getClone(p)).addIncoming(cloner.getClone(b), cloner.getClone(v))));
         exit.suc.addAll(callBlock.suc);
         callBlock.suc.forEach(s -> {
             s.pre.remove(callBlock);
@@ -89,12 +132,5 @@ public class Inliner {
         exit.terminate();
         c.removeSelfAndDef();
         BrInst.create(entry, callBlock, callBlock.getTail().get());
-        if (phi != null) {
-            Value v = phi.simplify();
-            if (v != null) {
-                phi.replaceUseWith(v);
-                phi.removeSelfAndDef();
-            }
-        }
     }
 }

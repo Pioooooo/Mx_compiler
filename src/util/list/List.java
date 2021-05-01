@@ -9,6 +9,19 @@ import java.util.stream.StreamSupport;
 public class List<NodeTy> implements Iterable<NodeTy> {
     ListNode<NodeTy> head, tail;
 
+    public List(ListNode<NodeTy> head, ListNode<NodeTy> tail) {
+        this.head = head;
+        this.tail = tail;
+    }
+
+    public List(List<NodeTy> o) {
+        this(o.head, o.tail);
+    }
+
+    public List() {
+        this(null, null);
+    }
+
     public ListIterator<NodeTy> add(ListNode<NodeTy> e) {
         if (head == null) {
             head = tail = e;

@@ -22,7 +22,7 @@ public class ListIterator<NodeTy> implements java.util.ListIterator<NodeTy> {
 
     @Override
     public boolean hasNext() {
-        return cur != null;
+        return list.tail != null && cur != list.tail.getNext();
     }
 
     @Override
