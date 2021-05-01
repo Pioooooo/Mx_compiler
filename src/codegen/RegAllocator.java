@@ -432,6 +432,13 @@ public class RegAllocator {
             ListIterator<AsmInst> it = b.instList.getHead();
             while (it.hasNext()) {
                 AsmInst inst = it.next();
+                if (inst instanceof Mv && spilledNodes.contains(((Mv) inst).reg) && spilledNodes.contains(((Mv) inst).src)) {
+                    VReg tmp = VReg.create();
+                    Load.createW(tmp, root.getPReg("sp"), Immediate.create(offset.get(((Mv) inst).src)), inst);
+                    Store.createW(tmp, root.getPReg("sp"), Immediate.create(offset.get(((Mv) inst).reg)), inst);
+                    inst.removeSelf();
+                    continue;
+                }
                 inst.getUse().forEach(n -> {
                     if (spilledNodes.contains(n)) {
                         if (inst instanceof Mv) {

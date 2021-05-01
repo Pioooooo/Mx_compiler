@@ -554,7 +554,6 @@ public class IRBuilder implements AstVisitor<Value> {
             }
             case ASSIGN -> {
                 l = n.lhs.accept(this);
-                n.rhs.ptr = l;
                 r = n.rhs.accept(this);
                 return branchAdd(n, builder.createAssign(l, r));
             }

@@ -16,7 +16,7 @@ public class IRPrinter {
         this.o = o;
         m.builtinFunctions.values().forEach(f -> printFunction(f, true));
         o.println();
-        m.structTypes.values().forEach(this::printType);
+        m.namedStructTypes.values().stream().filter(t -> t instanceof StructType).map(t -> (StructType) t).forEach(this::printType);
         o.println();
         m.globals.forEach(this::printGlobal);
         m.constantStrings.values().forEach(this::printConstantString);

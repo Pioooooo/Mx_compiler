@@ -1,5 +1,6 @@
 package asm;
 
+import asm.inst.J;
 import ir.values.GlobalPointer;
 import ir.values.GlobalString;
 
@@ -32,7 +33,12 @@ public class AsmPrinter {
 
     public void printBlock(AsmBlock block) {
         o.println(block.name + ":");
-        block.instList.forEach(i -> o.println("\t" + i));
+        block.instList.forEach(i -> {
+            if (i instanceof J && ((J) i).dest == block.next) {
+                return;
+            }
+            o.println("\t" + i);
+        });
     }
 
     void printGlobal(GlobalPointer g) {

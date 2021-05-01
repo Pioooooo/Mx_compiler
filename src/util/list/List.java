@@ -55,6 +55,10 @@ public class List<NodeTy> implements Iterable<NodeTy> {
         }
     }
 
+    public void clear() {
+        head = tail = null;
+    }
+
     public ListIterator<NodeTy> insertBefore(ListNode<NodeTy> i, ListNode<NodeTy> e) {
         if (i == null) {
             return add(e);

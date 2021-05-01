@@ -38,7 +38,7 @@ public class AsmBuilder {
         root.functions = functions;
     }
 
-    public void run(Function f) {
+    void run(Function f) {
         currentFunction = get(f);
         currentFunction.built = true;
         currentBlock = get(f.getHead().get());
@@ -120,7 +120,7 @@ public class AsmBuilder {
         currentBlock = null;
     }
 
-    public void run(Inst inst) {
+    void run(Inst inst) {
         if (inst instanceof AllocaInst) {
             ((AllocaInst) inst).offset = currentFunction.spOffset;
             if (currentFunction.spOffset >= 2048) {
@@ -209,18 +209,18 @@ public class AsmBuilder {
             if (inst != inst.getParent().getHead().get() && inst.getPrev() instanceof Icmp && inst.getPrev() == ((BrInst) inst).cond) {
                 Icmp cmp = (Icmp) inst.getPrev();
                 Branch.OpType op = switch (cmp.op) {
-                    case slt -> Branch.OpType.blt;
-                    case sgt -> Branch.OpType.bgt;
-                    case sle -> Branch.OpType.ble;
-                    case sge -> Branch.OpType.bge;
-                    case eq -> Branch.OpType.beq;
-                    case ne -> Branch.OpType.bne;
+                    case slt -> Branch.OpType.bge;
+                    case sgt -> Branch.OpType.ble;
+                    case sle -> Branch.OpType.bgt;
+                    case sge -> Branch.OpType.blt;
+                    case eq -> Branch.OpType.bne;
+                    case ne -> Branch.OpType.beq;
                 };
-                Branch.create(op, getReg(cmp.lhs), getReg(cmp.rhs), get(((BrInst) inst).trueDest), currentBlock);
+                Branch.create(op, getReg(cmp.lhs), getReg(cmp.rhs), get(((BrInst) inst).falseDest), currentBlock);
             } else {
                 Branch.create(Branch.OpType.bne, getReg(((BrInst) inst).cond), root.getPReg("zero"), get(((BrInst) inst).trueDest), currentBlock);
             }
-            J.create(get(((BrInst) inst).falseDest), currentBlock);
+            J.create(get(((BrInst) inst).trueDest), currentBlock);
             return;
         }
         if (inst instanceof CallInst) {
@@ -333,7 +333,7 @@ public class AsmBuilder {
         throw new InternalError("unrecognized inst");
     }
 
-    public void assign(Register reg, Value val) {
+    void assign(Register reg, Value val) {
         if (val instanceof Inst || val instanceof GlobalPointer || val instanceof Argument) {
             Mv.create(reg, getReg(val), currentBlock);
         } else if (val instanceof GlobalString) {

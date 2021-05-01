@@ -5,6 +5,7 @@ import asm.AsmRoot;
 import ast.AstPrinter;
 import ast.Nodes;
 import codegen.AsmBuilder;
+import codegen.BlockRearrange;
 import codegen.RegAllocator;
 import frontend.AstBuilder;
 import frontend.SemanticChecker;
@@ -27,7 +28,6 @@ import picocli.CommandLine.Parameters;
 import recognizer.MxLexer;
 import recognizer.MxParser;
 import transforms.Optimizer;
-import transforms.SCCP;
 import transforms.util.CleanUp;
 import transforms.util.MemToReg;
 import util.MxErrorListener;
@@ -113,6 +113,7 @@ public class PioMxCompiler implements Callable<Integer> {
             AsmRoot asmRoot = new AsmRoot();
             new AsmBuilder(module, asmRoot).run();
             new RegAllocator(asmRoot).run();
+            new BlockRearrange(asmRoot).run();
             new AsmPrinter().print(asmRoot, out == null ?
                     new PrintStream(new FileOutputStream((input == null ? "a" : input.getAbsolutePath()) + ".s"))
                     : out);
