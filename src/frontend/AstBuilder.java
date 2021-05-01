@@ -342,6 +342,8 @@ public class AstBuilder extends MxBaseVisitor<AstNode> {
             ArrayList<VarDefSubNode> defList = new ArrayList<>();
             if (ctx.initDeclaratorList() != null) {
                 ctx.initDeclaratorList().initDeclarator().forEach(x -> defList.add((VarDefSubNode) visit(x)));
+                int dim = defList.get(0).dim;
+                defList.forEach(x -> x.dim = dim);
             }
             return new VarDefStmtNode(new Position(ctx), (TypeNode) visit(ctx.typeSpecifier()), defList);
         } else {
@@ -408,7 +410,9 @@ public class AstBuilder extends MxBaseVisitor<AstNode> {
                     x.simpleDeclaration().initDeclaratorList().initDeclarator().forEach(
                             y -> varList.add(new ParamDefSubNode(new Position(y),
                                     (TypeNode) visit(x.simpleDeclaration().typeSpecifier()),
-                                    y.declarator().idExpression().getText(), y.declarator().LEFT_BRACKET().size(),
+                                    y.declarator().idExpression().getText(),
+                                    x.simpleDeclaration().initDeclaratorList().initDeclarator().get(0)
+                                            .declarator().LEFT_BRACKET().size(),
                                     null)));
                 } else if (x.functionDefinition().simpleTypeSpecifier() != null) {
                     funcList.add((FuncDefStmtNode) visit(x));

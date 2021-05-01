@@ -5,6 +5,8 @@ import ir.*;
 import ir.inst.BrInst;
 import ir.inst.LoadInst;
 import ir.inst.PhiInst;
+import ir.inst.StoreInst;
+import ir.values.GlobalPointer;
 import transforms.util.DominatorTree;
 import util.error.InternalError;
 
@@ -126,12 +128,19 @@ public class LICM {
         if (!(i instanceof Inst)) {
             return false;
         }
-        if (i instanceof LoadInst) {
+        if (!(loopBlocks.contains(((Inst) i).getParent()) && ((Inst) i).noSideEffect() && !(i instanceof PhiInst)
+                && i.getDef().stream().filter(d -> d instanceof Inst)
+                .noneMatch(d -> loopBlocks.contains(((Inst) d).getParent())))) {
             return false;
         }
-        return loopBlocks.contains(((Inst) i).getParent()) && ((Inst) i).noSideEffect() && !(i instanceof PhiInst)
-                && i.getDef().stream().filter(d -> d instanceof Inst)
-                .noneMatch(d -> loopBlocks.contains(((Inst) d).getParent()));
+        if (!(i instanceof LoadInst)) {
+            return true;
+        }
+        LoadInst l = (LoadInst) i;
+        if (l.ptr instanceof GlobalPointer) {
+            return l.ptr.getUse().stream().filter(u -> u instanceof StoreInst).noneMatch(u -> loopBlocks.contains(u.getParent()));
+        }
+        return false;
     }
 
     HashSet<BasicBlock> collectLoop(BasicBlock head, HashSet<BasicBlock> tails) {
