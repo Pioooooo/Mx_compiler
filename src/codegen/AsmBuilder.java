@@ -372,7 +372,13 @@ public class AsmBuilder {
     Register getReg(Value val, AsmInst insertBefore) {
         if (val instanceof GlobalPointer) {
             if (val instanceof ConstantPointerNull) {
-                return root.getPReg("zero");
+                VReg tmp = VReg.create();
+                if (insertBefore != null) {
+                    Li.create(tmp, Immediate.create(0), insertBefore);
+                } else {
+                    Li.create(tmp, Immediate.create(0), currentBlock);
+                }
+                return tmp;
             }
             throw new InternalError("calling getReg on GlobalPointer");
         }
