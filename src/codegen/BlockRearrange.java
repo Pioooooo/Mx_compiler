@@ -5,7 +5,6 @@ import asm.AsmFunction;
 import asm.AsmRoot;
 import asm.inst.Branch;
 import asm.inst.J;
-import asm.inst.Ret;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,11 +38,11 @@ public class BlockRearrange {
                 fixed.add(b);
                 seq.add(b);
                 var i = b.getTail().previous();
-                if (i instanceof Ret) {
-                    break;
-                }
                 if (i.getPrev() != null && i.getPrev().get() instanceof Branch) {
                     worklist.add(((Branch) i.getPrev().get()).dest);
+                }
+                if (!(i instanceof J)) {
+                    break;
                 }
                 b = ((J) i).dest;
             }
