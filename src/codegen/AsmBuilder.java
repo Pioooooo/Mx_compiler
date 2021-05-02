@@ -283,8 +283,8 @@ public class AsmBuilder {
                 Calc.createI(getReg(inst), Calc.OpType.addi, ptrVal, Immediate.create(offset), currentBlock);
             } else {
                 VReg tmp = VReg.create();
-                Calc.createI(tmp, Calc.OpType.mul, getReg(ConstantInt.get(type.m, 32, type.size() / 8)),
-                        getReg(((GetElementPtrInst) inst).indexes.get(0)), currentBlock);
+                Calc.createI(tmp, Calc.OpType.sll,
+                        getReg(((GetElementPtrInst) inst).indexes.get(0)), getReg(ConstantInt.get(type.m, 32, log2(type.size() / 8))), currentBlock);
                 if (offset == 0) {
                     Calc.createI(getReg(inst), Calc.OpType.add, ptrVal, tmp, currentBlock);
                 } else {
@@ -410,5 +410,26 @@ public class AsmBuilder {
             Li.create(tmp, Immediate.create(value), currentBlock);
         }
         return tmp;
+    }
+
+    int log2(int n) {
+        int log = 0;
+        if ((n & 0xffff0000) != 0) {
+            n >>>= 16;
+            log = 16;
+        }
+        if ((n & 0xff00) != 0) {
+            n >>>= 8;
+            log += 8;
+        }
+        if ((n & 0xf0) != 0) {
+            n >>>= 4;
+            log += 4;
+        }
+        if (n >= 4) {
+            n >>>= 2;
+            log += 2;
+        }
+        return log + (n >>> 1);
     }
 }
