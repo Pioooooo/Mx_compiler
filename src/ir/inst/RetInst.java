@@ -14,6 +14,7 @@ public class RetInst extends Terminator {
     RetInst(Value val, BasicBlock basicBlock, Inst inst) {
         super(Type.getVoidTy(basicBlock.getContext()), basicBlock, inst);
         this.val = val;
+        getParent().getParent().rets.add(this);
         if (val != null) {
             val.addUse(this);
         }
@@ -22,6 +23,7 @@ public class RetInst extends Terminator {
     RetInst(Value val, BasicBlock basicBlock) {
         super(Type.getVoidTy(basicBlock.getContext()), basicBlock);
         this.val = val;
+        getParent().getParent().rets.add(this);
         if (val != null) {
             val.addUse(this);
         }
@@ -30,6 +32,7 @@ public class RetInst extends Terminator {
     RetInst(Value val, Inst inst) {
         super(Type.getVoidTy(inst.getContext()), inst);
         this.val = val;
+        getParent().getParent().rets.add(this);
         if (val != null) {
             val.addUse(this);
         }
@@ -89,5 +92,11 @@ public class RetInst extends Terminator {
     @Override
     public String getFullInst() {
         return "ret " + (val == null ? "void" : val.getType() + " " + val);
+    }
+
+    @Override
+    public void removeSelf() {
+        super.removeSelf();
+        getParent().getParent().rets.remove(this);
     }
 }

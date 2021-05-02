@@ -5,8 +5,7 @@ import ir.*;
 import ir.inst.BrInst;
 import ir.inst.LoadInst;
 import ir.inst.PhiInst;
-import ir.inst.StoreInst;
-import ir.values.GlobalPointer;
+import transforms.util.AliasAnalysis;
 import transforms.util.DominatorTree;
 import util.error.InternalError;
 
@@ -24,10 +23,13 @@ public class LICM {
     }
 
     public void run() {
+        alias = new AliasAnalysis(m);
+        alias.run();
         m.functions.values().forEach(this::run);
     }
 
     DominatorTree dom;
+    AliasAnalysis alias;
     HashSet<BasicBlock> loopBlocks;
 
     void run(Function f) {
@@ -136,11 +138,7 @@ public class LICM {
         if (!(i instanceof LoadInst)) {
             return true;
         }
-        LoadInst l = (LoadInst) i;
-        if (l.ptr instanceof GlobalPointer) {
-            return l.ptr.getUse().stream().filter(u -> u instanceof StoreInst).noneMatch(u -> loopBlocks.contains(u.getParent()));
-        }
-        return false;
+        return alias.noConflict(loopBlocks, (LoadInst) i);
     }
 
     HashSet<BasicBlock> collectLoop(BasicBlock head, HashSet<BasicBlock> tails) {

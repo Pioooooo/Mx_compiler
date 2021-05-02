@@ -3,6 +3,7 @@ package ir;
 import asm.AsmFunction;
 import ir.inst.AllocaInst;
 import ir.inst.CallInst;
+import ir.inst.RetInst;
 import ir.type.FunctionType;
 import ir.values.Argument;
 import util.IRCloner;
@@ -24,6 +25,7 @@ public class Function extends Value implements ListNodeWithParent<Function, Modu
     public List<BasicBlock> basicBlockList = new List<>();
     public HashSet<AllocaInst> allocas = new HashSet<>();
     public HashSet<CallInst> calls = new HashSet<>();
+    public HashSet<RetInst> rets = new HashSet<>();
     public AsmFunction asmFunction;
     int blockCnt = 0;
     boolean noSideEffect = false;

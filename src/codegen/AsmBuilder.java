@@ -15,6 +15,10 @@ import util.error.InternalError;
 
 import java.util.HashMap;
 
+import static java.lang.Math.min;
+import static util.Math.log2;
+import static util.Math.powOf2;
+
 public class AsmBuilder {
     Module m;
     AsmRoot root;
@@ -52,7 +56,7 @@ public class AsmBuilder {
         VReg tmp = VReg.create();
         currentFunction.raSaveVReg = tmp;
         Mv.create(tmp, root.getPReg("ra"), currentBlock);
-        for (int i = 0; i < Math.min(currentFunction.args.size(), 8); i++) {
+        for (int i = 0; i < min(currentFunction.args.size(), 8); i++) {
             Mv.create(currentFunction.args.get(i), root.getPReg("a" + i), currentBlock);
         }
         if (currentFunction.args.size() > 8) {
@@ -283,8 +287,14 @@ public class AsmBuilder {
                 Calc.createI(getReg(inst), Calc.OpType.addi, ptrVal, Immediate.create(offset), currentBlock);
             } else {
                 VReg tmp = VReg.create();
-                Calc.createI(tmp, Calc.OpType.sll,
-                        getReg(((GetElementPtrInst) inst).indexes.get(0)), getReg(ConstantInt.get(type.m, 32, log2(type.size() / 8))), currentBlock);
+                int size = type.size() / 8;
+                if (powOf2(size)) {
+                    Calc.createI(tmp, Calc.OpType.sll, getReg(((GetElementPtrInst) inst).indexes.get(0)),
+                            getReg(ConstantInt.get(type.m, 32, log2(size))), currentBlock);
+                } else {
+                    Calc.createI(tmp, Calc.OpType.mul, getReg(((GetElementPtrInst) inst).indexes.get(0)),
+                            getReg(ConstantInt.get(type.m, 32, size)), currentBlock);
+                }
                 if (offset == 0) {
                     Calc.createI(getReg(inst), Calc.OpType.add, ptrVal, tmp, currentBlock);
                 } else {
@@ -416,26 +426,5 @@ public class AsmBuilder {
             Li.create(tmp, Immediate.create(value), currentBlock);
         }
         return tmp;
-    }
-
-    int log2(int n) {
-        int log = 0;
-        if ((n & 0xffff0000) != 0) {
-            n >>>= 16;
-            log = 16;
-        }
-        if ((n & 0xff00) != 0) {
-            n >>>= 8;
-            log += 8;
-        }
-        if ((n & 0xf0) != 0) {
-            n >>>= 4;
-            log += 4;
-        }
-        if (n >= 4) {
-            n >>>= 2;
-            log += 2;
-        }
-        return log + (n >>> 1);
     }
 }

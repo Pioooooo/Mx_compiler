@@ -46,6 +46,10 @@ public class Type {
         return id == TypeID.PointerTyID;
     }
 
+    public boolean isMemoryPointer() {
+        return isPointer() && !isResolvable();
+    }
+
     public boolean isResolvable() {
         return false;
     }

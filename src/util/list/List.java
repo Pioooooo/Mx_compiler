@@ -45,6 +45,9 @@ public class List<NodeTy> implements Iterable<NodeTy> {
                 tail.setNext(null);
             }
         }
+        if (head == e) {
+            head = e.getNext();
+        }
         if (e.getPrev() != null) {
             e.getPrev().setNext(e.getNext());
         } else {
@@ -52,6 +55,9 @@ public class List<NodeTy> implements Iterable<NodeTy> {
             if (head != null) {
                 head.setPrev(null);
             }
+        }
+        if (tail == e) {
+            tail = e.getPrev();
         }
     }
 

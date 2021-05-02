@@ -8,6 +8,9 @@ import util.IRCloner;
 
 import java.util.HashSet;
 
+import static util.Math.log2;
+import static util.Math.powOf2;
+
 public class Binary extends Inst {
     public enum OpType {
         mul, sdiv, srem, shl, ashr, and, or, xor, sub, add;
@@ -111,9 +114,8 @@ public class Binary extends Inst {
                 case add -> ((ConstantInt) lhs).val + ((ConstantInt) rhs).val;
             };
             return ConstantInt.get(getContext(), type.size(), val);
-        } else {
-            return algebraicSimplify();
         }
+        return algebraicSimplify();
     }
 
     Inst algebraicSimplify() {
@@ -178,8 +180,32 @@ public class Binary extends Inst {
             return Binary.create(src, ConstantInt.get(getContext(), 32, a ^ b), OpType.xor, getParent(), this);
         } else if (op == OpType.shl && binary.op == OpType.shl) {
             return Binary.create(src, ConstantInt.get(getContext(), 32, a + b), OpType.shl, getParent(), this);
-        } else if (op == OpType.shl && binary.op == OpType.ashr) {
+        } else if (op == OpType.ashr && binary.op == OpType.ashr) {
             return Binary.create(src, ConstantInt.get(getContext(), 32, a + b), OpType.ashr, getParent(), this);
+        }
+        return strengthReduction();
+    }
+
+    Inst strengthReduction() {
+        Value src;
+        int val;
+        if (lhs instanceof ConstantInt && op.commutable()) {
+            src = rhs;
+            val = ((ConstantInt) lhs).val;
+        } else if (rhs instanceof ConstantInt) {
+            src = lhs;
+            val = ((ConstantInt) rhs).val;
+        } else {
+            return null;
+        }
+        if (powOf2(val)) {
+            if (op == OpType.mul) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, log2(val)), OpType.shl, this);
+            } else if (op == OpType.sdiv) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, log2(val)), OpType.ashr, this);
+            } else if (op == OpType.srem) {
+                return Binary.create(src, ConstantInt.get(getContext(), 32, val - 1), OpType.and, this);
+            }
         }
         return null;
     }
